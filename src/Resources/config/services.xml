@@ -1,0 +1,81 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="ApiExtension\ServiceContainer\ApiConfigurator" class="ApiExtension\ServiceContainer\ApiConfigurator" public="false">
+            <argument type="service" id="symfony2_extension.kernel" />
+            <argument type="collection" />
+        </service>
+
+        <service id="ApiExtension\Context\Argument\ArgumentResolver" class="ApiExtension\Context\Argument\ArgumentResolver" public="false">
+            <argument type="service" id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" />
+            <argument type="service" id="ApiExtension\Helper\UriHelper" />
+            <argument type="service" id="ApiExtension\Populator\Populator" />
+            <tag name="context.argument_resolver" />
+        </service>
+
+        <service id="ApiExtension\Helper\UriHelper" class="ApiExtension\Helper\UriHelper" public="true">
+            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
+        </service>
+
+        <service id="ApiExtension\Populator\Populator" class="ApiExtension\Populator\Populator" public="true">
+            <argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />
+            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
+        </service>
+
+        <service id="Faker\Generator" class="Faker\Generator" public="true">
+            <factory class="Faker\Factory" method="create" />
+            <argument>%coop_tilleuls.api_extension.default_locale%</argument>
+        </service>
+
+        <!-- Schema generators -->
+        <service id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" class="ApiExtension\SchemaGenerator\SchemaGeneratorChain" public="true">
+            <argument type="collection" />
+        </service>
+
+        <service id="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" class="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" public="false">
+            <argument type="service" id="ApiExtension\Helper\UriHelper" />
+            <tag name="coop_tilleuls.api_extension.schema_generator" />
+        </service>
+
+        <service id="ApiExtension\SchemaGenerator\ItemSchemaGenerator" class="ApiExtension\SchemaGenerator\ItemSchemaGenerator" public="false">
+            <tag name="coop_tilleuls.api_extension.schema_generator" />
+        </service>
+
+        <service id="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" class="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" public="false">
+            <tag name="coop_tilleuls.api_extension.schema_generator" />
+        </service>
+
+        <!-- Guessers -->
+        <service id="ApiExtension\Populator\Guesser\AbstractGuesser" class="ApiExtension\Populator\Guesser\AbstractGuesser" public="false" abstract="true">
+            <argument type="service" id="Faker\Generator" />
+        </service>
+
+        <service id="ApiExtension\Populator\Guesser\BooleanGuesser" class="ApiExtension\Populator\Guesser\BooleanGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
+            <tag name="coop_tilleuls.api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Populator\Guesser\DatetimeGuesser" class="ApiExtension\Populator\Guesser\DatetimeGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
+            <tag name="coop_tilleuls.api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Populator\Guesser\DecimalGuesser" class="ApiExtension\Populator\Guesser\DecimalGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
+            <tag name="coop_tilleuls.api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Populator\Guesser\IntegerGuesser" class="ApiExtension\Populator\Guesser\IntegerGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
+            <tag name="coop_tilleuls.api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Populator\Guesser\StringGuesser" class="ApiExtension\Populator\Guesser\StringGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
+            <tag name="coop_tilleuls.api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Populator\Guesser\GuesserChain" class="ApiExtension\Populator\Guesser\GuesserChain" public="true">
+            <argument type="collection" />
+        </service>
+    </services>
+</container>

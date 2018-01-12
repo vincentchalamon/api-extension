@@ -1,0 +1,26 @@
+{
+    "name": "vincentchalamon/api-extension",
+    "description": "Behat extension for API Platform",
+    "authors": [
+        {
+            "name": "Vincent Chalamon",
+            "email": "vincentchalamon@gmail.com"
+        }
+    ],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.1"
+    },
+    "config": {
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "ApiExtension\\": "src/"
+        }
+    }
+}
