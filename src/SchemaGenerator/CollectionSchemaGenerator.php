@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
 
-use ApiExtension\Helper\UriHelper;
+use ApiExtension\Helper\ApiHelper;
 
 /**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
+ * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class CollectionSchemaGenerator implements SchemaGeneratorInterface, SchemaGeneratorAwareInterface
 {
@@ -24,7 +24,7 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
 
     private $helper;
 
-    public function __construct(UriHelper $helper)
+    public function __construct(ApiHelper $helper)
     {
         $this->helper = $helper;
     }

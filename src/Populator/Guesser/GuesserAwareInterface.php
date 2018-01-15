@@ -16,9 +16,7 @@ namespace ApiExtension\Populator\Guesser;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-interface GuesserInterface
+interface GuesserAwareInterface
 {
-    public function supports(array $mapping): bool;
-
-    public function getValue(array $mapping);
+    public function setGuesser(GuesserInterface $guesser): void;
 }

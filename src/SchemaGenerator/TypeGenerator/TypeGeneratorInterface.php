@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace ApiExtension\Populator\Guesser;
+namespace ApiExtension\SchemaGenerator\TypeGenerator;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-interface GuesserInterface
+interface TypeGeneratorInterface
 {
-    public function supports(array $mapping): bool;
+    public function supports(string $property, array $mapping, array $context = []): bool;
 
-    public function getValue(array $mapping);
+    public function generate(string $property, array $mapping, array $context = []): array;
 }

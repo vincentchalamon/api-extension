@@ -16,9 +16,15 @@ namespace ApiExtension\Populator\Guesser;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-interface GuesserInterface
+class DateTimeGuesser extends AbstractGuesser
 {
-    public function supports(array $mapping): bool;
+    public function supports(array $mapping): bool
+    {
+        return in_array($mapping['type'], ['datetime', 'date', 'time'], true);
+    }
 
-    public function getValue(array $mapping);
+    public function getValue(array $mapping): string
+    {
+        return (new \DateTime())->format('c');
+    }
 }

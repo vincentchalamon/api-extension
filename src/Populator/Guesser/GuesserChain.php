@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,18 +13,28 @@ declare(strict_types=1);
 
 namespace ApiExtension\Populator\Guesser;
 
+use ApiExtension\Exception\GuesserNotFoundException;
+use Faker\Generator;
+
 /**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
+ * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-final class GuesserChain implements GuesserInterface
+final class GuesserChain extends AbstractGuesser
 {
     /**
      * @var GuesserInterface[]
      */
     private $guessers;
 
-    public function __construct(array $guessers)
+    public function __construct(Generator $faker, array $guessers)
     {
+        parent::__construct($faker);
+
+        foreach ($guessers as $guesser) {
+            if ($guesser instanceof GuesserAwareInterface) {
+                $guesser->setGuesser($this);
+            }
+        }
         $this->guessers = $guessers;
     }
 
@@ -41,7 +51,6 @@ final class GuesserChain implements GuesserInterface
             }
         }
 
-        // todo Custom exception
-        throw new \Exception();
+        throw new GuesserNotFoundException('No guesser found for mapping: '.print_r($mapping, true));
     }
 }

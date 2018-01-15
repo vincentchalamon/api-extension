@@ -16,15 +16,19 @@ namespace ApiExtension\Populator\Guesser;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-class DecimalGuesser extends AbstractGuesser
+class FakerGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return 'decimal' === $mapping['type'];
+        try {
+            return null !== $mapping['fieldName'] && $this->faker->getFormatter($mapping['fieldName']);
+        } catch (\InvalidArgumentException $exception) {
+            return false;
+        }
     }
 
-    public function getValue(array $mapping): string
+    public function getValue(array $mapping)
     {
-        return (string) $this->faker->randomFloat($mapping['scale'] ?? 0, 0, $mapping['precision'] ?? null);
+        return $this->faker->format($mapping['fieldName']);
     }
 }

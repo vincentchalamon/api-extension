@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,16 +15,21 @@ namespace ApiExtension\ServiceContainer;
 
 use ApiExtension\Populator\Guesser\GuesserChain;
 use ApiExtension\SchemaGenerator\SchemaGeneratorChain;
+use ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain;
+use ApiExtension\Transformer\TransformerChain;
 use Behat\Testwork\ServiceContainer\Extension as ExtensionInterface;
 use Behat\Testwork\ServiceContainer\ExtensionManager;
+use Faker\Generator;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Compiler\PriorityTaggedServiceTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
+ * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class ApiExtension implements ExtensionInterface
 {
@@ -78,7 +83,11 @@ final class ApiExtension implements ExtensionInterface
                             ->isRequired()
                         ->end()
                     ->end()
-                ->end('services')
+                ->end()
+                ->arrayNode('providers')
+                    ->info('A list of Faker providers')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
     }
 
@@ -89,9 +98,16 @@ final class ApiExtension implements ExtensionInterface
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $container->getDefinition(SchemaGeneratorChain::class)->setArgument('$schemaGenerators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator', $container));
+        $container->getDefinition(SchemaGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator', $container));
+        $container->getDefinition(TransformerChain::class)->setArgument('$transformers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.transformer', $container));
+        $container->getDefinition(TypeGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator.type', $container));
         $container->getDefinition(GuesserChain::class)->setArgument('$guessers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.guesser', $container));
         $container->getDefinition(ApiConfigurator::class)->setArgument('$parameters', $config['services']);
+
+        foreach ($config['providers'] as $class) {
+            $container->setDefinition($class, new Definition($class, [new Reference(Generator::class)]));
+            $container->getDefinition(Generator::class)->addMethodCall('addProvider', [new Reference($class)]);
+        }
     }
 
     public function process(ContainerBuilder $container)

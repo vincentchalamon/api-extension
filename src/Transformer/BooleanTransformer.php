@@ -11,20 +11,20 @@
 
 declare(strict_types=1);
 
-namespace ApiExtension\Populator\Guesser;
+namespace ApiExtension\Transformer;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-class DecimalGuesser extends AbstractGuesser
+final class BooleanTransformer implements TransformerInterface
 {
-    public function supports(array $mapping): bool
+    public function supports(string $property, array $mapping, $value): bool
     {
-        return 'decimal' === $mapping['type'];
+        return 'boolean' === $mapping['type'];
     }
 
-    public function getValue(array $mapping): string
+    public function transform(string $property, array $mapping, $value): bool
     {
-        return (string) $this->faker->randomFloat($mapping['scale'] ?? 0, 0, $mapping['precision'] ?? null);
+        return 'true' === $value;
     }
 }

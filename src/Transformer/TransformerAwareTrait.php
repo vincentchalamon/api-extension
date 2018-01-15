@@ -11,14 +11,20 @@
 
 declare(strict_types=1);
 
-namespace ApiExtension\Populator\Guesser;
+namespace ApiExtension\Transformer;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-interface GuesserInterface
+trait TransformerAwareTrait
 {
-    public function supports(array $mapping): bool;
+    /**
+     * @var TransformerInterface
+     */
+    private $transformer;
 
-    public function getValue(array $mapping);
+    public function setTransformer(TransformerInterface $transformer): void
+    {
+        $this->transformer = $transformer;
+    }
 }

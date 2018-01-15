@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,6 +13,10 @@ declare(strict_types=1);
 
 namespace ApiExtension\Context;
 
+use ApiExtension\Exception\InvalidStatusCodeException;
+use ApiExtension\Helper\ApiHelper;
+use ApiExtension\Populator\Populator;
+use ApiExtension\SchemaGenerator\SchemaGeneratorInterface;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -21,15 +25,11 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\MinkContext;
 use Behatch\Context\JsonContext;
 use Behatch\Context\RestContext;
-use ApiExtension\Exception\InvalidStatusCodeException;
-use ApiExtension\Helper\UriHelper;
-use ApiExtension\Populator\Populator;
-use ApiExtension\SchemaGenerator\SchemaGeneratorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
+ * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class ApiContext implements Context
 {
@@ -52,8 +52,9 @@ final class ApiContext implements Context
     private $schemaGenerator;
     private $helper;
     private $populator;
+    private $lastRequestJson;
 
-    public function __construct(SchemaGeneratorInterface $schemaGenerator, UriHelper $helper, Populator $populator)
+    public function __construct(SchemaGeneratorInterface $schemaGenerator, ApiHelper $helper, Populator $populator)
     {
         $this->schemaGenerator = $schemaGenerator;
         $this->helper = $helper;
@@ -63,17 +64,18 @@ final class ApiContext implements Context
     /**
      * @BeforeScenario
      */
-    public function gatherContexts(BeforeScenarioScope $scope)
+    public function gatherContextsAndEmptyLastRequest(BeforeScenarioScope $scope)
     {
         /** @var InitializedContextEnvironment $environment */
         $environment = $scope->getEnvironment();
         $this->restContext = $environment->getContext(RestContext::class);
         $this->minkContext = $environment->getContext(MinkContext::class);
         $this->jsonContext = $environment->getContext(JsonContext::class);
+        $this->lastRequestJson = null;
     }
 
     /**
-     * @When /^I get a list of (?P<name>[A-z]+)$/
+     * @When /^I get a list of (?P<name>[A-z\-\_]+)$/
      */
     public function sendGetRequestToCollection(string $name): void
     {
@@ -82,51 +84,69 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I create (?:a|an) (?P<name>[A-z]+)(?: with:)?$/
+     * @When /^I create (?:a|an) (?P<name>[A-z\-\_]+)(?: with:)?$/
      */
-    public function sendPostRequestToCollection(string $name, TableNode $table = null): void
+    public function sendPostRequestToCollection(string $name, $data = null, bool $completeRequired = true): void
     {
         $values = [];
-        if (null !== $table) {
-            $rows = $table->getRows();
-            $values = array_combine(array_shift($rows), $rows[0]);
+        if (null !== $data) {
+            $values = $data;
+            if ($data instanceof TableNode) {
+                $rows = $data->getRows();
+                $values = array_combine(array_shift($rows), $rows[0]);
+            }
         }
         $reflectionClass = $this->helper->getReflectionClass($name);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody(Request::METHOD_POST, $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($values + $this->populator->getData($reflectionClass))], 0));
+        $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
+        $this->lastRequestJson = $values + ($completeRequired ? $this->populator->getData($reflectionClass) : []);
+        $this->restContext->iSendARequestToWithBody(Request::METHOD_POST, $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
     }
 
     /**
-     * @When /^I get (?:a|an|the same) (?P<name>[A-z]+)$/
+     * @When /^I get (?:a|an) (?P<name>[A-z\-\_]+)$/
      */
-    public function sendGetRequestToItem(string $name): void
+    public function sendGetRequestToItem(string $name, ?array $ids = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo(Request::METHOD_GET, $this->helper->getItemUri($this->helper->getReflectionClass($name)));
+        $this->restContext->iSendARequestTo(Request::METHOD_GET, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
     }
 
     /**
-     * @When /^I delete (?:a|an) (?P<name>[A-z]+)$/
+     * @When /^I delete (?:a|an) (?P<name>[A-z\-\_]+)$/
      */
-    public function sendDeleteRequestToItem(string $name): void
+    public function sendDeleteRequestToItem(string $name, ?array $ids = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo(Request::METHOD_DELETE, $this->helper->getItemUri($this->helper->getReflectionClass($name)));
+        $this->restContext->iSendARequestTo(Request::METHOD_DELETE, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
     }
 
     /**
-     * @When /^I update (?:a|an) (?P<name>[A-z]+)(?: with:)?$/
+     * @When /^I update (?:a|an) (?P<name>[A-z\-\_]+)$/
      */
-    public function sendPutRequestToItem(string $name, TableNode $table = null): void
+    public function sendPutRequestToItem(string $name, $data = null, bool $completeRequired = true, ?array $ids = null): void
     {
         $values = [];
-        if (null !== $table) {
-            $rows = $table->getRows();
-            $values = array_combine(array_shift($rows), $rows[0]);
+        if (null !== $data) {
+            $values = $data;
+            if ($data instanceof TableNode) {
+                $rows = $data->getRows();
+                $values = array_combine(array_shift($rows), $rows[0]);
+            }
         }
         $reflectionClass = $this->helper->getReflectionClass($name);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody(Request::METHOD_PUT, $this->helper->getItemUri($this->helper->getReflectionClass($name)), new PyStringNode([json_encode($values + $this->populator->getData($reflectionClass, 'put'))], 0));
+        $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
+        $this->lastRequestJson = $values + ($completeRequired ? $this->populator->getData($reflectionClass) : []);
+        $this->restContext->iSendARequestToWithBody(Request::METHOD_PUT, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+    }
+
+    /**
+     * @When /^I update (?:a|an) (?P<name>[A-z\-\_]+) with:$/
+     */
+    public function sendPutRequestToItemWithData(string $name, $data = null, ?array $ids = null): void
+    {
+        $this->sendPutRequestToItem($name, $data, false, $ids);
     }
 
     /**
@@ -156,7 +176,7 @@ final class ApiContext implements Context
     }
 
     /**
-     * @Then /^the (?P<name>[A-z]+) has been successfully deleted$/
+     * @Then /^the (?P<name>[A-z\-\_]+) has been successfully deleted$/
      */
     public function itemShouldHaveBeSuccessfullyDeleted(string $name): void
     {
@@ -165,25 +185,52 @@ final class ApiContext implements Context
     }
 
     /**
-     * @Then /^I see (?:a|an) (?P<name>[A-z]+)$/
+     * @Then /^I see (?:a|an) (?P<name>[A-z\-\_]+)$/
      */
-    public function validateItemJsonSchema(string $name): void
+    public function validateItemJsonSchema(string $name, string $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
             throw new InvalidStatusCodeException('Invalid status code: expecting between 200 and 300, got '.$statusCode);
         }
         $this->jsonContext->theResponseShouldBeInJson();
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]))], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($schema ?: $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]))], 0));
     }
 
     /**
-     * @Then /^I see a list of (?P<name>[A-z]+)$/
+     * @Then /^I see a list of (?P<name>[A-z\-\_]+)$/
      */
-    public function validateCollectionJsonSchema(string $name): void
+    public function validateCollectionJsonSchema(string $name, string $schema = null): void
     {
-        $this->minkContext->assertResponseStatus(200);
+        $statusCode = $this->minkContext->getSession()->getStatusCode();
+        if (200 > $statusCode || 300 <= $statusCode) {
+            throw new InvalidStatusCodeException('Invalid status code: expecting between 200 and 300, got '.$statusCode);
+        }
         $this->jsonContext->theResponseShouldBeInJson();
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]))], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($schema ?: $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]))], 0));
+    }
+
+    /**
+     * @Then /^print (?P<name>[A-z\-\_]+) JSON schema$/
+     */
+    public function printCollectionJsonSchema(string $name): void
+    {
+        echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]), JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * @Then /^print (?P<name>[A-z\-\_]+) item JSON schema$/
+     */
+    public function printItemJsonSchema(string $name): void
+    {
+        echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]), JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * @Then /^print last JSON request$/
+     */
+    public function printJsonData(): void
+    {
+        echo json_encode($this->lastRequestJson, JSON_PRETTY_PRINT);
     }
 }

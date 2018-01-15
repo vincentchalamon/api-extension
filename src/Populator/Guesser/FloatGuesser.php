@@ -16,9 +16,15 @@ namespace ApiExtension\Populator\Guesser;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-interface GuesserInterface
+class FloatGuesser extends AbstractGuesser
 {
-    public function supports(array $mapping): bool;
+    public function supports(array $mapping): bool
+    {
+        return 'float' === $mapping['type'];
+    }
 
-    public function getValue(array $mapping);
+    public function getValue(array $mapping): float
+    {
+        return $this->faker->randomFloat($mapping['scale'] ?? 0, 0, $mapping['precision'] ?? null);
+    }
 }

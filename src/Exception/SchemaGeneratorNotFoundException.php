@@ -11,14 +11,11 @@
 
 declare(strict_types=1);
 
-namespace ApiExtension\Populator\Guesser;
+namespace ApiExtension\Exception;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-interface GuesserInterface
+final class SchemaGeneratorNotFoundException extends \RuntimeException
 {
-    public function supports(array $mapping): bool;
-
-    public function getValue(array $mapping);
 }

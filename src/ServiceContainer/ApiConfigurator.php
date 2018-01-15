@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
+ * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class ApiConfigurator
 {
@@ -40,12 +40,14 @@ final class ApiConfigurator
             if (!method_exists($service, $methodName)) {
                 continue;
             }
-
-            if (preg_match('/^%(.*)%$/', $value, $matches)) {
-                call_user_func([$service, $methodName], $this->container->getParameter($matches[1]));
-            } else {
-                call_user_func([$service, $methodName], $this->container->get('@' === substr($value, 0, 1) ? substr($value, 1) : $value));
+            if (is_scalar($value)) {
+                if (preg_match('/^%(.*)%$/', $value, $matches)) {
+                    $value = $this->container->getParameter($matches[1]);
+                } else {
+                    $value = $this->container->get('@' === substr($value, 0, 1) ? substr($value, 1) : $value);
+                }
             }
+            call_user_func([$service, $methodName], $value);
         }
     }
 }

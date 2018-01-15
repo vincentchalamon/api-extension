@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
+ * (c) Vincent Chalamon <vincentchalamon@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,24 +13,26 @@ declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
 
+use ApiExtension\Exception\SchemaGeneratorNotFoundException;
+
 /**
- * @author Vincent Chalamon <vincent@les-tilleuls.coop>
+ * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class SchemaGeneratorChain implements SchemaGeneratorInterface
 {
     /**
      * @var SchemaGeneratorInterface[]
      */
-    private $schemaGenerators;
+    private $generators;
 
-    public function __construct(array $schemaGenerators)
+    public function __construct(array $generators)
     {
-        foreach ($schemaGenerators as $schemaGenerator) {
-            if ($schemaGenerator instanceof SchemaGeneratorAwareInterface) {
-                $schemaGenerator->setSchemaGenerator($this);
+        foreach ($generators as $generator) {
+            if ($generator instanceof SchemaGeneratorAwareInterface) {
+                $generator->setSchemaGenerator($this);
             }
         }
-        $this->schemaGenerators = $schemaGenerators;
+        $this->generators = $generators;
     }
 
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
@@ -40,13 +42,12 @@ final class SchemaGeneratorChain implements SchemaGeneratorInterface
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
-        foreach ($this->schemaGenerators as $schemaGenerator) {
+        foreach ($this->generators as $schemaGenerator) {
             if ($schemaGenerator->supports($reflectionClass, $context)) {
                 return $schemaGenerator->generate($reflectionClass, $context);
             }
         }
 
-        // todo Custom exception
-        throw new \Exception();
+        throw new SchemaGeneratorNotFoundException('No schema generator found for class '.$reflectionClass->getName());
     }
 }

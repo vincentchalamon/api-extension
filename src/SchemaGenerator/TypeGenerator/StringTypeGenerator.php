@@ -11,24 +11,25 @@
 
 declare(strict_types=1);
 
-namespace ApiExtension\Populator\Guesser;
+namespace ApiExtension\SchemaGenerator\TypeGenerator;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-class StringGuesser extends AbstractGuesser
+final class StringTypeGenerator implements TypeGeneratorInterface
 {
-    public function supports(array $mapping): bool
+    public function supports(string $property, array $mapping, array $context = []): bool
     {
         return in_array($mapping['type'], ['string', 'text'], true);
     }
 
-    public function getValue(array $mapping): string
+    public function generate(string $property, array $mapping, array $context = []): array
     {
-        if ('text' === $mapping['type']) {
-            return $this->faker->paragraph();
+        $type = ['type' => ['string']];
+        if (true === $mapping['nullable']) {
+            $type['type'][] = 'null';
         }
 
-        return $this->faker->text($mapping['length'] ?? 200);
+        return $type;
     }
 }
