@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,7 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
- * @author Vincent Chalamon <vincentchalamon@gmail.com>
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 final class ApiContext implements Context
 {
@@ -88,15 +88,20 @@ final class ApiContext implements Context
      */
     public function sendPostRequestToCollection(string $name, $data = null, bool $completeRequired = true): void
     {
+        $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
         if (null !== $data) {
             $values = $data;
             if ($data instanceof TableNode) {
                 $rows = $data->getRows();
                 $values = array_combine(array_shift($rows), $rows[0]);
+                foreach ($values as $property => $value) {
+                    if ('boolean' === ($this->helper->getMapping($reflectionClass->getName(), $property)['type'] ?? null)) {
+                        $values[$property] = 'true' === $value;
+                    }
+                }
             }
         }
-        $reflectionClass = $this->helper->getReflectionClass($name);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->lastRequestJson = $values + ($completeRequired ? $this->populator->getData($reflectionClass) : []);
@@ -126,15 +131,20 @@ final class ApiContext implements Context
      */
     public function sendPutRequestToItem(string $name, $data = null, bool $completeRequired = true, ?array $ids = null): void
     {
+        $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
         if (null !== $data) {
             $values = $data;
             if ($data instanceof TableNode) {
                 $rows = $data->getRows();
                 $values = array_combine(array_shift($rows), $rows[0]);
+                foreach ($values as $property => $value) {
+                    if ('boolean' === ($this->helper->getMapping($reflectionClass->getName(), $property)['type'] ?? null)) {
+                        $values[$property] = 'true' === $value;
+                    }
+                }
             }
         }
-        $reflectionClass = $this->helper->getReflectionClass($name);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->lastRequestJson = $values + ($completeRequired ? $this->populator->getData($reflectionClass) : []);
@@ -187,7 +197,7 @@ final class ApiContext implements Context
     /**
      * @Then /^I see (?:a|an) (?P<name>[A-z\-\_]+)$/
      */
-    public function validateItemJsonSchema(string $name, string $schema = null): void
+    public function validateItemJsonSchema(string $name, array $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
@@ -200,7 +210,7 @@ final class ApiContext implements Context
     /**
      * @Then /^I see a list of (?P<name>[A-z\-\_]+)$/
      */
-    public function validateCollectionJsonSchema(string $name, string $schema = null): void
+    public function validateCollectionJsonSchema(string $name, array $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {

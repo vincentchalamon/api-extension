@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
- * @author Vincent Chalamon <vincentchalamon@gmail.com>
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 final class ArgumentResolver implements ArgumentResolverInterface
 {
@@ -55,7 +55,7 @@ final class ArgumentResolver implements ArgumentResolverInterface
     {
         if (null !== ($constructor = $classReflection->getConstructor())) {
             foreach ($constructor->getParameters() as $parameter) {
-                if (null !== $parameter->getClass()) {
+                if (null !== $parameter->getClass() && !isset($arguments[$parameter->getName()])) {
                     foreach ($this->dependencies as $dependency) {
                         if (is_a($dependency, $parameter->getClass()->name, false)) {
                             $arguments[$parameter->name] = $dependency;

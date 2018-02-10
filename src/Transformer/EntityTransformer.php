@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 
 /**
- * @author Vincent Chalamon <vincentchalamon@gmail.com>
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 final class EntityTransformer implements TransformerInterface
 {
@@ -73,7 +73,7 @@ final class EntityTransformer implements TransformerInterface
 
     private function clean($value)
     {
-        $value = trim($value);
+        $value = trim((string) $value);
         if (empty($value)) {
             return '';
         }

@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@ use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
- * @author Vincent Chalamon <vincentchalamon@gmail.com>
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 final class Populator
 {
@@ -68,6 +68,7 @@ final class Populator
         $className = $reflectionClass->getName();
         $groups = $this->metadataFactory->create($className)->getCollectionOperationAttribute($method, 'denormalization_context', [], true)['groups'] ?? [];
         foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups]) as $property) {
+            // todo Filter with Assert\NotBlank Assert\NotNull
             $data[$property] = $this->guesser->getValue($this->helper->getMapping($className, $property));
             if (is_object($data[$property])) {
                 $data[$property] = $this->iriConverter->getIriFromItem($data[$property]);

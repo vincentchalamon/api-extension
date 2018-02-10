@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,7 +19,7 @@ use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
- * @author Vincent Chalamon <vincentchalamon@gmail.com>
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGeneratorAwareInterface
 {
@@ -76,7 +76,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         ];
 
         $context = [
-            'serializer_groups' => $this->metadataFactory->create($className)->getCollectionOperationAttribute('get', 'normalization_context', [], true)['groups'] ?? [],
+            'serializer_groups' => $this->metadataFactory->create($className)->getItemOperationAttribute('get', 'normalization_context', [], true)['groups'] ?? [],
         ];
         foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
             $schema['properties'][$property] = $this->typeGenerator->generate($property, $this->helper->getMapping($className, $property), $context);

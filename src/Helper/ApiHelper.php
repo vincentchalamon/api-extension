@@ -3,7 +3,7 @@
 /*
  * This file is part of the ApiExtension package.
  *
- * (c) Vincent Chalamon <vincentchalamon@gmail.com>
+ * (c) Vincent Chalamon <vincent@les-tilleuls.coop>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,7 +26,7 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\PropertyInfo\Type;
 
 /**
- * @author Vincent Chalamon <vincentchalamon@gmail.com>
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 final class ApiHelper
 {
@@ -126,6 +126,9 @@ final class ApiHelper
         } else {
             /** @var Type $type */
             $type = $this->propertyInfo->getTypes($className, $property)[0];
+            if (null === $type) {
+                throw new \RuntimeException('Cannot get type of field '.$className.'.'.$property);
+            }
             $mapping = [
                 'type' => $type->getBuiltinType(),
                 'nullable' => $type->isNullable(),
