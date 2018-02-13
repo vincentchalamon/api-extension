@@ -56,13 +56,13 @@ Both `phpunit` and `behat` are development dependencies and should be available 
 To launch unit tests:
 
 ```bash
-bin/phpunit
+vendor/bin/phpunit
 ```
 
 If you want coverage, you will need the `phpdbg` package and run:
 
 ```bash
-phpdbg -qrr bin/phpunit --coverage-html coverage
+phpdbg -qrr vendor/bin/phpunit --coverage-html coverage
 ```
 
 Sometimes there might be an error with too many open files when generating coverage. To fix this, you can increase the
@@ -82,13 +82,6 @@ To launch Behat tests:
 vendor/bin/behat
 ```
 
-You may need to clear the cache manually before running Behat tests because of the temporary database. To do so, just
-remove the `test` cache directory:
-
-```bash
-rm -r var/cache/test
-```
-
 #### PHPStan
 
 To analyse your php code, use:
@@ -96,66 +89,3 @@ To analyse your php code, use:
 ```bash
 vendor/bin/phpstan analyse src
 ```
-
-#### Doctrine schema validation
-
-To analyse your Doctrine schema, use:
-
-```bash
-bin/console doctrine:schema:validate --skip-sync
-```
-
-#### Security checker
-
-To check security issues in project dependencies, use:
-
-```bash
-vendor/bin/console security-checker security:check
-```
-
-#### Monitor health
-
-To check your `app` docker image contains all required system dependencies, use:
-
-```bash
-bin/console monitor:health
-```
-
-## Doctrine migrations
-
-Here we use the doctrine migrations bundle to manage the database's schema.
-
-To generate a migration version file, use the following command:
-
-```bash
-bin/console doctrine:migrations:diff
-```
-
-To generate a blank migration file:
-
-```bash
-bin/console doctrine:migrations:generate
-```
-
-To execute the migrations:
-
-```bash
-bin/console doctrine:migrations:migrate
-```
-
-To see the complete documentation: https://symfony.com/doc/master/bundles/DoctrineMigrationsBundle/index.html
-
-## Doctrine extensions
-
-To use the doctrine extension bundle, you have to enable each extension you need in the `app/config.yml` file.
-
-See details at the documentation [https://github.com/Atlantic18/DoctrineExtensions](https://github.com/Atlantic18/DoctrineExtensions).
-
-## To resume (most important rules)
-
-* [Sign commits](#sign-commits) using GPG
-* Respect [git workflow](#git-workflow)
-* Respect [SOLID principles](https://en.wikipedia.org/wiki/SOLID_(object-oriented_design))
-* Add [tests](#tests)
-
-And most important rule: **have fun while coding!**

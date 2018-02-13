@@ -31,8 +31,4 @@
     <logging>
         <log type="coverage-clover" target="clover.xml"/>
     </logging>
-
-    <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
-    </listeners>
 </phpunit>
