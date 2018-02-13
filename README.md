@@ -1,5 +1,7 @@
 **This extension is still in development!**
 
+[![Build Status](https://travis-ci.org/vincentchalamon/api-extension.svg?branch=master)](https://travis-ci.org/vincentchalamon/api-extension)
+
 This Behat extension use following extensions, check their documentations for installation & usage:
 * [Behat/Symfony2Extension](https://github.com/Behat/Symfony2Extension)
 * [Behatch/contexts](https://github.com/Behatch/contexts)
