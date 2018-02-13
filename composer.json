@@ -36,7 +36,8 @@
     },
     "autoload": {
         "psr-4": {
-            "ApiExtension\\": "src/"
+            "ApiExtension\\": "src/",
+            "ApiExtension\\Tests\\": "tests/"
         }
     },
     "require-dev": {

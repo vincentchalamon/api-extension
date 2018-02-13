@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.org/vincentchalamon/api-extension.svg?branch=master)](https://travis-ci.org/vincentchalamon/api-extension)
 
 This Behat extension use following extensions, check their documentations for installation & usage:
-* [Behat/Symfony2Extension](https://github.com/Behat/Symfony2Extension)
-* [Behatch/contexts](https://github.com/Behatch/contexts)
-* [Behat/MinkExtension](https://github.com/Behat/MinkExtension)
+* [Symfony2Extension](https://github.com/Behat/Symfony2Extension)
+* [Behatch](https://github.com/Behatch/contexts)
+* [MinkExtension](https://github.com/Behat/MinkExtension)
 
 ## Install
 

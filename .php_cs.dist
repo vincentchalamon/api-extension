@@ -1,29 +1,55 @@
 <?php
 
-$header = <<<'EOF'
-This file is part of the ApiExtension package.
+$header = <<<'HEADER'
+This file is part of the API Extension project.
 
 (c) Vincent Chalamon <vincentchalamon@gmail.com>
 
 For the full copyright and license information, please view the LICENSE
 file that was distributed with this source code.
-EOF;
+HEADER;
 
 return PhpCsFixer\Config::create()
+    ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,
+        '@Symfony:risky' => true,
+        'array_syntax' => [
+            'syntax' => 'short',
+        ],
+        'braces' => [
+            'allow_single_line_closure' => true,
+        ],
+        'declare_strict_types' => true,
+        'header_comment' => [
+            'header' => $header,
+            'location' => 'after_open',
+        ],
+        'modernize_types_casting' => true,
+        'no_extra_consecutive_blank_lines' => [
+            'break',
+            'continue',
+            'curly_brace_block',
+            'extra',
+            'parenthesis_brace_block',
+            'return',
+            'square_brace_block',
+            'throw',
+            'use',
+        ],
+        'no_useless_else' => true,
+        'no_useless_return' => true,
         'ordered_imports' => true,
         'phpdoc_order' => true,
-        'linebreak_after_opening_tag' => true,
-        'no_useless_else' => true,
-        'protected_to_private' => true,
-        'array_syntax' => ['syntax' => 'short'],
-        'header_comment' => ['header' => $header],
+        'psr4' => true,
+        'semicolon_after_instruction' => true,
+        'strict_comparison' => true,
+        'strict_param' => true,
+        'ternary_to_null_coalescing' => true,
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->exclude('vendor')
-            ->exclude('features/app/cache')
             ->in(__DIR__)
     )
 ;

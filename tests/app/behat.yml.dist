@@ -1,0 +1,32 @@
+default:
+    calls:
+        error_reporting: 16383 # E_ALL & ~E_USER_DREPRECATED
+    suites:
+        default:
+            contexts:
+                - Behat\MinkExtension\Context\MinkContext
+                - Behatch\Context\RestContext
+                - Behatch\Context\JsonContext
+                - AuthContext
+                - FeatureContext:
+                    entityManager: '@doctrine.orm.default_entity_manager'
+                - ApiExtension\Context\ApiContext
+                - ApiExtension\Context\FixturesContext
+    extensions:
+        Behat\Symfony2Extension:
+            kernel:
+                class: App\Kernel
+        Behat\MinkExtension:
+            base_url: 'http://www.example.com/'
+            sessions:
+                default:
+                    symfony2: ~
+        Behatch\Extension: ~
+        ApiExtension:
+            services:
+                metadataFactory: '@test.api_platform.metadata.resource.metadata_factory.annotation'
+                iriConverter: '@test.api_platform.iri_converter'
+                registry: '@doctrine'
+                propertyInfo: '@test.property_info'
+            providers:
+                - App\Faker\Provider\MiscellaneousProvider
