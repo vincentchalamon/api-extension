@@ -16,11 +16,6 @@ php:
     - 7.1
     - 7.2
 
-before_install:
-    # Disable xdebug
-    - phpenv config-rm xdebug.ini
-    - echo "memory_limit=-1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-
 install:
     - if [[ $DEPENDENCIES = 'beta' ]]; then composer config minimum-stability beta; fi
     - if [[ ! $DEPENDENCIES || $DEPENDENCIES = 'beta' ]]; then composer update --prefer-dist --no-progress --no-suggest --ansi; fi
