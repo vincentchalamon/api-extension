@@ -43,4 +43,19 @@ final class ArrayTransformerTest extends TestCase
     {
         return [['array'], ['json_array'], ['simple_array']];
     }
+
+    public function testArrayTransformerDoesNotSupportInvalidType()
+    {
+        $this->assertFalse($this->transformer->supports('foo', ['type' => 'invalid'], 'bar'));
+    }
+
+    public function testArrayTransformerDoesNotSupportInvalidValue()
+    {
+        $this->assertFalse($this->transformer->supports('foo', ['type' => 'array'], null));
+    }
+
+    public function testArrayTransformerTransformsStringToArray()
+    {
+        $this->assertEquals(['foo', 'bar'], $this->transformer->transform('foo', [], ' foo , bar '));
+    }
 }
