@@ -4,3 +4,4 @@ composer.lock
 composer.phar
 vendor
 .php_cs.cache
+clover.xml

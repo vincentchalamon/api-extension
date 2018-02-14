@@ -26,3 +26,9 @@ script:
     - vendor/bin/phpunit
 #    - vendor/bin/behat
     - vendor/bin/phpstan analyse src
+
+after_success:
+    - travis_retry php vendor/bin/php-coveralls -v -o coveralls-upload.json -x clover.xml
+
+notifications:
+    email: false

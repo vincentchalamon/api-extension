@@ -1,6 +1,7 @@
 **This extension is still in development!**
 
 [![Build Status](https://travis-ci.org/vincentchalamon/api-extension.svg?branch=master)](https://travis-ci.org/vincentchalamon/api-extension)
+[![Coverage Status](https://coveralls.io/repos/github/vincentchalamon/api-extension/badge.svg)](https://coveralls.io/github/vincentchalamon/api-extension)
 
 This Behat extension use following extensions, check their documentations for installation & usage:
 * [Symfony2Extension](https://github.com/Behat/Symfony2Extension)
