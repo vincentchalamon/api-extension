@@ -28,5 +28,4 @@ default:
                 iriConverter: '@test.api_platform.iri_converter'
                 registry: '@doctrine'
                 propertyInfo: '@test.property_info'
-            providers:
-                - App\Faker\Provider\MiscellaneousProvider
+                annotationReader: '@annotation_reader'

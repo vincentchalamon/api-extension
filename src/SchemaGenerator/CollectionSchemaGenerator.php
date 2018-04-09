@@ -51,6 +51,7 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
                     'type' => 'array',
                     'items' => $this->schemaGenerator->generate($reflectionClass),
                 ],
+                // todo Disable this key if option "pagination_partial=true" is used on ApiResource
                 'hydra:totalItems' => [
                     'type' => 'integer',
                 ],

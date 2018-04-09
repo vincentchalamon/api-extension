@@ -29,7 +29,7 @@ final class DateTimeTypeGenerator implements TypeGeneratorInterface
             'type' => ['string'],
             'pattern' => '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$',
         ];
-        if (true === $mapping['nullable']) {
+        if ($mapping['nullable'] ?? false) {
             $type['type'][] = 'null';
         }
 

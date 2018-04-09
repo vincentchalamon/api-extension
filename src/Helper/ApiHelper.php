@@ -182,7 +182,7 @@ final class ApiHelper
     {
         $object = $reflectionClass->newInstance();
         foreach ($this->getAllMappings($reflectionClass->getName()) as $property => $mapping) {
-            if (!isset($values[$property]) && false === $mapping['nullable']) {
+            if (!isset($values[$property]) && !$mapping['nullable'] ?? false) {
                 $values[$property] = $this->guesser->getValue($mapping);
             }
         }

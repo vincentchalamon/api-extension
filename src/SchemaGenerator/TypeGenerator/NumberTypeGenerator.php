@@ -26,7 +26,7 @@ final class NumberTypeGenerator implements TypeGeneratorInterface
     public function generate(string $property, array $mapping, array $context = []): array
     {
         $type = ['type' => ['number']];
-        if (true === $mapping['nullable']) {
+        if ($mapping['nullable'] ?? false) {
             $type['type'][] = 'null';
         }
 

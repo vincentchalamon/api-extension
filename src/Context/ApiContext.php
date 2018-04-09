@@ -84,28 +84,12 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I create (?:a|an) (?P<name>[A-z\-\_]+)(?: with:)?$/
+     * @When /^I get a list of (?P<name>[A-z\-\_]+) filtered by (?P<filters>[\w\-=&]+)$/
      */
-    public function sendPostRequestToCollection(string $name, $data = null, bool $completeRequired = true): void
+    public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null): void
     {
-        $reflectionClass = $this->helper->getReflectionClass($name);
-        $values = [];
-        if (null !== $data) {
-            $values = $data;
-            if ($data instanceof TableNode) {
-                $rows = $data->getRows();
-                $values = array_combine(array_shift($rows), $rows[0]);
-                foreach ($values as $property => $value) {
-                    if ('boolean' === ($this->helper->getMapping($reflectionClass->getName(), $property)['type'] ?? null)) {
-                        $values[$property] = 'true' === $value;
-                    }
-                }
-            }
-        }
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->lastRequestJson = $values + ($completeRequired ? $this->populator->getData($reflectionClass) : []);
-        $this->restContext->iSendARequestToWithBody(Request::METHOD_POST, $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+        $this->restContext->iSendARequestTo(Request::METHOD_GET, $this->helper->getUri($this->helper->getReflectionClass($name))."?$filters");
     }
 
     /**
@@ -127,36 +111,116 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I update (?:a|an) (?P<name>[A-z\-\_]+)$/
+     * @When /^I create (?:a|an) (?P<name>[A-z\-\_]+)(?: with:)?$/
      */
-    public function sendPutRequestToItem(string $name, $data = null, bool $completeRequired = true, ?array $ids = null): void
+    public function sendPostRequestToCollection(string $name, $data = null): void
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
         if (null !== $data) {
             $values = $data;
             if ($data instanceof TableNode) {
-                $rows = $data->getRows();
-                $values = array_combine(array_shift($rows), $rows[0]);
-                foreach ($values as $property => $value) {
-                    if ('boolean' === ($this->helper->getMapping($reflectionClass->getName(), $property)['type'] ?? null)) {
-                        $values[$property] = 'true' === $value;
-                    }
-                }
+                $values = array_combine(array_shift($rows), $data->getRows()[0]);
             }
         }
+        $this->lastRequestJson = $this->populator->getData($reflectionClass, 'post', $values);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->lastRequestJson = $values + ($completeRequired ? $this->populator->getData($reflectionClass) : []);
+        $this->restContext->iSendARequestToWithBody(Request::METHOD_POST, $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+    }
+
+    /**
+     * @When /^I update (?:a|an) (?P<name>[A-z\-\_]+)(?: with:)?$/
+     */
+    public function sendPutRequestToItem(string $name, $data = null, ?array $ids = null): void
+    {
+        $reflectionClass = $this->helper->getReflectionClass($name);
+        $values = [];
+        if (null !== $data) {
+            $values = $data;
+            if ($data instanceof TableNode) {
+                $values = array_combine(array_shift($rows), $data->getRows()[0]);
+            }
+        }
+        $this->lastRequestJson = $this->populator->getData($reflectionClass, 'put', $values);
+        $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
+        $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->restContext->iSendARequestToWithBody(Request::METHOD_PUT, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
     }
 
     /**
-     * @When /^I update (?:a|an) (?P<name>[A-z\-\_]+) with:$/
+     * @When /^I get the API doc in (?P<format>[A-z]+)$/
      */
-    public function sendPutRequestToItemWithData(string $name, $data = null, ?array $ids = null): void
+    public function iGetTheApiDocInFormat(string $format)
     {
-        $this->sendPutRequestToItem($name, $data, false, $ids);
+        // todo Do not hard-code url
+        $this->restContext->iSendARequestTo(Request::METHOD_GET, '/docs.'.$format);
+    }
+
+    /**
+     * @Then /^I see the API doc in (?P<format>[A-z]+)$/
+     */
+    public function validateApiDocSchema(string $format)
+    {
+        $this->minkContext->assertResponseStatus(200);
+        switch ($format) {
+            case 'json':
+                $this->jsonContext->theResponseShouldBeInJson();
+                $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([<<<'JSON'
+{
+    "type": "object",
+    "properties": {
+        "swagger": {"pattern": "^2.0$"},
+        "basePath": {"type": "string"},
+        "info": {
+            "type": "object",
+            "properties": {
+                "version": {"type": "string"}
+            }
+        },
+        "paths": {
+            "type": "object"
+        }
+    }
+}
+JSON
+                ], 0));
+                break;
+            case 'jsonld':
+                $this->jsonContext->theResponseShouldBeInJson();
+                $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([<<<'JSON'
+{
+    "type": "object",
+    "properties": {
+        "@context": {
+            "type": "object"
+        },
+        "@id": {"pattern": "^/api/docs.jsonld$"},
+        "@type": {"pattern": "^hydra:ApiDocumentation$"},
+        "hydra:entrypoint": {"pattern": "^/api$"},
+        "hydra:supportedClass": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "@type": {"pattern": "^hydra:Class$"},
+                    "hydra:supportedProperty": {
+                        "type": "array"
+                    }
+                },
+                "required": ["@type", "hydra:supportedProperty"]
+            }
+        }
+    },
+    "required": ["@context", "@id", "@type", "hydra:entrypoint", "hydra:supportedClass"]
+}
+JSON
+                ], 0));
+                break;
+            case 'html':
+                $this->jsonContext->theResponseShouldNotBeInJson();
+                break;
+        }
     }
 
     /**
@@ -192,6 +256,22 @@ final class ApiContext implements Context
     {
         $this->minkContext->assertResponseStatus(204);
         // todo Ensure object has been deleted from database
+    }
+
+    /**
+     * @Then I am forbidden to access this resource
+     */
+    public function iShouldBeForbiddenToAccessThisResource()
+    {
+        $this->minkContext->assertResponseStatus(403);
+    }
+
+    /**
+     * @Then I am unauthorized to access this resource
+     */
+    public function iShouldBeUnauthorizedToAccessThisResource()
+    {
+        $this->minkContext->assertResponseStatus(401);
     }
 
     /**

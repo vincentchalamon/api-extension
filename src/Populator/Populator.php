@@ -17,7 +17,10 @@ use ApiExtension\Helper\ApiHelper;
 use ApiExtension\Populator\Guesser\GuesserInterface;
 use ApiPlatform\Core\Api\IriConverterInterface;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
+use Doctrine\Common\Annotations\Reader;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -38,6 +41,11 @@ final class Populator
      * @var IriConverterInterface
      */
     private $iriConverter;
+
+    /**
+     * @var Reader
+     */
+    private $annotationReader;
     private $guesser;
     private $helper;
 
@@ -62,22 +70,43 @@ final class Populator
         $this->iriConverter = $iriConverter;
     }
 
-    public function getData(\ReflectionClass $reflectionClass, string $method = 'post'): array
+    public function setAnnotationReader(Reader $annotationReader): void
     {
-        $data = [];
+        $this->annotationReader = $annotationReader;
+    }
+
+    public function getData(\ReflectionClass $reflectionClass, string $apiResourceOperation, array $values = []): array
+    {
         $className = $reflectionClass->getName();
-        $groups = $this->metadataFactory->create($className)->getCollectionOperationAttribute($method, 'denormalization_context', [], true)['groups'] ?? [];
-        foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups]) as $property) {
-            // todo Filter with Assert\NotBlank Assert\NotNull
+        $resourceMetadata = $this->metadataFactory->create($className);
+        if (in_array($apiResourceOperation, $resourceMetadata->getCollectionOperations())) {
+            $methodName = 'getCollectionOperationAttribute';
+        } elseif (in_array($apiResourceOperation, $resourceMetadata->getItemOperations())) {
+            $methodName = 'getItemOperationAttribute';
+        } else {
+            throw new \LogicException('Unknown operation '.$apiResourceOperation.' on ApiResource '.$className);
+        }
+        $groups = call_user_func([$resourceMetadata, $methodName], $apiResourceOperation, 'denormalization_context', [], true)['groups'] ?? [];
+        foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
+            $annotations = $this->annotationReader->getPropertyAnnotations($reflectionClass->getProperty($property));
+            // Property is not required or already filled
+            if (!array_intersect([NotBlank::class, NotNull::class], $annotations) || array_key_exists($property, $values)) {
+                continue;
+            }
             $data[$property] = $this->guesser->getValue($this->helper->getMapping($className, $property));
-            if (is_object($data[$property])) {
-                $data[$property] = $this->iriConverter->getIriFromItem($data[$property]);
-            } elseif (is_array($data[$property])) {
-                foreach ($data[$property] as $key => $value) {
-                    if (is_object($value)) {
-                        $data[$property][$key] = $this->iriConverter->getIriFromItem($value);
+        }
+        foreach ($data as $property => $value) {
+            if (is_object($value)) {
+                $data[$property] = $this->iriConverter->getIriFromItem($value);
+            } elseif (is_array($value)) {
+                foreach ($value as $key => $subValue) {
+                    if (is_object($subValue)) {
+                        $data[$property][$key] = $this->iriConverter->getIriFromItem($subValue);
                     }
                 }
+            }
+            if ('boolean' === ($this->helper->getMapping($reflectionClass->getName(), $property)['type'] ?? null)) {
+                $values[$property] = 'true' === $value;
             }
         }
 

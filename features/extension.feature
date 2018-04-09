@@ -6,17 +6,3 @@ Feature: I can execute Behat tests with current API Extension
     """
     1 scenario (1 passed)
     """
-
-  Scenario: Scenario state should be reset between scenarios
-    When I run "behat --no-colors features/donkeys.feature"
-    Then it should fail with:
-    """
-    [Behat\Testwork\Argument\Exception\UnknownParameterValueException]
-    """
-
-  Scenario: Scenario Outline should work properly
-    When I run "behat --no-colors features/bandar-log.feature"
-    Then it should pass with:
-    """
-    2 scenarios (2 passed)
-    """

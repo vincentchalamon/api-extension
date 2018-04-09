@@ -20,7 +20,7 @@ final class IntegerTransformer implements TransformerInterface
 {
     public function supports(string $property, array $mapping, $value): bool
     {
-        return in_array($mapping['type'], ['integer', 'smallint', 'bigint'], true);
+        return in_array($mapping['type'], ['int', 'integer', 'smallint', 'bigint'], true);
     }
 
     public function transform(string $property, array $mapping, $value): int

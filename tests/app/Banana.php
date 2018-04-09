@@ -20,38 +20,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  * @ApiResource(attributes={
- *     "normalization_context"={"groups"={"gorilla_read"}},
- *     "denormalization_context"={"groups"={"gorilla_write"}}
+ *     "normalization_context"={"groups"={"banana_read"}},
+ *     "denormalization_context"={"groups"={"banana_write"}}
  * })
  */
-class Gorilla
+class Banana
 {
     /**
-     * @Groups({"gorilla_read", "gorilla_write"})
-     * @Assert\NotNull
-     */
-    private $banana;
-
-    /**
-     * @Groups({"gorilla_read", "gorilla_write"})
+     * @Groups({"banana_read", "banana_write"})
      * @Assert\NotBlank
      */
     private $name;
 
     /**
-     * @Groups({"gorilla_read", "gorilla_write"})
+     * @Groups({"banana_read", "banana_write"})
      */
     private $male = false;
-
-    public function setBanana(Banana $banana)
-    {
-        $this->banana = $banana;
-    }
-
-    public function getBanana(): Banana
-    {
-        return $this->banana;
-    }
 
     public function setName(string $name)
     {

@@ -73,13 +73,18 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
                     'pattern' => sprintf('^%s$', $reflectionClass->getShortName()),
                 ],
             ],
+            'required' => [],
         ];
 
         $context = [
             'serializer_groups' => $this->metadataFactory->create($className)->getItemOperationAttribute('get', 'normalization_context', [], true)['groups'] ?? [],
         ];
         foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
-            $schema['properties'][$property] = $this->typeGenerator->generate($property, $this->helper->getMapping($className, $property), $context);
+            $mapping = $this->helper->getMapping($className, $property);
+            $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
+            if ($mapping['nullable'] ?? false) {
+                $schema['required'][] = $property;
+            }
             if (null !== ($description = $this->propertyInfo->getShortDescription($className, $property))) {
                 $schema['properties'][$property]['description'] = $description;
             }
