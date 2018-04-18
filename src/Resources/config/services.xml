@@ -28,7 +28,7 @@
 
         <service id="ApiExtension\Populator\Populator" class="ApiExtension\Populator\Populator" public="true">
             <argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />
-            <argument type="service" id="ApiExtension\Helper\ApiHelper" />
+            <argument type="service" id="ApiExtension\Transformer\TransformerChain" />
             <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
         </service>
 
@@ -45,6 +45,7 @@
         <service id="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" class="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" public="false">
             <argument type="service" id="ApiExtension\Helper\ApiHelper" />
             <tag name="coop_tilleuls.api_extension.schema_generator" />
+            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
         </service>
 
         <service id="ApiExtension\SchemaGenerator\ItemSchemaGenerator" class="ApiExtension\SchemaGenerator\ItemSchemaGenerator" public="false">
@@ -57,6 +58,7 @@
 
         <service id="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" class="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" public="false">
             <argument type="service" id="ApiExtension\Helper\ApiHelper" />
+            <argument type="service" id="ApiExtension\Populator\Populator" />
             <argument type="service" id="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" />
             <tag name="coop_tilleuls.api_extension.schema_generator" />
             <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
@@ -152,6 +154,7 @@
         </service>
 
         <service id="ApiExtension\SchemaGenerator\TypeGenerator\CollectionTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\CollectionTypeGenerator" public="false">
+            <argument type="service" id="Symfony\Component\DependencyInjection\ServiceLocator" />
             <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
         </service>
 

@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace ApiExtension\Context;
 
+use ApiExtension\Exception\EntityNotFoundException;
 use ApiExtension\Exception\InvalidStatusCodeException;
 use ApiExtension\Helper\ApiHelper;
 use ApiExtension\Populator\Populator;
 use ApiExtension\SchemaGenerator\SchemaGeneratorInterface;
+use ApiExtension\Transformer\TransformerInterface;
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Environment\InitializedContextEnvironment;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
@@ -25,6 +27,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\MinkContext;
 use Behatch\Context\JsonContext;
 use Behatch\Context\RestContext;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
@@ -53,12 +56,14 @@ final class ApiContext implements Context
     private $helper;
     private $populator;
     private $lastRequestJson;
+    private $transformer;
 
-    public function __construct(SchemaGeneratorInterface $schemaGenerator, ApiHelper $helper, Populator $populator)
+    public function __construct(SchemaGeneratorInterface $schemaGenerator, ApiHelper $helper, Populator $populator, TransformerInterface $transformer)
     {
         $this->schemaGenerator = $schemaGenerator;
         $this->helper = $helper;
         $this->populator = $populator;
+        $this->transformer = $transformer;
     }
 
     /**
@@ -75,7 +80,7 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I get a list of (?P<name>[A-z\-\_]+)$/
+     * @When /^I get a list of (?P<name>[\w\-]+)$/
      */
     public function sendGetRequestToCollection(string $name): void
     {
@@ -84,7 +89,7 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I get a list of (?P<name>[A-z\-\_]+) filtered by (?P<filters>[\w\-=&]+)$/
+     * @When /^I get a list of (?P<name>[\w\-]+) filtered by (?P<filters>[\w\-=&]+)$/
      */
     public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null): void
     {
@@ -93,7 +98,7 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I get (?:a|an) (?P<name>[A-z\-\_]+)$/
+     * @When /^I get (?:a|an) (?P<name>[\w\-]+)$/
      */
     public function sendGetRequestToItem(string $name, ?array $ids = null): void
     {
@@ -102,7 +107,15 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I delete (?:a|an) (?P<name>[A-z\-\_]+)$/
+     * @When /^I get the (?P<name>[\w\-]+) (?P<value>[^ ]+)$/
+     */
+    public function sendGetRequestToDesignatedItem(string $name, string $value)
+    {
+        $this->sendGetRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
+    }
+
+    /**
+     * @When /^I delete (?:a|an) (?P<name>[\w\-]+)$/
      */
     public function sendDeleteRequestToItem(string $name, ?array $ids = null): void
     {
@@ -111,7 +124,43 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I create (?:a|an) (?P<name>[A-z\-\_]+)(?: with:)?$/
+     * @When /^I delete the (?P<name>[\w\-]+) (?P<value>[^ ]+)$/
+     */
+    public function sendDeleteRequestToDesignatedItem(string $name, string $value): void
+    {
+        $this->sendDeleteRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
+    }
+
+    /**
+     * @When /^I update (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
+     */
+    public function sendPutRequestToItem(string $name, $data = null, array $ids = null): void
+    {
+        $reflectionClass = $this->helper->getReflectionClass($name);
+        $values = [];
+        if (null !== $data) {
+            $values = $data;
+            if ($data instanceof TableNode) {
+                $rows = $data->getRows();
+                $values = array_combine(array_shift($rows), $rows[0]);
+            }
+        }
+        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values);
+        $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
+        $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
+        $this->restContext->iSendARequestToWithBody(Request::METHOD_PUT, $this->helper->getItemUri($reflectionClass, $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+    }
+
+    /**
+     * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+)(?: with:)?$/
+     */
+    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null): void
+    {
+        $this->sendPutRequestToItem($name, $data, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
+    }
+
+    /**
+     * @When /^I create (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
      */
     public function sendPostRequestToCollection(string $name, $data = null): void
     {
@@ -120,32 +169,14 @@ final class ApiContext implements Context
         if (null !== $data) {
             $values = $data;
             if ($data instanceof TableNode) {
-                $values = array_combine(array_shift($rows), $data->getRows()[0]);
+                $rows = $data->getRows();
+                $values = array_combine(array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getData($reflectionClass, 'post', $values);
+        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->restContext->iSendARequestToWithBody(Request::METHOD_POST, $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
-    }
-
-    /**
-     * @When /^I update (?:a|an) (?P<name>[A-z\-\_]+)(?: with:)?$/
-     */
-    public function sendPutRequestToItem(string $name, $data = null, ?array $ids = null): void
-    {
-        $reflectionClass = $this->helper->getReflectionClass($name);
-        $values = [];
-        if (null !== $data) {
-            $values = $data;
-            if ($data instanceof TableNode) {
-                $values = array_combine(array_shift($rows), $data->getRows()[0]);
-            }
-        }
-        $this->lastRequestJson = $this->populator->getData($reflectionClass, 'put', $values);
-        $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody(Request::METHOD_PUT, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
     }
 
     /**
@@ -195,9 +226,9 @@ JSON
         "@context": {
             "type": "object"
         },
-        "@id": {"pattern": "^/api/docs.jsonld$"},
+        "@id": {"pattern": "^/docs.jsonld$"},
         "@type": {"pattern": "^hydra:ApiDocumentation$"},
-        "hydra:entrypoint": {"pattern": "^/api$"},
+        "hydra:entrypoint": {"pattern": "^/$"},
         "hydra:supportedClass": {
             "type": "array",
             "items": {
@@ -250,7 +281,7 @@ JSON
     }
 
     /**
-     * @Then /^the (?P<name>[A-z\-\_]+) has been successfully deleted$/
+     * @Then /^the (?P<name>[\w\_]+) has been successfully deleted$/
      */
     public function itemShouldHaveBeSuccessfullyDeleted(string $name): void
     {
@@ -275,7 +306,7 @@ JSON
     }
 
     /**
-     * @Then /^I see (?:a|an) (?P<name>[A-z\-\_]+)$/
+     * @Then /^I see (?:a|an) (?P<name>[\w\-]+)$/
      */
     public function validateItemJsonSchema(string $name, array $schema = null): void
     {
@@ -288,9 +319,18 @@ JSON
     }
 
     /**
-     * @Then /^I see a list of (?P<name>[A-z\-\_]+)$/
+     * @Transform /^(\d+)$/
      */
-    public function validateCollectionJsonSchema(string $name, array $schema = null): void
+    public function castStringToNumber(string $value): int
+    {
+        return intval($value);
+    }
+
+    /**
+     * @Then /^I see a list of (?P<name>[\w\-]+)$/
+     * @Then /^I see a list of (?P<total>\d+)  (?P<name>[\w\-]+)$/
+     */
+    public function validateCollectionJsonSchema(string $name, int $total = null, array $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
@@ -298,10 +338,21 @@ JSON
         }
         $this->jsonContext->theResponseShouldBeInJson();
         $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($schema ?: $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]))], 0));
+        if (null !== $total) {
+            $this->jsonContext->theJsonNodeShouldHaveElements('hydra:member', $total);
+        }
     }
 
     /**
-     * @Then /^print (?P<name>[A-z\-\_]+) JSON schema$/
+     * @Then /^I don't see any (?P<name>[\w\-]+)$/
+     */
+    public function validateCollectionIsEmpty(string $name): void
+    {
+        $this->validateCollectionJsonSchema($name, 0);
+    }
+
+    /**
+     * @Then /^print (?P<name>[\w\-]+) list JSON schema$/
      */
     public function printCollectionJsonSchema(string $name): void
     {
@@ -309,7 +360,7 @@ JSON
     }
 
     /**
-     * @Then /^print (?P<name>[A-z\-\_]+) item JSON schema$/
+     * @Then /^print (?P<name>[\w\-]+) item JSON schema$/
      */
     public function printItemJsonSchema(string $name): void
     {
@@ -322,5 +373,16 @@ JSON
     public function printJsonData(): void
     {
         echo json_encode($this->lastRequestJson, JSON_PRETTY_PRINT);
+    }
+
+    private function findObject(string $name, $value)
+    {
+        $reflectionClass = $this->helper->getReflectionClass($name);
+        $object = $this->transformer->toObject(['targetEntity' => $reflectionClass->getName(), 'type' => ClassMetadataInfo::ONE_TO_ONE], $value);
+        if (null === $object) {
+            throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $reflectionClass->getName(), $value));
+        }
+
+        return $object;
     }
 }

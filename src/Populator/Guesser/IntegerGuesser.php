@@ -25,6 +25,6 @@ class IntegerGuesser extends AbstractGuesser
 
     public function getValue(array $mapping): int
     {
-        return $this->faker->numberBetween(0, $mapping['length'] ?? 32000);
+        return $this->faker->numberBetween(0, $mapping['length'] ?? 2147483647);
     }
 }

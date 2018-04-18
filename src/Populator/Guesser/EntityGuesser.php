@@ -48,7 +48,7 @@ class EntityGuesser implements GuesserInterface
         $em = $this->registry->getManagerForClass($mapping['targetEntity']);
         $object = $em->getRepository($mapping['targetEntity'])->findOneBy([]);
         if (null === $object) {
-            $object = $this->container->get('helper')->createObject(new \ReflectionClass($mapping['targetEntity']));
+            $object = $this->container->get('populator')->getObject(new \ReflectionClass($mapping['targetEntity']));
             $em->persist($object);
             $em->flush();
         }

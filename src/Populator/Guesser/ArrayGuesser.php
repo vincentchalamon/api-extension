@@ -25,6 +25,6 @@ class ArrayGuesser extends AbstractGuesser
 
     public function getValue(array $mapping): array
     {
-        return [];
+        return array_fill(0, mt_rand(3, 10), $this->faker->word);
     }
 }

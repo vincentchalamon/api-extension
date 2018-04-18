@@ -12,22 +12,50 @@
 declare(strict_types=1);
 
 use Behat\Behat\Context\Context as ContextInterface;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\SchemaTool;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 class FeatureContext implements ContextInterface
 {
+    private $initialized = false;
+    private $doctrine;
+
+    public function __construct(ManagerRegistry $doctrine)
+    {
+        $this->doctrine = $doctrine;
+    }
+
     /**
      * @BeforeSuite
      */
     public static function setUpSuite()
     {
-        require_once __DIR__.'/../../autoload.php';
+        require_once __DIR__.'/../../../../vendor/autoload.php';
     }
 
-    public function IDoSomething()
+    /**
+     * @BeforeScenario
+     */
+    public function initDatabase()
     {
-        throw new \Behat\Behat\Tester\Exception\PendingException();
+        $manager = $this->doctrine->getManager();
+        if ($this->initialized) {
+            $purger = new ORMPurger($manager);
+            $purger->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
+            $purger->purge();
+            $manager->clear();
+
+            return;
+        }
+
+        $classes = $manager->getMetadataFactory()->getAllMetadata();
+        $schema = new SchemaTool($manager);
+        $schema->dropSchema($classes);
+        $schema->createSchema($classes);
+        $this->initialized = true;
     }
 }

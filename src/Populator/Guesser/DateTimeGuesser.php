@@ -23,8 +23,8 @@ class DateTimeGuesser extends AbstractGuesser
         return in_array($mapping['type'], ['datetime', 'date', 'time'], true);
     }
 
-    public function getValue(array $mapping): string
+    public function getValue(array $mapping): \DateTime
     {
-        return (new \DateTime())->format('c');
+        return new \DateTime();
     }
 }

@@ -1,0 +1,13 @@
+services:
+    test.property_info:
+        parent: property_info
+        public: true
+    test.api_platform.metadata.resource.metadata_factory.annotation:
+        parent: api_platform.metadata.resource.metadata_factory.annotation
+        public: true
+    test.api_platform.iri_converter:
+        parent: api_platform.iri_converter
+        public: true
+    test.annotation_reader:
+        parent: annotation_reader
+        public: true

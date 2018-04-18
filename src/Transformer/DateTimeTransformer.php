@@ -13,18 +13,29 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class DateTimeTransformer implements TransformerInterface
 {
-    public function supports(string $property, array $mapping, $value): bool
+    public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], ['datetime', 'date', 'time'], true);
+        return in_array($mapping['type'], [Type::DATETIME, Type::DATE, Type::TIME], true);
     }
 
-    public function transform(string $property, array $mapping, $value)
+    public function toObject(array $mapping, $value): \DateTime
     {
-        return new \DateTime($value);
+        if (!$value instanceof \DateTime) {
+            $value = new \DateTime($value);
+        }
+
+        return $value;
+    }
+
+    public function toScalar(array $mapping, $value): string
+    {
+        return $value instanceof \DateTime ? $value->format('c') : $value;
     }
 }

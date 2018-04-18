@@ -53,13 +53,15 @@ final class ArgumentResolver implements ArgumentResolverInterface
 
     public function resolveArguments(\ReflectionClass $classReflection, array $arguments): array
     {
-        if (null !== ($constructor = $classReflection->getConstructor())) {
-            foreach ($constructor->getParameters() as $parameter) {
-                if (null !== $parameter->getClass() && !isset($arguments[$parameter->getName()])) {
-                    foreach ($this->dependencies as $dependency) {
-                        if (is_a($dependency, $parameter->getClass()->name, false)) {
-                            $arguments[$parameter->name] = $dependency;
-                        }
+        if (null === ($constructor = $classReflection->getConstructor())) {
+            return $arguments;
+        }
+
+        foreach ($constructor->getParameters() as $parameter) {
+            if (null !== $parameter->getClass() && !isset($arguments[$parameter->getName()])) {
+                foreach ($this->dependencies as $dependency) {
+                    if (is_a($dependency, $parameter->getClass()->name, false)) {
+                        $arguments[$parameter->name] = $dependency;
                     }
                 }
             }

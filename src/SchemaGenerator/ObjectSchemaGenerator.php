@@ -14,8 +14,10 @@ declare(strict_types=1);
 namespace ApiExtension\SchemaGenerator;
 
 use ApiExtension\Helper\ApiHelper;
+use ApiExtension\Populator\Populator;
 use ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorInterface;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
@@ -34,12 +36,19 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
      * @var PropertyInfoExtractorInterface
      */
     private $propertyInfo;
+
+    /**
+     * @var ManagerRegistry
+     */
+    private $registry;
     private $helper;
+    private $populator;
     private $typeGenerator;
 
-    public function __construct(ApiHelper $helper, TypeGeneratorInterface $typeGenerator)
+    public function __construct(ApiHelper $helper, Populator $populator, TypeGeneratorInterface $typeGenerator)
     {
         $this->helper = $helper;
+        $this->populator = $populator;
         $this->typeGenerator = $typeGenerator;
     }
 
@@ -51,6 +60,11 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
     public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo): void
     {
         $this->propertyInfo = $propertyInfo;
+    }
+
+    public function setRegistry(ManagerRegistry $registry): void
+    {
+        $this->registry = $registry;
     }
 
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
@@ -73,16 +87,16 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
                     'pattern' => sprintf('^%s$', $reflectionClass->getShortName()),
                 ],
             ],
-            'required' => [],
+            'required' => ['@id', '@type'],
         ];
 
-        $context = [
+        $context = $context + [
             'serializer_groups' => $this->metadataFactory->create($className)->getItemOperationAttribute('get', 'normalization_context', [], true)['groups'] ?? [],
         ];
         foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
-            $mapping = $this->helper->getMapping($className, $property);
+            $mapping = $this->populator->getMapping($this->registry->getManagerForClass($className)->getClassMetadata($className), $property);
             $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
-            if ($mapping['nullable'] ?? false) {
+            if (false === ($mapping['nullable'] ?? true)) {
                 $schema['required'][] = $property;
             }
             if (null !== ($description = $this->propertyInfo->getShortDescription($className, $property))) {

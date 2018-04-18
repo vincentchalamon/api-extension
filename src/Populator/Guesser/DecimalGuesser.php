@@ -23,6 +23,9 @@ class DecimalGuesser extends AbstractGuesser
         return 'decimal' === $mapping['type'];
     }
 
+    /**
+     * Must be parsed as string for Doctrine
+     */
     public function getValue(array $mapping): string
     {
         return (string) $this->faker->randomFloat($mapping['scale'] ?? 0, 0, $mapping['precision'] ?? null);

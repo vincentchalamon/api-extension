@@ -85,14 +85,14 @@ class FeatureContext implements ContextInterface
     {
         $argumentsString = strtr($argumentsString, ['\'' => '"']);
 
-        $this->process->setWorkingDirectory(__DIR__.'/../../testapp');
+        $this->process->setWorkingDirectory(__DIR__.'/../../tests/app');
         $this->process->setCommandLine(
             sprintf(
                 '%s %s %s %s',
                 $this->phpBin,
                 escapeshellarg(BEHAT_BIN_PATH),
                 $argumentsString,
-                strtr('--lang=en --format-settings=\'{"timer": false}\'', ['\'' => '"', '"' => '\"'])
+                strtr('--lang=en --no-colors --format-settings=\'{"timer": false}\'', ['\'' => '"', '"' => '\"'])
             )
         );
         $this->process->run();
@@ -131,7 +131,7 @@ class FeatureContext implements ContextInterface
      */
     private function getExpectedOutput(PyStringNode $expectedText)
     {
-        $text = strtr($expectedText, ['\'\'\'' => '"""']);
+        $text = strtr($expectedText->getRaw(), ['\'\'\'' => '"""']);
 
         // windows path fix
         if ('/' !== DIRECTORY_SEPARATOR) {

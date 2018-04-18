@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
+use ApiExtension\Exception\EntityNotFoundException;
+use ApiPlatform\Core\Api\IriConverterInterface;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\QueryBuilder;
@@ -28,17 +31,27 @@ final class EntityTransformer implements TransformerInterface
      */
     private $registry;
 
+    /**
+     * @var IriConverterInterface
+     */
+    private $iriConverter;
+
     public function setRegistry(ManagerRegistry $registry): void
     {
         $this->registry = $registry;
     }
 
-    public function supports(string $property, array $mapping, $value): bool
+    public function setIriConverter(IriConverterInterface $iriConverter): void
+    {
+        $this->iriConverter = $iriConverter;
+    }
+
+    public function supports(array $mapping, $value): bool
     {
         return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
-    public function transform(string $property, array $mapping, $value)
+    public function toObject(array $mapping, $value)
     {
         if (is_a($value, $mapping['targetEntity'])) {
             return $value;
@@ -52,16 +65,18 @@ final class EntityTransformer implements TransformerInterface
         $queryBuilder = $em->getRepository($className)->createQueryBuilder('o');
         $classMetadata = $em->getClassMetadata($className);
         foreach ($classMetadata->getFieldNames() as $fieldName) {
-            // todo Fix this shit
             $type = ($classMetadata->getFieldMapping($fieldName)['type'] ?? null);
-            if ('text' === $type) {
-                $type = 'string';
-            }
-            if ('decimal' === $type) {
-                $type = 'float';
-            }
-            if (in_array($type, ['smallint', 'bigint'], true)) {
-                $type = 'integer';
+            switch ($type) {
+                case Type::TEXT:
+                    $type = 'string';
+                    break;
+                case Type::DECIMAL:
+                    $type = 'float';
+                    break;
+                case Type::SMALLINT:
+                case Type::BIGINT:
+                    $type = 'integer';
+                    break;
             }
             if (gettype($value) === $type) {
                 $queryBuilder->orWhere("o.$fieldName = :query")->setParameter('query', $value);
@@ -69,6 +84,19 @@ final class EntityTransformer implements TransformerInterface
         }
 
         return $queryBuilder->setMaxResults(1)->getQuery()->getOneOrNullResult();
+    }
+
+    public function toScalar(array $mapping, $value): string
+    {
+        if (!is_object($value)) {
+            $value = $this->toObject($mapping, $value);
+            if (null === $value) {
+                throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $mapping['targetEntity'], $value));
+            }
+        }
+
+        // todo What if I want to send a sub-object instead of just an iri?
+        return $this->iriConverter->getIriFromItem($value);
     }
 
     private function clean($value)

@@ -28,7 +28,8 @@ class StringGuesser extends AbstractGuesser
         if ('text' === $mapping['type']) {
             return $this->faker->paragraph();
         }
+        $length = $mapping['length'] ?? 200;
 
-        return $this->faker->text($mapping['length'] ?? 200);
+        return $this->faker->text($length < 5 ? 5 : $length);
     }
 }

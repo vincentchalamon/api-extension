@@ -38,6 +38,6 @@ class CollectionGuesser implements GuesserInterface
 
     public function getValue(array $mapping): array
     {
-        return $this->registry->getManagerForClass($mapping['targetEntity'])->getRepository($mapping['targetEntity'])->findBy([]);
+        return $this->registry->getManagerForClass($mapping['targetEntity'])->getRepository($mapping['targetEntity'])->findBy([], null, mt_rand(3, 10));
     }
 }

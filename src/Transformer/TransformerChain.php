@@ -33,19 +33,30 @@ final class TransformerChain implements TransformerInterface
         $this->transformers = $transformers;
     }
 
-    public function supports(string $property, array $mapping, $value): bool
-    {
-        return true;
-    }
-
-    public function transform(string $property, array $mapping, $value)
+    public function toObject(array $mapping, $value)
     {
         foreach ($this->transformers as $transformer) {
-            if ($transformer->supports($property, $mapping, $value)) {
-                return $transformer->transform($property, $mapping, $value);
+            if ($transformer->supports($mapping, $value)) {
+                return $transformer->toObject($mapping, $value);
             }
         }
 
         return $value;
+    }
+
+    public function toScalar(array $mapping, $value)
+    {
+        foreach ($this->transformers as $transformer) {
+            if ($transformer->supports($mapping, $value)) {
+                return $transformer->toScalar($mapping, $value);
+            }
+        }
+
+        return $value;
+    }
+
+    public function supports(array $mapping, $value): bool
+    {
+        return true;
     }
 }

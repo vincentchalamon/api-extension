@@ -13,12 +13,17 @@ declare(strict_types=1);
 
 namespace ApiExtension\Populator;
 
-use ApiExtension\Helper\ApiHelper;
+use ApiExtension\Exception\InvalidPropertyException;
 use ApiExtension\Populator\Guesser\GuesserInterface;
-use ApiPlatform\Core\Api\IriConverterInterface;
+use ApiExtension\Transformer\TransformerInterface;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use Symfony\Component\PropertyInfo\Type;
+use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 
@@ -38,21 +43,18 @@ final class Populator
     private $propertyInfo;
 
     /**
-     * @var IriConverterInterface
-     */
-    private $iriConverter;
-
-    /**
      * @var Reader
      */
     private $annotationReader;
     private $guesser;
-    private $helper;
+    private $transformer;
+    private $registry;
+    private $mapping = [];
 
-    public function __construct(GuesserInterface $guesser, ApiHelper $helper)
+    public function __construct(GuesserInterface $guesser, TransformerInterface $transformer)
     {
         $this->guesser = $guesser;
-        $this->helper = $helper;
+        $this->transformer = $transformer;
     }
 
     public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory): void
@@ -65,51 +67,158 @@ final class Populator
         $this->propertyInfo = $propertyInfo;
     }
 
-    public function setIriConverter(IriConverterInterface $iriConverter): void
-    {
-        $this->iriConverter = $iriConverter;
-    }
-
     public function setAnnotationReader(Reader $annotationReader): void
     {
         $this->annotationReader = $annotationReader;
     }
 
-    public function getData(\ReflectionClass $reflectionClass, string $apiResourceOperation, array $values = []): array
+    public function setRegistry(ManagerRegistry $registry): void
+    {
+        $this->registry = $registry;
+    }
+
+    public function getObject(\ReflectionClass $reflectionClass, array $values = [])
     {
         $className = $reflectionClass->getName();
-        $resourceMetadata = $this->metadataFactory->create($className);
-        if (in_array($apiResourceOperation, $resourceMetadata->getCollectionOperations())) {
-            $methodName = 'getCollectionOperationAttribute';
-        } elseif (in_array($apiResourceOperation, $resourceMetadata->getItemOperations())) {
-            $methodName = 'getItemOperationAttribute';
-        } else {
-            throw new \LogicException('Unknown operation '.$apiResourceOperation.' on ApiResource '.$className);
-        }
-        $groups = call_user_func([$resourceMetadata, $methodName], $apiResourceOperation, 'denormalization_context', [], true)['groups'] ?? [];
-        foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
-            $annotations = $this->annotationReader->getPropertyAnnotations($reflectionClass->getProperty($property));
-            // Property is not required or already filled
-            if (!array_intersect([NotBlank::class, NotNull::class], $annotations) || array_key_exists($property, $values)) {
+
+        // Complete required properties
+        /** @var ClassMetadataInfo $classMetadata */
+        $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
+        foreach (array_merge($classMetadata->getFieldNames(), $classMetadata->getAssociationNames()) as $property) {
+            $mapping = $this->getMapping($classMetadata, $property);
+            // Property is already filled, or is not required, or a primary key (except for association primary key)
+            if (array_key_exists($property, $values) || $mapping['nullable'] || ($classMetadata->isIdentifier($property) && $classMetadata->hasField($property))) {
                 continue;
             }
-            $data[$property] = $this->guesser->getValue($this->helper->getMapping($className, $property));
+            $values[$property] = $this->guesser->getValue($mapping);
         }
-        foreach ($data as $property => $value) {
-            if (is_object($value)) {
-                $data[$property] = $this->iriConverter->getIriFromItem($value);
-            } elseif (is_array($value)) {
-                foreach ($value as $key => $subValue) {
-                    if (is_object($subValue)) {
-                        $data[$property][$key] = $this->iriConverter->getIriFromItem($subValue);
-                    }
-                }
-            }
-            if ('boolean' === ($this->helper->getMapping($reflectionClass->getName(), $property)['type'] ?? null)) {
-                $values[$property] = 'true' === $value;
+
+        // Parse values & init object
+        $object = $reflectionClass->newInstance();
+        foreach ($values as $property => $value) {
+            $value = $this->transformer->toObject($this->getMapping($classMetadata, $property), $value);
+            if ($reflectionClass->hasMethod($property)) {
+                call_user_func([$object, $property], $value);
+            } elseif ($reflectionClass->hasMethod('set' . Inflector::camelize($property))) {
+                call_user_func([$object, 'set' . Inflector::camelize($property)], $value);
+            } elseif ($reflectionClass->hasProperty($property)) {
+                $reflectionProperty = $reflectionClass->getProperty($property);
+                $reflectionProperty->setAccessible(true);
+                $reflectionProperty->setValue($object, $value);
+            } else {
+                throw new InvalidPropertyException(sprintf('Property %s does not exist in class %s.', $property, $className));
             }
         }
 
-        return $data;
+        return $object;
+    }
+
+    public function getRequestData(\ReflectionClass $reflectionClass, string $operation, array $values = []): array
+    {
+        $className = $reflectionClass->getName();
+
+        // Get serialization groups
+        $resourceMetadata = $this->metadataFactory->create($className);
+        if (in_array($operation, $resourceMetadata->getCollectionOperations() ?: ['post', 'get'])) {
+            $methodName = 'getCollectionOperationAttribute';
+        } elseif (in_array($operation, $resourceMetadata->getItemOperations() ?: ['put', 'get', 'delete'])) {
+            $methodName = 'getItemOperationAttribute';
+        } else {
+            throw new \LogicException(sprintf('Unknown operation %s on ApiResource %s.', $operation, $className));
+        }
+        $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
+
+        // Complete required properties
+        /** @var ClassMetadataInfo $classMetadata */
+        $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
+        foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
+            if (!$this->isRequired($reflectionClass->getProperty($property)) || array_key_exists($property, $values)) {
+                continue;
+            }
+            $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
+        }
+
+        // Parse values
+        foreach ($values as $property => $value) {
+            $values[$property] = $this->transformer->toScalar($this->getMapping($classMetadata, $property), $value);
+        }
+
+        return $values;
+    }
+
+    public function getMapping(ClassMetadataInfo $classMetadata, string $property): array
+    {
+        $className = $classMetadata->getName();
+        if (isset($this->mapping[$className])) {
+            if (isset($this->mapping[$className][$property])) {
+                return $this->mapping[$className][$property];
+            }
+            throw new InvalidPropertyException(sprintf('Property %s does not exist in class %s.', $property, $className));
+        }
+
+        $this->mapping[$className] = [];
+        foreach ($classMetadata->getAssociationMappings() as $name => $mapping) {
+            $this->mapping[$className][$name] = $mapping + [
+                    'nullable' => $mapping['joinColumns'][0]['nullable'] ?? true,
+                ];
+        }
+        foreach ($classMetadata->getFieldNames() as $fieldName) {
+            $this->mapping[$className][$fieldName] = $classMetadata->getFieldMapping($fieldName);
+        }
+        foreach ($this->propertyInfo->getProperties($className) as $fieldName) {
+            if (array_key_exists($fieldName, $this->mapping[$className])) {
+                continue;
+            }
+
+            /** @var Type $type */
+            $types = $this->propertyInfo->getTypes($className, $fieldName);
+            if (!$types) {
+                throw new \RuntimeException(sprintf('Cannot get type of field %s.%s', $className, $fieldName));
+            }
+            $this->mapping[$className][$fieldName] = [
+                'type' => $types[0]->getBuiltinType(),
+                'nullable' => $types[0]->isNullable(),
+                'targetEntity' => $types[0]->getClassName(),
+            ];
+        }
+        foreach ($this->mapping[$className] as $fieldName => $mapping) {
+            $this->mapping[$className][$fieldName] = $mapping + [
+                    'type' => null,
+                    'fieldName' => $fieldName,
+                    'nullable' => true,
+                    'scale' => 0,
+                    'length' => null,
+                    'unique' => false,
+                    'precision' => 0,
+                    'columnName' => null,
+                    'mappedBy' => null,
+                    'targetEntity' => null,
+                    'cascade' => [],
+                    'orphanRemoval' => false,
+                    'fetch' => null,
+                    'inversedBy' => null,
+                    'isOwningSide' => false,
+                    'sourceEntity' => null,
+                    'isCascadeRemove' => false,
+                    'isCascadePersist' => false,
+                    'isCascadeRefresh' => false,
+                    'isCascadeMerge' => false,
+                    'isCascadeDetach' => false,
+                ];
+        }
+
+        return $this->getMapping($classMetadata, $property);
+    }
+
+    private function isRequired(\ReflectionProperty $reflectionProperty): bool
+    {
+        /** @var ClassMetadataInfo $classMetadata */
+        $className = $reflectionProperty->getDeclaringClass()->getName();
+        $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
+
+        return $this->annotationReader->getPropertyAnnotation($reflectionProperty, NotBlank::class) ||
+            $this->annotationReader->getPropertyAnnotation($reflectionProperty, NotNull::class) ||
+            $this->annotationReader->getPropertyAnnotation($reflectionProperty, Count::class) ||
+            !($this->getMapping($classMetadata, $reflectionProperty->getName())['nullable'] ?? false);
     }
 }

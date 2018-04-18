@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace ApiExtension\SchemaGenerator;
 
 use ApiExtension\Helper\ApiHelper;
+use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -22,11 +23,20 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
 {
     use SchemaGeneratorAwareTrait;
 
+    /**
+     * @var ResourceMetadataFactoryInterface
+     */
+    private $metadataFactory;
     private $helper;
 
     public function __construct(ApiHelper $helper)
     {
         $this->helper = $helper;
+    }
+
+    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory): void
+    {
+        $this->metadataFactory = $metadataFactory;
     }
 
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
@@ -36,7 +46,10 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
-        return [
+        $resourceMetadata = $this->metadataFactory->create($reflectionClass->getName());
+        $normalizationContext = $resourceMetadata->getCollectionOperationAttribute('get', 'normalization_context', [], true);
+
+        $schema = [
             'type' => 'object',
             'properties' => [
                 '@id' => [
@@ -49,15 +62,18 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
                 ],
                 'hydra:member' => [
                     'type' => 'array',
-                    'items' => $this->schemaGenerator->generate($reflectionClass),
-                ],
-                // todo Disable this key if option "pagination_partial=true" is used on ApiResource
-                'hydra:totalItems' => [
-                    'type' => 'integer',
+                    'items' => $this->schemaGenerator->generate($reflectionClass, ['serializer_groups' => $normalizationContext['groups'] ?? []]),
                 ],
                 // todo Add hydra:view (cf. crud.feature l. 94)
                 // todo Add hydra:search (cf. crud.feature l. 94)
             ],
+            'required' => ['@id', '@type', 'hydra:member'],
         ];
+        if (!$resourceMetadata->getAttribute('pagination_partial', false)) {
+            $schema['hydra:totalItems'] = ['type' => 'integer'];
+            $schema['required'][] = 'hydra:totalItems';
+        }
+
+        return $schema;
     }
 }

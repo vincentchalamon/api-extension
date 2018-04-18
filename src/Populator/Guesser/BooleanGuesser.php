@@ -25,6 +25,6 @@ class BooleanGuesser extends AbstractGuesser
 
     public function getValue(array $mapping): bool
     {
-        return true;
+        return $this->faker->boolean(75);
     }
 }

@@ -50,11 +50,7 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
     public function generate(string $property, array $mapping, array $context = []): array
     {
         if (0 < count($this->propertyInfo->getProperties($mapping['targetEntity'], $context))) {
-            $type = [
-                'type' => ['object'],
-                // todo Add properties
-//                'properties' => $this->container->get('schemaGenerator')->generate(new \ReflectionClass($mapping['targetEntity'])),
-            ];
+            $type = $this->container->get('schemaGenerator')->generate(new \ReflectionClass($mapping['targetEntity']), $context);
         } else {
             $type = [
                 'type' => ['string'],

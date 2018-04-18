@@ -13,18 +13,25 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class BooleanTransformer implements TransformerInterface
 {
-    public function supports(string $property, array $mapping, $value): bool
+    public function supports(array $mapping, $value): bool
     {
-        return 'boolean' === $mapping['type'];
+        return Type::BOOLEAN === $mapping['type'];
     }
 
-    public function transform(string $property, array $mapping, $value): bool
+    public function toObject(array $mapping, $value): bool
     {
         return 'true' === $value;
+    }
+
+    public function toScalar(array $mapping, $value): bool
+    {
+        return $this->toObject($mapping, $value);
     }
 }

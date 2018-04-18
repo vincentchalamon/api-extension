@@ -15,6 +15,7 @@ namespace ApiExtension\Transformer;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
@@ -22,8 +23,10 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-final class CollectionTransformer implements TransformerInterface
+final class CollectionTransformer implements TransformerInterface, TransformerAwareInterface
 {
+    use TransformerAwareTrait;
+
     /**
      * @var ManagerRegistry
      */
@@ -34,12 +37,12 @@ final class CollectionTransformer implements TransformerInterface
         $this->registry = $registry;
     }
 
-    public function supports(string $property, array $mapping, $value): bool
+    public function supports(array $mapping, $value): bool
     {
         return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
     }
 
-    public function transform(string $property, array $mapping, $value): ArrayCollection
+    public function toObject(array $mapping, $value): Collection
     {
         if (is_a($value, Collection::class)) {
             return $value;
@@ -56,16 +59,18 @@ final class CollectionTransformer implements TransformerInterface
         $queryBuilder = $em->getRepository($className)->createQueryBuilder('o');
         $classMetadata = $em->getClassMetadata($className);
         foreach ($em->getClassMetadata($className)->getFieldNames() as $fieldName) {
-            // todo Fix this shit
             $type = ($classMetadata->getFieldMapping($fieldName)['type'] ?? null);
-            if ('text' === $type) {
-                $type = 'string';
-            }
-            if ('decimal' === $type) {
-                $type = 'float';
-            }
-            if (in_array($type, ['smallint', 'bigint'], true)) {
-                $type = 'integer';
+            switch ($type) {
+                case Type::TEXT:
+                    $type = 'string';
+                    break;
+                case Type::DECIMAL:
+                    $type = 'float';
+                    break;
+                case Type::SMALLINT:
+                case Type::BIGINT:
+                    $type = 'integer';
+                    break;
             }
             if (gettype($values[0]) === $type) {
                 $queryBuilder->orWhere($queryBuilder->expr()->in("o.$fieldName", ':query'));
@@ -74,6 +79,22 @@ final class CollectionTransformer implements TransformerInterface
         }
 
         return new ArrayCollection($queryBuilder->getQuery()->getResult());
+    }
+
+    public function toScalar(array $mapping, $values): array
+    {
+        if (!$values instanceof Collection && !is_array($values)) {
+            $values = $this->toObject($mapping, $values);
+        }
+        if ($values instanceof Collection) {
+            $values = $values->getValues();
+        }
+
+        foreach ($values as $key => $value) {
+            $values[$key] = $this->transformer->toScalar(['type' => ClassMetadataInfo::ONE_TO_ONE] + $mapping, $value);
+        }
+
+        return $values;
     }
 
     private function clean($value)

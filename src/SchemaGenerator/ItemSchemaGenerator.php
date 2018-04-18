@@ -34,6 +34,7 @@ final class ItemSchemaGenerator implements SchemaGeneratorInterface, SchemaGener
                     'pattern' => sprintf('^/contexts/%s$', $reflectionClass->getShortName()),
                 ],
             ],
+            'required' => ['@context'],
         ]);
     }
 }
