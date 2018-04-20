@@ -140,7 +140,7 @@ class FeatureContext implements ContextInterface
     {
         $output = str_replace('│', '', $this->getOutput());
         $output = substr($output, strpos($output, '{'));
-        $output = substr($output, 0, strrpos($output, '}')+1);
+        $output = substr($output, 0, strrpos($output, '}') + 1);
         $output = json_decode($output, true);
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new \LogicException('Unable to detect a valid JSON response.');
@@ -162,7 +162,7 @@ class FeatureContext implements ContextInterface
     {
         $output = str_replace('│', '', $this->getOutput());
         $output = substr($output, strpos($output, '{'));
-        $output = substr($output, 0, strrpos($output, '}')+1);
+        $output = substr($output, 0, strrpos($output, '}') + 1);
         if (null === $this->inspector) {
             $this->inspector = new JsonInspector('javascript');
         }
