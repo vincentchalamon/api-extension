@@ -17,7 +17,7 @@
         "behat/symfony2-extension": "^2.1.4",
         "behatch/contexts": "^3.0",
         "doctrine/common": "^2.8",
-        "doctrine/orm": "^2.6",
+        "doctrine/orm": "^2.6.1",
         "fzaninotto/faker": "^1.7",
         "psr/container": "^1.0",
         "symfony/config": "^4.0",
