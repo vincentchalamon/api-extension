@@ -13,9 +13,9 @@ declare(strict_types=1);
 
 namespace ApiExtension\Populator\Guesser;
 
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Container\ContainerInterface;
-use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>

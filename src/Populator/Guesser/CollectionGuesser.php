@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace ApiExtension\Populator\Guesser;
 
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>

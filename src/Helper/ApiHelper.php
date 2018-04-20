@@ -16,10 +16,10 @@ namespace ApiExtension\Helper;
 use ApiExtension\Exception\EntityNotFoundException;
 use ApiPlatform\Core\Api\IriConverterInterface;
 use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
