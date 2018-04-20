@@ -17,7 +17,7 @@ use ApiExtension\Helper\ApiHelper;
 use ApiExtension\Populator\Populator;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>

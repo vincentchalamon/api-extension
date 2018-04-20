@@ -19,7 +19,7 @@ use Doctrine\Common\Inflector\Inflector;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**

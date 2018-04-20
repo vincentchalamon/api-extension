@@ -28,7 +28,6 @@ use Behat\MinkExtension\Context\MinkContext;
 use Behatch\Context\JsonContext;
 use Behatch\Context\RestContext;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -85,7 +84,7 @@ final class ApiContext implements Context
     public function sendGetRequestToCollection(string $name): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo(Request::METHOD_GET, $this->helper->getUri($this->helper->getReflectionClass($name)));
+        $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name)));
     }
 
     /**
@@ -94,7 +93,7 @@ final class ApiContext implements Context
     public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo(Request::METHOD_GET, $this->helper->getUri($this->helper->getReflectionClass($name))."?$filters");
+        $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name))."?$filters");
     }
 
     /**
@@ -103,7 +102,7 @@ final class ApiContext implements Context
     public function sendGetRequestToItem(string $name, ?array $ids = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo(Request::METHOD_GET, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
+        $this->restContext->iSendARequestTo('GET', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
     }
 
     /**
@@ -120,7 +119,7 @@ final class ApiContext implements Context
     public function sendDeleteRequestToItem(string $name, ?array $ids = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo(Request::METHOD_DELETE, $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
+        $this->restContext->iSendARequestTo('DELETE', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
     }
 
     /**
@@ -148,7 +147,7 @@ final class ApiContext implements Context
         $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody(Request::METHOD_PUT, $this->helper->getItemUri($reflectionClass, $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+        $this->restContext->iSendARequestToWithBody('PUT', $this->helper->getItemUri($reflectionClass, $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
     }
 
     /**
@@ -176,7 +175,7 @@ final class ApiContext implements Context
         $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody(Request::METHOD_POST, $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+        $this->restContext->iSendARequestToWithBody('POST', $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
     }
 
     /**
@@ -185,7 +184,7 @@ final class ApiContext implements Context
     public function iGetTheApiDocInFormat(string $format)
     {
         // todo Do not hard-code url
-        $this->restContext->iSendARequestTo(Request::METHOD_GET, '/docs.'.$format);
+        $this->restContext->iSendARequestTo('GET', '/docs.'.$format);
     }
 
     /**

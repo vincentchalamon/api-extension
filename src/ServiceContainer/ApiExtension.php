@@ -73,7 +73,7 @@ final class ApiExtension implements ExtensionInterface
                             ->isRequired()
                         ->end()
                         ->scalarNode('registry')
-                            ->info('An instance of Symfony\Bridge\Doctrine\ManagerRegistry')
+                            ->info('An instance of Doctrine\Common\Persistence\ManagerRegistry')
                             ->cannotBeEmpty()
                             ->isRequired()
                         ->end()

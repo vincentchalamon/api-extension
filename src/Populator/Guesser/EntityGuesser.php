@@ -15,7 +15,7 @@ namespace ApiExtension\Populator\Guesser;
 
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Container\ContainerInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>

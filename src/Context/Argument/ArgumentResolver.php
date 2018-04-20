@@ -16,7 +16,7 @@ namespace ApiExtension\Context\Argument;
 use ApiPlatform\Core\Api\IriConverterInterface;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use Behat\Behat\Context\Argument\ArgumentResolver as ArgumentResolverInterface;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
 /**
