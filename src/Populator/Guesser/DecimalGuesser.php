@@ -24,7 +24,7 @@ class DecimalGuesser extends AbstractGuesser
     }
 
     /**
-     * Must be parsed as string for Doctrine
+     * Must be parsed as string for Doctrine.
      */
     public function getValue(array $mapping): string
     {

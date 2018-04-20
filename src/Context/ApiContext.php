@@ -323,7 +323,7 @@ JSON
      */
     public function castStringToNumber(string $value): int
     {
-        return intval($value);
+        return (int) $value;
     }
 
     /**

@@ -23,8 +23,8 @@ install:
 
 script:
     - vendor/bin/php-cs-fixer fix --dry-run --diff
-    - vendor/bin/phpunit
-#    - vendor/bin/behat
+#    - vendor/bin/phpunit
+    - vendor/bin/behat
     - vendor/bin/phpstan analyse src
 
 after_success:

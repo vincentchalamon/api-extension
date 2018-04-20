@@ -99,8 +99,8 @@ final class Populator
             $value = $this->transformer->toObject($this->getMapping($classMetadata, $property), $value);
             if ($reflectionClass->hasMethod($property)) {
                 call_user_func([$object, $property], $value);
-            } elseif ($reflectionClass->hasMethod('set' . Inflector::camelize($property))) {
-                call_user_func([$object, 'set' . Inflector::camelize($property)], $value);
+            } elseif ($reflectionClass->hasMethod('set'.Inflector::camelize($property))) {
+                call_user_func([$object, 'set'.Inflector::camelize($property)], $value);
             } elseif ($reflectionClass->hasProperty($property)) {
                 $reflectionProperty = $reflectionClass->getProperty($property);
                 $reflectionProperty->setAccessible(true);
@@ -119,9 +119,9 @@ final class Populator
 
         // Get serialization groups
         $resourceMetadata = $this->metadataFactory->create($className);
-        if (in_array($operation, $resourceMetadata->getCollectionOperations() ?: ['post', 'get'])) {
+        if (in_array($operation, $resourceMetadata->getCollectionOperations() ?: ['post', 'get'], true)) {
             $methodName = 'getCollectionOperationAttribute';
-        } elseif (in_array($operation, $resourceMetadata->getItemOperations() ?: ['put', 'get', 'delete'])) {
+        } elseif (in_array($operation, $resourceMetadata->getItemOperations() ?: ['put', 'get', 'delete'], true)) {
             $methodName = 'getItemOperationAttribute';
         } else {
             throw new \LogicException(sprintf('Unknown operation %s on ApiResource %s.', $operation, $className));
