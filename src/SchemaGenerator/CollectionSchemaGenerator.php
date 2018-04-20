@@ -52,6 +52,10 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
         $schema = [
             'type' => 'object',
             'properties' => [
+                '@context' => [
+                    'type' => 'string',
+                    'pattern' => sprintf('^/contexts/%s$', $reflectionClass->getShortName()),
+                ],
                 '@id' => [
                     'type' => 'string',
                     'pattern' => sprintf('^%s$', $this->helper->getUri($reflectionClass)),
@@ -67,10 +71,10 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
                 // todo Add hydra:view (cf. crud.feature l. 94)
                 // todo Add hydra:search (cf. crud.feature l. 94)
             ],
-            'required' => ['@id', '@type', 'hydra:member'],
+            'required' => ['@context', '@id', '@type', 'hydra:member'],
         ];
         if (!$resourceMetadata->getAttribute('pagination_partial', false)) {
-            $schema['hydra:totalItems'] = ['type' => 'integer'];
+            $schema['properties']['hydra:totalItems'] = ['type' => 'integer'];
             $schema['required'][] = 'hydra:totalItems';
         }
 

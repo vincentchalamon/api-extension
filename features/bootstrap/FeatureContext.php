@@ -40,12 +40,16 @@ declare(strict_types=1);
 
 use Behat\Behat\Context\Context as ContextInterface;
 use Behat\Gherkin\Node\PyStringNode;
+use Behatch\Json\Json;
+use Behatch\Json\JsonInspector;
+use Behatch\Json\JsonSchema;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 /**
  * @author Christophe Coevoet
+ * @author Vincent Chalamon <vincent@les-tilleuls.coop>
  */
 class FeatureContext implements ContextInterface
 {
@@ -58,6 +62,11 @@ class FeatureContext implements ContextInterface
      * @var Process
      */
     private $process;
+
+    /**
+     * @var JsonInspector
+     */
+    private $inspector;
 
     /**
      * Prepares test folders in the temporary directory.
@@ -122,6 +131,42 @@ class FeatureContext implements ContextInterface
     public function theOutputShouldContain(PyStringNode $text)
     {
         Assert::assertContains($this->getExpectedOutput($text), $this->getOutput());
+    }
+
+    /**
+     * @Then the JSON output should be equal to:
+     */
+    public function theJsonOutputShouldBeEqualTo(PyStringNode $text)
+    {
+        $output = str_replace('│', '', $this->getOutput());
+        $output = substr($output, strpos($output, '{'));
+        $output = substr($output, 0, strrpos($output, '}')+1);
+        $output = json_decode($output, true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \LogicException('Unable to detect a valid JSON response.');
+        }
+        $json = json_decode($text->getRaw(), true);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \LogicException('Invalid JSON.');
+        }
+        $diff = array_map('unserialize', array_diff(array_map('serialize', $output), array_map('serialize', $json)));
+        if (0 < count($diff)) {
+            throw new \LogicException("JSON response does not match:\n".print_r($diff, true));
+        }
+    }
+
+    /**
+     * @Then the JSON output should be equal to this schema:
+     */
+    public function theJsonOutputShouldBeEqualToThisSchema(PyStringNode $schema)
+    {
+        $output = str_replace('│', '', $this->getOutput());
+        $output = substr($output, strpos($output, '{'));
+        $output = substr($output, 0, strrpos($output, '}')+1);
+        if (null === $this->inspector) {
+            $this->inspector = new JsonInspector('javascript');
+        }
+        $this->inspector->validate(new Json($output), new JsonSchema($schema->getRaw()));
     }
 
     /**
