@@ -21,7 +21,6 @@ use Doctrine\ORM\Tools\SchemaTool;
  */
 class FeatureContext implements ContextInterface
 {
-    private $initialized = false;
     private $doctrine;
 
     public function __construct(ManagerRegistry $doctrine)
@@ -43,19 +42,15 @@ class FeatureContext implements ContextInterface
     public function initDatabase()
     {
         $manager = $this->doctrine->getManager();
-        if ($this->initialized) {
+
+        if (!is_file(__DIR__.'/../../cache/test/db.sqlite')) {
+            $classes = $manager->getMetadataFactory()->getAllMetadata();
+            $schema = new SchemaTool($manager);
+            $schema->createSchema($classes);
+        } else {
             $purger = new ORMPurger($manager);
             $purger->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
             $purger->purge();
-            $manager->clear();
-
-            return;
         }
-
-        $classes = $manager->getMetadataFactory()->getAllMetadata();
-        $schema = new SchemaTool($manager);
-        $schema->dropSchema($classes);
-        $schema->createSchema($classes);
-        $this->initialized = true;
     }
 }
