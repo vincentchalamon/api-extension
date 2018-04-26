@@ -1,5 +1,3 @@
-**This extension is still in development!**
-
 [![Build Status](https://travis-ci.org/vincentchalamon/api-extension.svg?branch=master)](https://travis-ci.org/vincentchalamon/api-extension)
 [![Coverage Status](https://coveralls.io/repos/github/vincentchalamon/api-extension/badge.svg)](https://coveralls.io/github/vincentchalamon/api-extension)
 
@@ -7,6 +5,10 @@ This Behat extension requires following extensions, check their documentations f
 * [Symfony2Extension](https://github.com/Behat/Symfony2Extension)
 * [Behatch](https://github.com/Behatch/contexts)
 * [MinkExtension](https://github.com/Behat/MinkExtension)
+
+**This extension is just a shortcut to write some steps, it doesn't replace your custom steps.** For instance, if you
+want to test that updating a user updates its password, you still need to add a customer step like
+`And the user password has been successfully updated`.
 
 ## Install
 
@@ -192,7 +194,9 @@ Feature: Using API-Platform, I can get, create, update & delete beers.
 
 ## Add faker provider
 
-Update your Behat configuration:
+To use a [custom faker provider](https://github.com/fzaninotto/Faker#faker-internals-understanding-providers) from
+[fzaninotto/Faker](https://github.com/fzaninotto/Faker), update your Behat configuration as following:
+
 ```yaml
 # behat.yml.dist
 default:
