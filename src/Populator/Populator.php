@@ -119,9 +119,15 @@ final class Populator
 
         // Get serialization groups
         $resourceMetadata = $this->metadataFactory->create($className);
-        if (in_array($operation, $resourceMetadata->getCollectionOperations() ?: ['post', 'get'], true)) {
+        $collectionOperations = array_filter($resourceMetadata->getCollectionOperations(), function ($value, $key) use ($operation) {
+            return $operation === (is_int($key) ? $value : $key);
+        }, ARRAY_FILTER_USE_BOTH);
+        $itemOperations = array_filter($resourceMetadata->getItemOperations() ?: ['put', 'get', 'delete'], function ($key, $value) use ($operation) {
+            return $operation === (is_int($key) ? $value : $key);
+        }, ARRAY_FILTER_USE_BOTH);
+        if (0 < count($collectionOperations)) {
             $methodName = 'getCollectionOperationAttribute';
-        } elseif (in_array($operation, $resourceMetadata->getItemOperations() ?: ['put', 'get', 'delete'], true)) {
+        } elseif (0 < count($itemOperations)) {
             $methodName = 'getItemOperationAttribute';
         } else {
             throw new \LogicException(sprintf('Unknown operation %s on ApiResource %s.', $operation, $className));
