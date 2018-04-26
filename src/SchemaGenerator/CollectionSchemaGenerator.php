@@ -15,6 +15,7 @@ namespace ApiExtension\SchemaGenerator;
 
 use ApiExtension\Helper\ApiHelper;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -27,11 +28,21 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
      * @var ResourceMetadataFactoryInterface
      */
     private $metadataFactory;
+
+    /**
+     * @var RouterInterface
+     */
+    private $router;
     private $helper;
 
     public function __construct(ApiHelper $helper)
     {
         $this->helper = $helper;
+    }
+
+    public function setRouter(RouterInterface $router): void
+    {
+        $this->router = $router;
     }
 
     public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory): void
@@ -54,7 +65,7 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
             'properties' => [
                 '@context' => [
                     'type' => 'string',
-                    'pattern' => sprintf('^/contexts/%s$', $reflectionClass->getShortName()),
+                    'pattern' => sprintf('^%s$', $this->router->generate('api_jsonld_context', ['shortName' => $reflectionClass->getShortName()])),
                 ],
                 '@id' => [
                     'type' => 'string',

@@ -35,6 +35,9 @@ services:
     test.annotation_reader:
         parent: annotation_reader
         public: true
+    test.router:
+        parent: router
+        public: true
 ```
 
 Declare required extensions in your Behat configuration:
@@ -69,6 +72,7 @@ default:
                 registry: '@doctrine'
                 propertyInfo: '@test.property_info'
                 annotationReader: '@test.annotation_reader'
+                router: '@test.router'
 ```
 
 ## Usage

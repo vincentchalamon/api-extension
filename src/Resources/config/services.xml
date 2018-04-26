@@ -49,6 +49,7 @@
         </service>
 
         <service id="ApiExtension\SchemaGenerator\ItemSchemaGenerator" class="ApiExtension\SchemaGenerator\ItemSchemaGenerator" public="false">
+            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
             <tag name="coop_tilleuls.api_extension.schema_generator" />
         </service>
 

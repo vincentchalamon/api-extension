@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
 
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -20,6 +21,16 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 final class ErrorSchemaGenerator implements SchemaGeneratorInterface
 {
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
+    public function setRouter(RouterInterface $router): void
+    {
+        $this->router = $router;
+    }
+
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
     {
         return is_a($reflectionClass->getName(), ConstraintViolationListInterface::class, true);
@@ -31,7 +42,7 @@ final class ErrorSchemaGenerator implements SchemaGeneratorInterface
             'type' => 'object',
             'properties' => [
                 '@context' => [
-                    'pattern' => '^/contexts/ConstraintViolationList$',
+                    'pattern' => sprintf('^%s$', $this->router->generate('api_jsonld_context', ['shortName' => 'ConstraintViolationList'])),
                 ],
                 '@type' => [
                     'pattern' => '^ConstraintViolationList$',

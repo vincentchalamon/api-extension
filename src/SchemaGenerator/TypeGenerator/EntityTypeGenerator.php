@@ -57,8 +57,12 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
                 'pattern' => $this->container->get('helper')->getItemUriPattern(new \ReflectionClass($mapping['targetEntity'])),
             ];
         }
-        if ($mapping['joinColumns'][0]['nullable'] ?? true) {
+        if ($mapping['nullable'] ?? true) {
+            if (!is_array($type['type'])) {
+                $type['type'] = [$type['type']];
+            }
             $type['type'][] = 'null';
+            $type['type'] = array_unique($type['type']);
         }
 
         return $type;

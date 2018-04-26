@@ -12,6 +12,7 @@
 declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -19,6 +20,16 @@ namespace ApiExtension\SchemaGenerator;
 final class ItemSchemaGenerator implements SchemaGeneratorInterface, SchemaGeneratorAwareInterface
 {
     use SchemaGeneratorAwareTrait;
+
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
+    public function setRouter(RouterInterface $router): void
+    {
+        $this->router = $router;
+    }
 
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
     {
@@ -31,7 +42,7 @@ final class ItemSchemaGenerator implements SchemaGeneratorInterface, SchemaGener
             'properties' => [
                 '@context' => [
                     'type' => 'string',
-                    'pattern' => sprintf('^/contexts/%s$', $reflectionClass->getShortName()),
+                    'pattern' => sprintf('^%s$', $this->router->generate('api_jsonld_context', ['shortName' => $reflectionClass->getShortName()])),
                 ],
             ],
             'required' => ['@context'],

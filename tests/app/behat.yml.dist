@@ -28,3 +28,4 @@ default:
                 registry: '@doctrine'
                 propertyInfo: '@test.property_info'
                 annotationReader: '@test.annotation_reader'
+                router: '@test.router'
