@@ -121,12 +121,10 @@ final class Populator
         $resourceMetadata = $this->metadataFactory->create($className);
         $collectionOperations = $this->filterOperations($resourceMetadata->getCollectionOperations() ?: ['get', 'post'], $operation);
         $itemOperations = $this->filterOperations($resourceMetadata->getItemOperations() ?: ['get', 'put', 'delete'], $operation);
-        if (0 < count($collectionOperations)) {
-            $methodName = 'getCollectionOperationAttribute';
-        } elseif (0 < count($itemOperations)) {
+        if (0 < count($itemOperations)) {
             $methodName = 'getItemOperationAttribute';
         } else {
-            throw new \LogicException(sprintf('Unknown operation %s on ApiResource %s.', $operation, $className));
+            $methodName = 'getCollectionOperationAttribute';
         }
         $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
 

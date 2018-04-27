@@ -16,7 +16,9 @@ namespace ApiExtension\SchemaGenerator;
 use ApiExtension\Helper\ApiHelper;
 use ApiExtension\Populator\Populator;
 use ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorInterface;
+use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
+use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 
@@ -41,6 +43,11 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
      * @var ManagerRegistry
      */
     private $registry;
+
+    /**
+     * @var Reader
+     */
+    private $reader;
     private $helper;
     private $populator;
     private $typeGenerator;
@@ -67,6 +74,11 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         $this->registry = $registry;
     }
 
+    public function setAnnotationReader(Reader $reader): void
+    {
+        $this->reader = $reader;
+    }
+
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
     {
         return false === ($context['collection'] ?? false) && false === ($context['root'] ?? false);
@@ -77,22 +89,25 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         $className = $reflectionClass->getName();
         $schema = [
             'type' => 'object',
-            'properties' => [
-                '@id' => [
-                    'type' => 'string',
-                    'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
-                ],
-                '@type' => [
-                    'type' => 'string',
-                    'pattern' => sprintf('^%s$', $reflectionClass->getShortName()),
-                ],
-            ],
-            'required' => ['@id', '@type'],
+            'properties' => [],
+            'required' => [],
         ];
+        if ($this->reader->getClassAnnotation($reflectionClass, ApiResource::class)) {
+            $schema['properties']['@id'] = [
+                'type' => 'string',
+                'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
+            ];
+            $schema['properties']['@type'] = [
+                'type' => 'string',
+                'pattern' => sprintf('^%s$', $reflectionClass->getShortName()),
+            ];
+            $schema['required'][] = '@id';
+            $schema['required'][] = '@type';
+            $context = $context + [
+                    'serializer_groups' => $this->metadataFactory->create($className)->getItemOperationAttribute('get', 'normalization_context', [], true)['groups'] ?? [],
+                ];
+        }
 
-        $context = $context + [
-            'serializer_groups' => $this->metadataFactory->create($className)->getItemOperationAttribute('get', 'normalization_context', [], true)['groups'] ?? [],
-        ];
         foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
             $mapping = $this->populator->getMapping($this->registry->getManagerForClass($className)->getClassMetadata($className), $property);
             $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
