@@ -16,7 +16,6 @@ namespace ApiExtension\Transformer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\QueryBuilder;
 
@@ -59,23 +58,8 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
         $queryBuilder = $em->getRepository($className)->createQueryBuilder('o');
         $classMetadata = $em->getClassMetadata($className);
         foreach ($em->getClassMetadata($className)->getFieldNames() as $fieldName) {
-            $type = ($classMetadata->getFieldMapping($fieldName)['type'] ?? null);
-            switch ($type) {
-                case Type::TEXT:
-                    $type = 'string';
-                    break;
-                case Type::DECIMAL:
-                    $type = 'float';
-                    break;
-                case Type::SMALLINT:
-                case Type::BIGINT:
-                    $type = 'integer';
-                    break;
-            }
-            if (gettype($values[0]) === $type) {
-                $queryBuilder->orWhere($queryBuilder->expr()->in("o.$fieldName", ':query'));
-                $queryBuilder->setParameter('query', $values);
-            }
+            $queryBuilder->orWhere($queryBuilder->expr()->in("o.$fieldName", ':query'));
+            $queryBuilder->setParameter('query', $values);
         }
 
         return new ArrayCollection($queryBuilder->getQuery()->getResult());
