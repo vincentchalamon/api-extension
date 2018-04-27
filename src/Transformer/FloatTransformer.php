@@ -30,8 +30,11 @@ final class FloatTransformer implements TransformerInterface
         return (float) $value;
     }
 
-    public function toScalar(array $mapping, $value): float
+    /**
+     * Must be parsed as string for Doctrine.
+     */
+    public function toScalar(array $mapping, $value): string
     {
-        return $this->toObject($mapping, $value);
+        return (string) $this->toObject($mapping, $value);
     }
 }
