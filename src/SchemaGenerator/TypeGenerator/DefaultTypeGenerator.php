@@ -27,7 +27,11 @@ final class DefaultTypeGenerator implements TypeGeneratorInterface
     {
         $type = ['type' => $mapping['type']];
         if ($mapping['nullable'] ?? false) {
+            if (!is_array($type['type'])) {
+                $type['type'] = [$type['type']];
+            }
             $type['type'][] = 'null';
+            $type['type'] = array_unique($type['type']);
         }
 
         return $type;
