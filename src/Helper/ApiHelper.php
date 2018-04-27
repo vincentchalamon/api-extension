@@ -21,6 +21,7 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -42,6 +43,11 @@ final class ApiHelper
      */
     private $propertyInfo;
 
+    /**
+     * @var RouterInterface
+     */
+    private $router;
+
     public function setIriConverter(IriConverterInterface $iriConverter): void
     {
         $this->iriConverter = $iriConverter;
@@ -57,9 +63,19 @@ final class ApiHelper
         $this->propertyInfo = $propertyInfo;
     }
 
+    public function setRouter(RouterInterface $router): void
+    {
+        $this->router = $router;
+    }
+
     public function getUri(\ReflectionClass $reflectionClass): string
     {
         return $this->iriConverter->getIriFromResourceClass($reflectionClass->getName());
+    }
+
+    public function getUrl(string $url, array $parameters = [])
+    {
+        return $this->router->generate($url, $parameters);
     }
 
     public function getItemUri(\ReflectionClass $reflectionClass, array $ids = null): string
@@ -78,9 +94,7 @@ final class ApiHelper
 
     public function getItemUriPattern(\ReflectionClass $reflectionClass): string
     {
-        $identifiers = $this->getClassMetadata($reflectionClass->getName())->getIdentifierFieldNames();
-
-        return str_replace('{id}', '[\\w-]+', urldecode($this->getItemUri($reflectionClass, array_combine($identifiers, array_fill(0, count($identifiers), '{id}')))));
+        return str_replace('{id}', '[\\w-;=]+', urldecode($this->getItemUri($reflectionClass, ['id' => '{id}'])));
     }
 
     public function getObjectIdentifiers($object): array

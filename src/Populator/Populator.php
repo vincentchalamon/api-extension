@@ -119,12 +119,8 @@ final class Populator
 
         // Get serialization groups
         $resourceMetadata = $this->metadataFactory->create($className);
-        $collectionOperations = array_filter($resourceMetadata->getCollectionOperations(), function ($value, $key) use ($operation) {
-            return $operation === (is_int($key) ? $value : $key);
-        }, ARRAY_FILTER_USE_BOTH);
-        $itemOperations = array_filter($resourceMetadata->getItemOperations() ?: ['put', 'get', 'delete'], function ($key, $value) use ($operation) {
-            return $operation === (is_int($key) ? $value : $key);
-        }, ARRAY_FILTER_USE_BOTH);
+        $collectionOperations = $this->filterOperations($resourceMetadata->getCollectionOperations() ?: ['get', 'post'], $operation);
+        $itemOperations = $this->filterOperations($resourceMetadata->getItemOperations() ?: ['get', 'put', 'delete'], $operation);
         if (0 < count($collectionOperations)) {
             $methodName = 'getCollectionOperationAttribute';
         } elseif (0 < count($itemOperations)) {
@@ -226,5 +222,12 @@ final class Populator
             $this->annotationReader->getPropertyAnnotation($reflectionProperty, NotNull::class) ||
             $this->annotationReader->getPropertyAnnotation($reflectionProperty, Count::class) ||
             !($this->getMapping($classMetadata, $reflectionProperty->getName())['nullable'] ?? false);
+    }
+
+    private function filterOperations(array $operations, string $operation): array
+    {
+        return array_filter($operations, function ($value, $key) use ($operation) {
+            return $operation === (is_int($key) ? $value : $key);
+        }, ARRAY_FILTER_USE_BOTH);
     }
 }

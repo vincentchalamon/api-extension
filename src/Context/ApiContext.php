@@ -184,7 +184,7 @@ final class ApiContext implements Context
     public function iGetTheApiDocInFormat(string $format)
     {
         // todo Do not hard-code url
-        $this->restContext->iSendARequestTo('GET', '/docs.'.$format);
+        $this->restContext->iSendARequestTo('GET', $this->helper->getUrl('api_doc', ['_format' => $format]));
     }
 
     /**
@@ -218,16 +218,16 @@ JSON
                 break;
             case 'jsonld':
                 $this->jsonContext->theResponseShouldBeInJson();
-                $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([<<<'JSON'
+                $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([sprintf(<<<'JSON'
 {
     "type": "object",
     "properties": {
         "@context": {
             "type": "object"
         },
-        "@id": {"pattern": "^/docs.jsonld$"},
+        "@id": {"pattern": "^%s$"},
         "@type": {"pattern": "^hydra:ApiDocumentation$"},
-        "hydra:entrypoint": {"pattern": "^/$"},
+        "hydra:entrypoint": {"pattern": "^%s$"},
         "hydra:supportedClass": {
             "type": "array",
             "items": {
@@ -245,6 +245,9 @@ JSON
     "required": ["@context", "@id", "@type", "hydra:entrypoint", "hydra:supportedClass"]
 }
 JSON
+                    , $this->helper->getUrl('api_doc', ['_format' => 'jsonld'])
+                    , $this->helper->getUrl('api_entrypoint')
+                )
                 ], 0));
                 break;
             case 'html':
