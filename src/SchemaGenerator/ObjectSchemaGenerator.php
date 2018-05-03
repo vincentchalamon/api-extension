@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
 
+use ApiExtension\Exception\MaxDepthException;
 use ApiExtension\Helper\ApiHelper;
 use ApiExtension\Populator\Populator;
 use ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorInterface;
@@ -28,6 +29,8 @@ use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGeneratorAwareInterface
 {
     use SchemaGeneratorAwareTrait;
+
+    private const MAX_DEPTH = 5;
 
     /**
      * @var ResourceMetadataFactoryInterface
@@ -51,6 +54,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
     private $helper;
     private $populator;
     private $typeGenerator;
+    private $path = [];
 
     public function __construct(ApiHelper $helper, Populator $populator, TypeGeneratorInterface $typeGenerator)
     {
@@ -86,6 +90,13 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
+        if (empty($context['depth'])) {
+            $context['depth'] = 0;
+        }
+        if ($context['depth'] > self::MAX_DEPTH) {
+            throw new MaxDepthException(sprintf('Maximum depth of %d has been reached. This could be caused by a circular reference due to serialization groups.%sPath: %s', self::MAX_DEPTH, PHP_EOL, implode('->', $this->path)));
+        }
+        $context['depth']++;
         $className = $reflectionClass->getName();
         $schema = [
             'type' => 'object',
@@ -111,13 +122,17 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
             $mapping = $this->populator->getMapping($classMetadata, $property);
-            // Prevent infinite loop
+            // Prevent infinite loop & circular references
+            if (!empty($mapping['targetEntity'])) {
+                $this->path[$context['depth']] = $property;
+            }
             if ($reflectionClass->getName() === ($mapping['targetEntity'] ?? null)) {
                 // todo Is there a better way to handle this case?
                 $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, ['serializer_groups' => []] + $context);
             } else {
                 $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
             }
+            unset($this->path[$context['depth']]);
             if (false === ($mapping['nullable'] ?? true)) {
                 $schema['required'][] = $property;
             } else {

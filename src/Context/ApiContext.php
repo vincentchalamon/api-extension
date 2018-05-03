@@ -310,14 +310,17 @@ JSON
     /**
      * @Then /^I see (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function validateItemJsonSchema(string $name, array $schema = null): void
+    public function validateItemJsonSchema(string $name, $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
             throw new InvalidStatusCodeException('Invalid status code: expecting between 200 and 300, got '.$statusCode);
         }
         $this->jsonContext->theResponseShouldBeInJson();
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($schema ?: $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]))], 0));
+        if (null === $schema) {
+            $schema = $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]);
+        }
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([is_array($schema) ? json_encode($schema) : $schema], 0));
     }
 
     /**
@@ -332,14 +335,17 @@ JSON
      * @Then /^I see a list of (?P<name>[\w\-]+)$/
      * @Then /^I see a list of (?P<total>\d+)  (?P<name>[\w\-]+)$/
      */
-    public function validateCollectionJsonSchema(string $name, int $total = null, array $schema = null): void
+    public function validateCollectionJsonSchema(string $name, int $total = null, $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
             throw new InvalidStatusCodeException('Invalid status code: expecting between 200 and 300, got '.$statusCode);
         }
         $this->jsonContext->theResponseShouldBeInJson();
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($schema ?: $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]))], 0));
+        if (null === $schema) {
+            $schema = $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]);
+        }
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([is_array($schema) ? json_encode($schema) : $schema], 0));
         if (null !== $total) {
             $this->jsonContext->theJsonNodeShouldHaveElements('hydra:member', $total);
         }

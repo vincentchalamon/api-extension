@@ -86,8 +86,11 @@ final class EntityTransformer implements TransformerInterface
         return $queryBuilder->setMaxResults(1)->getQuery()->getOneOrNullResult();
     }
 
-    public function toScalar(array $mapping, $value): string
+    public function toScalar(array $mapping, $value)
     {
+        if (is_array($value)) {
+            return $value;
+        }
         if (!is_object($value)) {
             $value = $this->toObject($mapping, $value);
             if (null === $value) {
