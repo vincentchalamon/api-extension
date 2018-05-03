@@ -108,11 +108,24 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
                 ];
         }
 
+        $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
-            $mapping = $this->populator->getMapping($this->registry->getManagerForClass($className)->getClassMetadata($className), $property);
-            $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
+            $mapping = $this->populator->getMapping($classMetadata, $property);
+            // Prevent infinite loop
+            if ($reflectionClass->getName() === ($mapping['targetEntity'] ?? null)) {
+                // todo Is there a better way to handle this case?
+                $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, ['serializer_groups' => []] + $context);
+            } else {
+                $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
+            }
             if (false === ($mapping['nullable'] ?? true)) {
                 $schema['required'][] = $property;
+            } else {
+                if (!is_array($schema['properties'][$property]['type'])) {
+                    $schema['properties'][$property]['type'] = [$schema['properties'][$property]['type']];
+                }
+                $schema['properties'][$property]['type'][] = 'null';
+                $schema['properties'][$property]['type'] = array_unique($schema['properties'][$property]['type']);
             }
             if (null !== ($description = $this->propertyInfo->getShortDescription($className, $property))) {
                 $schema['properties'][$property]['description'] = $description;

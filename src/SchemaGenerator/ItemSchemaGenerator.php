@@ -38,7 +38,9 @@ final class ItemSchemaGenerator implements SchemaGeneratorInterface, SchemaGener
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
-        return array_merge_recursive($this->schemaGenerator->generate($reflectionClass), [
+        unset($context['root'], $context['collection']);
+
+        return array_merge_recursive($this->schemaGenerator->generate($reflectionClass, $context), [
             'properties' => [
                 '@context' => [
                     'type' => 'string',
