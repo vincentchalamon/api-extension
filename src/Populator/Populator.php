@@ -46,9 +46,13 @@ final class Populator
      * @var Reader
      */
     private $annotationReader;
+
+    /**
+     * @var ManagerRegistry
+     */
+    private $registry;
     private $guesser;
     private $transformer;
-    private $registry;
     private $mapping = [];
 
     public function __construct(GuesserInterface $guesser, TransformerInterface $transformer)
@@ -142,6 +146,7 @@ final class Populator
         foreach ($values as $property => $value) {
             $values[$property] = $this->transformer->toScalar($this->getMapping($classMetadata, $property), $value);
         }
+        $this->registry->getManager()->clear();
 
         return $values;
     }
