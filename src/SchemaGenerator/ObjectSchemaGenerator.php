@@ -120,7 +120,16 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         }
 
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
-        foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
+        $classProperties = $this->propertyInfo->getProperties($className, $context);
+
+        if (empty($classProperties)) {
+            return [
+                'type' => 'string',
+                'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
+            ];
+        }
+
+        foreach ($classProperties as $property) {
             $mapping = $this->populator->getMapping($classMetadata, $property);
             // Prevent infinite loop & circular references
             if (!empty($mapping['targetEntity'])) {
