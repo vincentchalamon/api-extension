@@ -18,6 +18,8 @@ use ApiExtension\Populator\Populator;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\Id\AssignedGenerator;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -44,11 +46,23 @@ final class FixturesContext implements Context
         $em = $this->registry->getManagerForClass($reflectionClass->getName());
         $rows = $table->getRows();
         $headers = array_shift($rows);
+        /** @var ClassMetadataInfo $classMetadata */
+        $classMetadata = $this->registry->getManagerForClass($reflectionClass->getName())->getClassMetadata($reflectionClass->getName());
+        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
+            $idGenerator = $classMetadata->idGenerator;
+            $classMetadata->setIdGenerator(new AssignedGenerator());
+            $generatorType = $classMetadata->generatorType;
+            $classMetadata->setIdGeneratorType(ClassMetadataInfo::GENERATOR_TYPE_NONE);
+        }
         foreach ($rows as $row) {
             $em->persist($this->populator->getObject($reflectionClass, array_combine($headers, $row)));
         }
         $em->flush();
         $em->clear();
+        if (isset($idGenerator) && isset($generatorType)) {
+            $classMetadata->setIdGenerator($idGenerator);
+            $classMetadata->setIdGeneratorType($generatorType);
+        }
     }
 
     /**
