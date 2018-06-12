@@ -22,7 +22,7 @@ final class FloatTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], [Type::FLOAT], true);
+        return Type::FLOAT === $mapping['type'];
     }
 
     public function toObject(array $mapping, $value): float
