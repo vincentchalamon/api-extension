@@ -122,7 +122,9 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         $classProperties = $this->propertyInfo->getProperties($className, $context);
 
-        if (empty($classProperties)) {
+        // On get collection ($context['depth'] = 1), we still need an object to be returned
+        // even if there is no class properties
+        if (empty($classProperties) && 1 < $context['depth']) {
             return [
                 'type' => 'string',
                 'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
