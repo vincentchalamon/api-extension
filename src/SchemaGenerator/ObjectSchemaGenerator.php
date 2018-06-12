@@ -137,7 +137,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
             if (!empty($mapping['targetEntity'])) {
                 $this->path[$context['depth']] = $property;
             }
-            if ($reflectionClass->getName() === ($mapping['targetEntity'] ?? null)) {
+            if (($mapping['targetEntity'] ?? null) === $reflectionClass->getName()) {
                 // todo Is there a better way to handle this case?
                 $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, ['serializer_groups' => []] + $context);
             } else {
