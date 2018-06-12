@@ -16,7 +16,7 @@ Feature: I can execute Behat tests with current API Extension
         "properties": {
             "@id": {
                 "type": "string",
-                "pattern": "^\/beers\/[\\w-]+$"
+                "pattern": "^\/beers\/[\\w-;=]+$"
             },
             "@type": {
                 "type": "string",
@@ -32,7 +32,7 @@ Feature: I can execute Behat tests with current API Extension
                 "properties": {
                     "@id": {
                         "type": "string",
-                        "pattern": "^\/companies\/[\\w-]+$"
+                        "pattern": "^\/companies\/[\\w-;=]+$"
                     },
                     "@type": {
                         "type": "string",
@@ -91,13 +91,16 @@ Feature: I can execute Behat tests with current API Extension
                 ]
             },
             "images": {
-                "type": "array",
+                "type": [
+                    "array",
+                     "null"
+                ],
                 "items": {
                     "type": "object",
                     "properties": {
                         "@id": {
                             "type": "string",
-                            "pattern": "^\/images\/[\\w-]+$"
+                            "pattern": "^\/images\/[\\w-;=]+$"
                         },
                         "@type": {
                             "type": "string",
@@ -170,7 +173,7 @@ Feature: I can execute Behat tests with current API Extension
                     "properties": {
                         "@id": {
                             "type": "string",
-                            "pattern": "^\/beers\/[\\w-]+$"
+                            "pattern": "^\/beers\/[\\w-;=]+$"
                         },
                         "@type": {
                             "type": "string",
@@ -259,7 +262,7 @@ Feature: I can execute Behat tests with current API Extension
         "properties": {
             "@id": {
                 "type": "string",
-                "pattern": "^\/companies\/[\\w-]+$"
+                "pattern": "^\/companies\/[\\w-;=]+$"
             },
             "@type": {
                 "type": "string",
@@ -310,7 +313,7 @@ Feature: I can execute Behat tests with current API Extension
                     "properties": {
                         "@id": {
                             "type": "string",
-                            "pattern": "^\/companies\/[\\w-]+$"
+                            "pattern": "^\/companies\/[\\w-;=]+$"
                         },
                         "@type": {
                             "type": "string",
@@ -347,5 +350,5 @@ Feature: I can execute Behat tests with current API Extension
     When I run "behat features/company.feature:26"
     Then the output should contain:
     """
-    Unknown operation post on ApiResource ApiExtension\App\Entity\Company.
+    "No route found for "POST /companies": Method Not Allowed (Allow: GET)"
     """

@@ -18,11 +18,11 @@ use Doctrine\DBAL\Types\Type;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
-final class FloatTransformer implements TransformerInterface
+final class DecimalTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], [Type::FLOAT], true);
+        return in_array($mapping['type'], [Type::DECIMAL], true);
     }
 
     public function toObject(array $mapping, $value): float
@@ -30,8 +30,11 @@ final class FloatTransformer implements TransformerInterface
         return (float) $value;
     }
 
-    public function toScalar(array $mapping, $value): float
+    /**
+     * Must be parsed as string for Doctrine.
+     */
+    public function toScalar(array $mapping, $value): string
     {
-        return $this->toObject($mapping, $value);
+        return (string) $this->toObject($mapping, $value);
     }
 }
