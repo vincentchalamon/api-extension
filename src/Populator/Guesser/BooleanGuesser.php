@@ -20,7 +20,7 @@ class BooleanGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return 'boolean' === $mapping['type'];
+        return in_array($mapping['type'], ['boolean', 'bool'], true);
     }
 
     public function getValue(array $mapping): bool
