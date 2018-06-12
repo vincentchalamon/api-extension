@@ -12,6 +12,7 @@
 declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
+
 use Symfony\Component\Routing\RouterInterface;
 
 /**

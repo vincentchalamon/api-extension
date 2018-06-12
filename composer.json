@@ -12,7 +12,7 @@
     "require": {
         "php": ">=7.1",
         "api-platform/core": "^2.2",
-        "behat/behat": "^3.4",
+        "behat/behat": "^3.4.3",
         "behat/mink-extension": "^2.3",
         "behat/symfony2-extension": "^2.1.4",
         "behatch/contexts": "^3.0",

@@ -245,9 +245,8 @@ JSON
     "required": ["@context", "@id", "@type", "hydra:entrypoint", "hydra:supportedClass"]
 }
 JSON
-                    , $this->helper->getUrl('api_doc', ['_format' => 'jsonld'])
-                    , $this->helper->getUrl('api_entrypoint')
-                )
+                    , $this->helper->getUrl('api_doc', ['_format' => 'jsonld']), $this->helper->getUrl('api_entrypoint')
+                ),
                 ], 0));
                 break;
             case 'html':

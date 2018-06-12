@@ -96,7 +96,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         if ($context['depth'] > self::MAX_DEPTH) {
             throw new MaxDepthException(sprintf('Maximum depth of %d has been reached. This could be caused by a circular reference due to serialization groups.%sPath: %s', self::MAX_DEPTH, PHP_EOL, implode('->', $this->path)));
         }
-        $context['depth']++;
+        ++$context['depth'];
         $className = $reflectionClass->getName();
         $schema = [
             'type' => 'object',
@@ -120,13 +120,24 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         }
 
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
-        foreach ($this->propertyInfo->getProperties($className, $context) as $property) {
+        $classProperties = $this->propertyInfo->getProperties($className, $context);
+
+        // On get collection ($context['depth'] = 1), we still need an object to be returned
+        // even if there is no class properties
+        if (empty($classProperties) && 1 < $context['depth']) {
+            return [
+                'type' => 'string',
+                'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
+            ];
+        }
+
+        foreach ($classProperties as $property) {
             $mapping = $this->populator->getMapping($classMetadata, $property);
             // Prevent infinite loop & circular references
             if (!empty($mapping['targetEntity'])) {
                 $this->path[$context['depth']] = $property;
             }
-            if ($reflectionClass->getName() === ($mapping['targetEntity'] ?? null)) {
+            if (($mapping['targetEntity'] ?? null) === $reflectionClass->getName()) {
                 // todo Is there a better way to handle this case?
                 $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, ['serializer_groups' => []] + $context);
             } else {
