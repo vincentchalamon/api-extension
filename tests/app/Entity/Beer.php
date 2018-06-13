@@ -87,6 +87,14 @@ class Beer
     private $price;
 
     /**
+     * @var array
+     * @ORM\Column(type="array")
+     * @Groups({"beer_read", "beer_write"})
+     * @Assert\NotBlank
+     */
+    private $ingredients;
+
+    /**
      * @var int
      * @ORM\Column(type="integer")
      */
@@ -189,6 +197,16 @@ class Beer
     public function setPrice(float $price): void
     {
         $this->price = $price;
+    }
+
+    public function getIngredients(): array
+    {
+        return $this->ingredients;
+    }
+
+    public function setIngredients(array $ingredients): void
+    {
+        $this->ingredients = $ingredients;
     }
 
     public function getStock(): int

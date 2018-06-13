@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ApiExtension\Populator\Guesser;
 
+use Doctrine\DBAL\Types\Type;
+
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
@@ -20,11 +22,11 @@ class ArrayGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return in_array($mapping['type'], ['array', 'json_array', 'simple_array'], true);
+        return in_array($mapping['type'], [Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY], true);
     }
 
     public function getValue(array $mapping): array
     {
-        return array_fill(0, mt_rand(3, 10), $this->faker->word);
+        return array_fill(2, mt_rand(3, 10), $this->faker->word);
     }
 }

@@ -22,7 +22,7 @@ final class ArrayTypeGenerator implements TypeGeneratorInterface
 {
     public function supports(string $property, array $mapping, array $context = []): bool
     {
-        return Type::TARRAY === $mapping['type'];
+        return in_array($mapping['type'], [Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY], true);
     }
 
     public function generate(string $property, array $mapping, array $context = []): array
