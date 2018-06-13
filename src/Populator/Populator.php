@@ -136,7 +136,7 @@ final class Populator
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
-            if (!$this->isRequired($reflectionClass->getProperty($property), $groups) || array_key_exists($property, $values)) {
+            if (!$this->isRequired($reflectionClass->getProperty($property), $groups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($values))) {
                 continue;
             }
             $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
