@@ -136,7 +136,7 @@ final class Populator
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
-            if (!$this->isRequired($reflectionClass->getProperty($property)) || array_key_exists($property, $values)) {
+            if (!$this->isRequired($reflectionClass->getProperty($property), $groups) || array_key_exists($property, $values)) {
                 continue;
             }
             $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
@@ -215,16 +215,20 @@ final class Populator
         return $this->getMapping($classMetadata, $property);
     }
 
-    private function isRequired(\ReflectionProperty $reflectionProperty): bool
+    private function isRequired(\ReflectionProperty $reflectionProperty, $groups): bool
     {
         /** @var ClassMetadataInfo $classMetadata */
         $className = $reflectionProperty->getDeclaringClass()->getName();
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
 
-        return $this->annotationReader->getPropertyAnnotation($reflectionProperty, NotBlank::class) ||
-            $this->annotationReader->getPropertyAnnotation($reflectionProperty, NotNull::class) ||
-            $this->annotationReader->getPropertyAnnotation($reflectionProperty, Count::class) ||
-            !($this->getMapping($classMetadata, $reflectionProperty->getName())['nullable'] ?? false);
+        foreach ([NotBlank::class, NotNull::class, Count::class] as $class) {
+            $annotation = $this->annotationReader->getPropertyAnnotation($reflectionProperty, $class);
+            if ($annotation && 0 < count(array_intersect($annotation->groups, $groups))) {
+                return true;
+            }
+        }
+
+        return !($this->getMapping($classMetadata, $reflectionProperty->getName())['nullable'] ?? false);
     }
 
     private function filterOperations(array $operations, string $operation): array
