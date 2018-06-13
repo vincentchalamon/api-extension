@@ -92,7 +92,7 @@ class Beer
      * @Groups({"beer_read", "beer_write"})
      * @Assert\NotBlank
      */
-    private $ingredients;
+    private $ingredients = [];
 
     /**
      * @var int
