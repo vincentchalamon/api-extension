@@ -57,9 +57,11 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $em->getRepository($className)->createQueryBuilder('o');
         $classMetadata = $em->getClassMetadata($className);
-        foreach ($em->getClassMetadata($className)->getFieldNames() as $fieldName) {
-            $queryBuilder->orWhere($queryBuilder->expr()->in("o.$fieldName", ':query'));
-            $queryBuilder->setParameter('query', $values);
+        foreach ($classMetadata->getFieldNames() as $fieldName) {
+            if ('string' === $classMetadata->getTypeOfField($fieldName)) {
+                $queryBuilder->orWhere($queryBuilder->expr()->in("o.$fieldName", ':query'));
+                $queryBuilder->setParameter('query', $values);
+            }
         }
 
         return new ArrayCollection($queryBuilder->getQuery()->getResult());
