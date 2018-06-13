@@ -185,6 +185,10 @@
             <tag name="coop_tilleuls.api_extension.transformer" />
         </service>
 
+        <service id="ApiExtension\Transformer\DecimalTransformer" class="ApiExtension\Transformer\DecimalTransformer" public="false">
+            <tag name="coop_tilleuls.api_extension.transformer" />
+        </service>
+
         <service id="ApiExtension\Transformer\ArrayTransformer" class="ApiExtension\Transformer\ArrayTransformer" public="false">
             <tag name="coop_tilleuls.api_extension.transformer" />
         </service>
