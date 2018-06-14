@@ -131,12 +131,13 @@ final class Populator
             $methodName = 'getCollectionOperationAttribute';
         }
         $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
+        $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', [], true) ?? [];
 
         // Complete required properties
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
-            if (!$this->isRequired($reflectionClass->getProperty($property), $groups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($values))) {
+            if (!$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($values))) {
                 continue;
             }
             $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
