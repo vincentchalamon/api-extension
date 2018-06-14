@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     "denormalization_context"={"groups"={"beer_write"}},
  *     "pagination_partial"=true
  * }, collectionOperations={
- *     "post",
+ *     "post"={"validation_groups"={"beer_create"}},
  *     "get"={"normalization_context"={"groups"={"beer_list_read"}}},
  * })
  * @ApiFilter(SearchFilter::class, properties={"name"})
@@ -138,6 +138,13 @@ class Beer
      * @Groups({"beer_read", "beer_write"})
      */
     private $images;
+
+    /**
+     * @var null|string
+     * @Groups({"beer_write"})
+     * @Assert\NotBlank(groups={"beer_create"})
+     */
+    private $misc;
 
     public function __construct()
     {
@@ -286,5 +293,15 @@ class Beer
     public function getNbImages(): int
     {
         return $this->images->count();
+    }
+
+    public function getMisc(): ?string
+    {
+        return $this->misc;
+    }
+
+    public function setMisc(?string $misc): void
+    {
+        $this->misc = $misc;
     }
 }

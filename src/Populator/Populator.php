@@ -132,6 +132,8 @@ final class Populator
         }
         $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
         $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', [], true) ?? [];
+        // We need to add "Default" in the validation groups here to not have to put it in all class annotation
+        $validationGroups = array_unique(array_merge($validationGroups, ['Default']));
 
         // Complete required properties
         /** @var ClassMetadataInfo $classMetadata */

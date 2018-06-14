@@ -257,9 +257,12 @@ Feature: I can execute Behat tests with current API Extension
                     "type": "string",
                     "pattern": "^\/images\/\\w+$"
                 }
+            },
+            "misc": {
+                "type": "string"
             }
         },
-        "required": ["company", "name", "active", "price", "ingredients", "description", "createdAt", "currencyCode"]
+        "required": ["company", "name", "active", "price", "ingredients", "description", "createdAt", "currencyCode", "misc"]
     }
     """
 
