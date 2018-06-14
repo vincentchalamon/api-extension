@@ -140,6 +140,10 @@
             <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
         </service>
 
+        <service id="ApiExtension\SchemaGenerator\TypeGenerator\ArrayTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\ArrayTypeGenerator" public="false">
+            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
+        </service>
+
         <service id="Symfony\Component\DependencyInjection\ServiceLocator" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
             <argument type="collection">
                 <argument key="populator" type="service" id="ApiExtension\Populator\Populator" />

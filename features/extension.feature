@@ -69,6 +69,12 @@ Feature: I can execute Behat tests with current API Extension
                     "number"
                 ]
             },
+            "ingredients": {
+                "type": [
+                    "array",
+                    "object"
+                ]
+            },
             "weight": {
                 "type": [
                     "integer"
@@ -137,6 +143,7 @@ Feature: I can execute Behat tests with current API Extension
             "name",
             "active",
             "price",
+            "ingredients",
             "weight",
             "description",
             "createdAt",
@@ -228,6 +235,9 @@ Feature: I can execute Behat tests with current API Extension
             "price": {
                 "type": "number"
             },
+            "ingredients": {
+                "type": "object"
+            },
             "weight": {
                 "type": "integer"
             },
@@ -249,7 +259,7 @@ Feature: I can execute Behat tests with current API Extension
                 }
             }
         },
-        "required": ["company", "name", "active", "price", "description", "createdAt", "currencyCode"]
+        "required": ["company", "name", "active", "price", "ingredients", "description", "createdAt", "currencyCode"]
     }
     """
 
