@@ -35,8 +35,8 @@ Feature: Using API-Platform, I can get, create, update & delete beers.
   Scenario: I can update a beer and fill its new name
     Given there is a beer
     When I update a beer with:
-      | name    |
-      | Chouffe |
+      | name    | type  |
+      | Chouffe | Blond |
     Then I see a beer
 
   Scenario: I can update a beer by its name
@@ -51,8 +51,8 @@ Feature: Using API-Platform, I can get, create, update & delete beers.
       | name    |
       | Chouffe |
     When I update the beer Chouffe with:
-      | name |
-      | Kwak |
+      | name | type |
+      | Kwak | IPA  |
     Then I see a beer
 
   Scenario: I can get a beer
