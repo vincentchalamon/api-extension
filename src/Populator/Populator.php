@@ -132,14 +132,13 @@ final class Populator
         }
         $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
         $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', [], true) ?? [];
-        // We need to add "Default" in the validation groups here to not have to put it in all class annotation
-        $validationGroups = array_unique(array_merge($validationGroups, ['Default']));
+        $originalValues = $values;
 
         // Complete required properties
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
-            if (!$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($values))) {
+            if (!$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($originalValues))) {
                 continue;
             }
             $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
