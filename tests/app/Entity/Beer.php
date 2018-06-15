@@ -27,8 +27,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     "normalization_context"={"groups"={"beer_read"}},
  *     "denormalization_context"={"groups"={"beer_write"}},
  *     "pagination_partial"=true
+ * }, itemOperations={
+ *     "delete",
+ *     "put"={"validation_groups"={"Default"}},
+ *     "get"
  * }, collectionOperations={
- *     "post"={"validation_groups"={"beer_create"}},
+ *     "post"={"validation_groups"={"Default", "beer_create"}},
  *     "get"={"normalization_context"={"groups"={"beer_list_read"}}},
  * })
  * @ApiFilter(SearchFilter::class, properties={"name"})
@@ -63,6 +67,14 @@ class Beer
      * @Assert\NotBlank
      */
     private $name;
+
+    /**
+     * @var null|string
+     * @ORM\Column(nullable=true)
+     * @Groups({"beer_read", "beer_write"})
+     * @Assert\NotBlank
+     */
+    private $type;
 
     /**
      * @var null|float
@@ -174,6 +186,22 @@ class Beer
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param null|string $type
+     */
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
     }
 
     public function getVolume(): ?float

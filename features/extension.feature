@@ -55,6 +55,12 @@ Feature: I can execute Behat tests with current API Extension
                     "string"
                 ]
             },
+            "type": {
+                "type": [
+                    "string",
+                    "null"
+                ]
+            },
             "volume": {
                 "type": [
                     "number",
