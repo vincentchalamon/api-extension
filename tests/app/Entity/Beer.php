@@ -27,10 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     "normalization_context"={"groups"={"beer_read"}},
  *     "denormalization_context"={"groups"={"beer_write"}},
  *     "pagination_partial"=true
- * }, itemOperations={
- *     "delete",
- *     "put"={"validation_groups"={"Default"}},
- *     "get"
  * }, collectionOperations={
  *     "post"={"validation_groups"={"Default", "beer_create"}},
  *     "get"={"normalization_context"={"groups"={"beer_list_read"}}},
