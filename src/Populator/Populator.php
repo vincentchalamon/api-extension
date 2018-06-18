@@ -131,7 +131,7 @@ final class Populator
             $methodName = 'getCollectionOperationAttribute';
         }
         $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
-        $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', [], true) ?: ['Default'];
+        $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', ['Default'], true);
         $originalValues = $values;
 
         // Complete required properties
