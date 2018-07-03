@@ -23,7 +23,7 @@ trait GuesserAwareTrait
      */
     private $guesser;
 
-    public function setGuesser(GuesserInterface $guesser): void
+    public function setGuesser(GuesserInterface $guesser)
     {
         $this->guesser = $guesser;
     }

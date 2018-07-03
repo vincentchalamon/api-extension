@@ -40,12 +40,12 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
         $this->helper = $helper;
     }
 
-    public function setRouter(RouterInterface $router): void
+    public function setRouter(RouterInterface $router)
     {
         $this->router = $router;
     }
 
-    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory): void
+    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory)
     {
         $this->metadataFactory = $metadataFactory;
     }

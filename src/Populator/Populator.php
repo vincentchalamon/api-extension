@@ -61,22 +61,22 @@ final class Populator
         $this->transformer = $transformer;
     }
 
-    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory): void
+    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory)
     {
         $this->metadataFactory = $metadataFactory;
     }
 
-    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo): void
+    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo)
     {
         $this->propertyInfo = $propertyInfo;
     }
 
-    public function setAnnotationReader(Reader $annotationReader): void
+    public function setAnnotationReader(Reader $annotationReader)
     {
         $this->annotationReader = $annotationReader;
     }
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }

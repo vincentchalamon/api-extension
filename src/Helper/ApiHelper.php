@@ -48,22 +48,17 @@ final class ApiHelper
      */
     private $router;
 
-    public function setIriConverter(IriConverterInterface $iriConverter): void
+    public function setIriConverter(IriConverterInterface $iriConverter)
     {
         $this->iriConverter = $iriConverter;
     }
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }
 
-    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo): void
-    {
-        $this->propertyInfo = $propertyInfo;
-    }
-
-    public function setRouter(RouterInterface $router): void
+    public function setRouter(RouterInterface $router)
     {
         $this->router = $router;
     }

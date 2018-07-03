@@ -26,7 +26,7 @@ final class ErrorSchemaGenerator implements SchemaGeneratorInterface
      */
     private $router;
 
-    public function setRouter(RouterInterface $router): void
+    public function setRouter(RouterInterface $router)
     {
         $this->router = $router;
     }

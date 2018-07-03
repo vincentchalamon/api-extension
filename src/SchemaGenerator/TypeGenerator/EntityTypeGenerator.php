@@ -44,12 +44,12 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
         $this->container = $container;
     }
 
-    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo): void
+    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo)
     {
         $this->propertyInfo = $propertyInfo;
     }
 
-    public function setAnnotationReader(Reader $reader): void
+    public function setAnnotationReader(Reader $reader)
     {
         $this->reader = $reader;
     }

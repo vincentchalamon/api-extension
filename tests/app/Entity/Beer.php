@@ -169,7 +169,7 @@ class Beer
         return $this->company;
     }
 
-    public function setCompany(Company $company): void
+    public function setCompany(Company $company)
     {
         $this->company = $company;
     }
@@ -179,7 +179,7 @@ class Beer
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name)
     {
         $this->name = $name;
     }
@@ -187,7 +187,7 @@ class Beer
     /**
      * @return null|string
      */
-    public function getType(): ?string
+    public function getType()
     {
         return $this->type;
     }
@@ -195,17 +195,20 @@ class Beer
     /**
      * @param null|string $type
      */
-    public function setType(?string $type): void
+    public function setType($type = null)
     {
         $this->type = $type;
     }
 
-    public function getVolume(): ?float
+    /**
+     * @return null|float
+     */
+    public function getVolume()
     {
         return $this->volume;
     }
 
-    public function setVolume(?float $volume): void
+    public function setVolume($volume = null)
     {
         $this->volume = $volume;
     }
@@ -215,7 +218,7 @@ class Beer
         return $this->active;
     }
 
-    public function setActive(bool $active): void
+    public function setActive(bool $active)
     {
         $this->active = $active;
     }
@@ -225,7 +228,7 @@ class Beer
         return $this->price;
     }
 
-    public function setPrice(float $price): void
+    public function setPrice(float $price)
     {
         $this->price = $price;
     }
@@ -235,7 +238,7 @@ class Beer
         return $this->ingredients;
     }
 
-    public function setIngredients(array $ingredients): void
+    public function setIngredients(array $ingredients)
     {
         $this->ingredients = $ingredients;
     }
@@ -245,7 +248,7 @@ class Beer
         return $this->stock;
     }
 
-    public function setStock(int $stock): void
+    public function setStock(int $stock)
     {
         $this->stock = $stock;
     }
@@ -255,7 +258,7 @@ class Beer
         return $this->weight;
     }
 
-    public function setWeight(int $weight): void
+    public function setWeight(int $weight)
     {
         $this->weight = $weight;
     }
@@ -265,7 +268,7 @@ class Beer
         return $this->description;
     }
 
-    public function setDescription(string $description): void
+    public function setDescription(string $description)
     {
         $this->description = $description;
     }
@@ -275,7 +278,7 @@ class Beer
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(\DateTime $createdAt)
     {
         $this->createdAt = $createdAt;
     }
@@ -285,7 +288,7 @@ class Beer
         return $this->currencyCode;
     }
 
-    public function setCurrencyCode(string $currencyCode): void
+    public function setCurrencyCode(string $currencyCode)
     {
         $this->currencyCode = $currencyCode;
     }
@@ -298,7 +301,7 @@ class Beer
         return $this->images->getValues();
     }
 
-    public function addImage(Image $image): void
+    public function addImage(Image $image)
     {
         if (!$this->images->contains($image)) {
             $image->setBeer($this);
@@ -306,7 +309,7 @@ class Beer
         }
     }
 
-    public function removeImage(Image $image): void
+    public function removeImage(Image $image)
     {
         $this->images->removeElement($image);
     }
@@ -319,12 +322,15 @@ class Beer
         return $this->images->count();
     }
 
-    public function getMisc(): ?string
+    /**
+     * @return null|string
+     */
+    public function getMisc()
     {
         return $this->misc;
     }
 
-    public function setMisc(?string $misc): void
+    public function setMisc($misc = null)
     {
         $this->misc = $misc;
     }

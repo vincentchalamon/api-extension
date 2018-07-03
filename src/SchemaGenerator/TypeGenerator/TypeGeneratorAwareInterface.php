@@ -18,5 +18,5 @@ namespace ApiExtension\SchemaGenerator\TypeGenerator;
  */
 interface TypeGeneratorAwareInterface
 {
-    public function setTypeGenerator(TypeGeneratorInterface $typeGenerator): void;
+    public function setTypeGenerator(TypeGeneratorInterface $typeGenerator);
 }

@@ -23,7 +23,7 @@ trait TypeGeneratorAwareTrait
      */
     private $typeGenerator;
 
-    public function setTypeGenerator(TypeGeneratorInterface $typeGenerator): void
+    public function setTypeGenerator(TypeGeneratorInterface $typeGenerator)
     {
         $this->typeGenerator = $typeGenerator;
     }

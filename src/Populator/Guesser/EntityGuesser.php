@@ -33,7 +33,7 @@ class EntityGuesser implements GuesserInterface
         $this->container = $container;
     }
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }

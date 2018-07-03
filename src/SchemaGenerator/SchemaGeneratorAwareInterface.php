@@ -18,5 +18,5 @@ namespace ApiExtension\SchemaGenerator;
  */
 interface SchemaGeneratorAwareInterface
 {
-    public function setSchemaGenerator(SchemaGeneratorInterface $schemaGenerator): void;
+    public function setSchemaGenerator(SchemaGeneratorInterface $schemaGenerator);
 }

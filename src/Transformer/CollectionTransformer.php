@@ -31,7 +31,7 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
      */
     private $registry;
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }

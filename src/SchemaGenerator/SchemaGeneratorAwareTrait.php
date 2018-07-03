@@ -23,7 +23,7 @@ trait SchemaGeneratorAwareTrait
      */
     private $schemaGenerator;
 
-    public function setSchemaGenerator(SchemaGeneratorInterface $schemaGenerator): void
+    public function setSchemaGenerator(SchemaGeneratorInterface $schemaGenerator)
     {
         $this->schemaGenerator = $schemaGenerator;
     }

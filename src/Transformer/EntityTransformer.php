@@ -36,12 +36,12 @@ final class EntityTransformer implements TransformerInterface
      */
     private $iriConverter;
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }
 
-    public function setIriConverter(IriConverterInterface $iriConverter): void
+    public function setIriConverter(IriConverterInterface $iriConverter)
     {
         $this->iriConverter = $iriConverter;
     }

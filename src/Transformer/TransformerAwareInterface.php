@@ -18,5 +18,5 @@ namespace ApiExtension\Transformer;
  */
 interface TransformerAwareInterface
 {
-    public function setTransformer(TransformerInterface $guesser): void;
+    public function setTransformer(TransformerInterface $guesser);
 }

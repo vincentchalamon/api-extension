@@ -26,7 +26,7 @@ class CollectionGuesser implements GuesserInterface
      */
     private $registry;
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }

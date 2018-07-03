@@ -23,7 +23,7 @@ trait TransformerAwareTrait
      */
     private $transformer;
 
-    public function setTransformer(TransformerInterface $transformer): void
+    public function setTransformer(TransformerInterface $transformer)
     {
         $this->transformer = $transformer;
     }

@@ -18,5 +18,5 @@ namespace ApiExtension\Populator\Guesser;
  */
 interface GuesserAwareInterface
 {
-    public function setGuesser(GuesserInterface $guesser): void;
+    public function setGuesser(GuesserInterface $guesser);
 }

@@ -35,7 +35,7 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 final class ApiContext implements Context
 {
-    public const FORMAT = 'application/ld+json';
+    const FORMAT = 'application/ld+json';
 
     /**
      * @var RestContext
@@ -81,7 +81,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get a list of (?P<name>[\w\-]+)$/
      */
-    public function sendGetRequestToCollection(string $name): void
+    public function sendGetRequestToCollection(string $name)
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name)));
@@ -90,7 +90,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get a list of (?P<name>[\w\-]+) filtered by (?P<filters>[\w\-=&]+)$/
      */
-    public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null): void
+    public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null)
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name))."?$filters");
@@ -99,7 +99,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function sendGetRequestToItem(string $name, ?array $ids = null): void
+    public function sendGetRequestToItem(string $name, array $ids = null)
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('GET', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
@@ -116,7 +116,7 @@ final class ApiContext implements Context
     /**
      * @When /^I delete (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function sendDeleteRequestToItem(string $name, ?array $ids = null): void
+    public function sendDeleteRequestToItem(string $name, array $ids = null)
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('DELETE', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
@@ -125,7 +125,7 @@ final class ApiContext implements Context
     /**
      * @When /^I delete the (?P<name>[\w\-]+) (?P<value>[^ ]+)$/
      */
-    public function sendDeleteRequestToDesignatedItem(string $name, string $value): void
+    public function sendDeleteRequestToDesignatedItem(string $name, string $value)
     {
         $this->sendDeleteRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
     }
@@ -133,7 +133,7 @@ final class ApiContext implements Context
     /**
      * @When /^I update (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
      */
-    public function sendPutRequestToItem(string $name, $data = null, array $ids = null): void
+    public function sendPutRequestToItem(string $name, $data = null, array $ids = null)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
@@ -153,7 +153,7 @@ final class ApiContext implements Context
     /**
      * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+)(?: with:)?$/
      */
-    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null): void
+    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null)
     {
         $this->sendPutRequestToItem($name, $data, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
     }
@@ -161,7 +161,7 @@ final class ApiContext implements Context
     /**
      * @When /^I create (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
      */
-    public function sendPostRequestToCollection(string $name, $data = null): void
+    public function sendPostRequestToCollection(string $name, $data = null)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
@@ -258,7 +258,7 @@ JSON
     /**
      * @Then the request is invalid
      */
-    public function responseStatusCodeShouldBe400(): void
+    public function responseStatusCodeShouldBe400()
     {
         $this->minkContext->assertResponseStatus(400);
         $this->jsonContext->theResponseShouldBeInJson();
@@ -268,7 +268,7 @@ JSON
     /**
      * @Then /^the (?:.*) is not found$/
      */
-    public function responseStatusCodeShouldBe404(): void
+    public function responseStatusCodeShouldBe404()
     {
         $this->minkContext->assertResponseStatus(404);
     }
@@ -276,7 +276,7 @@ JSON
     /**
      * @Then the method is not allowed
      */
-    public function responseStatusCodeShouldBe405(): void
+    public function responseStatusCodeShouldBe405()
     {
         $this->minkContext->assertResponseStatus(405);
     }
@@ -284,7 +284,7 @@ JSON
     /**
      * @Then /^the (?P<name>[\w\_]+) has been successfully deleted$/
      */
-    public function itemShouldHaveBeSuccessfullyDeleted(string $name): void
+    public function itemShouldHaveBeSuccessfullyDeleted(string $name)
     {
         $this->minkContext->assertResponseStatus(204);
         // todo Ensure object has been deleted from database
@@ -309,7 +309,7 @@ JSON
     /**
      * @Then /^I see (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function validateItemJsonSchema(string $name, $schema = null): void
+    public function validateItemJsonSchema(string $name, $schema = null)
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
@@ -334,7 +334,7 @@ JSON
      * @Then /^I see a list of (?P<name>[\w\-]+)$/
      * @Then /^I see a list of (?P<total>\d+)  (?P<name>[\w\-]+)$/
      */
-    public function validateCollectionJsonSchema(string $name, int $total = null, $schema = null): void
+    public function validateCollectionJsonSchema(string $name, int $total = null, $schema = null)
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
@@ -353,7 +353,7 @@ JSON
     /**
      * @Then /^I don't see any (?P<name>[\w\-]+)$/
      */
-    public function validateCollectionIsEmpty(string $name): void
+    public function validateCollectionIsEmpty(string $name)
     {
         $this->validateCollectionJsonSchema($name, 0);
     }
@@ -361,7 +361,7 @@ JSON
     /**
      * @Then /^print (?P<name>[\w\-]+) list JSON schema$/
      */
-    public function printCollectionJsonSchema(string $name): void
+    public function printCollectionJsonSchema(string $name)
     {
         echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]), JSON_PRETTY_PRINT);
     }
@@ -369,7 +369,7 @@ JSON
     /**
      * @Then /^print (?P<name>[\w\-]+) item JSON schema$/
      */
-    public function printItemJsonSchema(string $name): void
+    public function printItemJsonSchema(string $name)
     {
         echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]), JSON_PRETTY_PRINT);
     }
@@ -377,7 +377,7 @@ JSON
     /**
      * @Then /^print last JSON request$/
      */
-    public function printJsonData(): void
+    public function printJsonData()
     {
         echo json_encode($this->lastRequestJson, JSON_PRETTY_PRINT);
     }

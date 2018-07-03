@@ -30,7 +30,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
 {
     use SchemaGeneratorAwareTrait;
 
-    private const MAX_DEPTH = 5;
+    const MAX_DEPTH = 5;
 
     /**
      * @var ResourceMetadataFactoryInterface
@@ -63,22 +63,22 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         $this->typeGenerator = $typeGenerator;
     }
 
-    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory): void
+    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory)
     {
         $this->metadataFactory = $metadataFactory;
     }
 
-    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo): void
+    public function setPropertyInfo(PropertyInfoExtractorInterface $propertyInfo)
     {
         $this->propertyInfo = $propertyInfo;
     }
 
-    public function setRegistry(ManagerRegistry $registry): void
+    public function setRegistry(ManagerRegistry $registry)
     {
         $this->registry = $registry;
     }
 
-    public function setAnnotationReader(Reader $reader): void
+    public function setAnnotationReader(Reader $reader)
     {
         $this->reader = $reader;
     }

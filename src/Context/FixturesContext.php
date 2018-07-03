@@ -40,7 +40,7 @@ final class FixturesContext implements Context
     /**
      * @Given /^the following (?P<name>[\w\-]+):$/
      */
-    public function theFollowing($name, TableNode $table): void
+    public function theFollowing($name, TableNode $table)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $em = $this->registry->getManagerForClass($reflectionClass->getName());
@@ -68,7 +68,7 @@ final class FixturesContext implements Context
     /**
      * @Given /^there (?:is|are) (?P<number>\d+) (?P<name>[\w\-]+)$/
      */
-    public function thereIs(string $name, int $number): void
+    public function thereIs(string $name, int $number)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $em = $this->registry->getManagerForClass($reflectionClass->getName());
@@ -82,7 +82,7 @@ final class FixturesContext implements Context
     /**
      * @Given /^there (?:is|are) (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function thereIsA(string $name): void
+    public function thereIsA(string $name)
     {
         $this->thereIs($name, 1);
     }
@@ -90,7 +90,7 @@ final class FixturesContext implements Context
     /**
      * @Given /^there are (?P<name>[\w\-]+)$/
      */
-    public function thereAre(string $name): void
+    public function thereAre(string $name)
     {
         $this->thereIs($name, mt_rand(3, 10));
     }

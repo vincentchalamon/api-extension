@@ -63,7 +63,7 @@ class Image
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name)
     {
         $this->name = $name;
     }
@@ -73,7 +73,7 @@ class Image
         return $this->beer;
     }
 
-    public function setBeer(Beer $beer): void
+    public function setBeer(Beer $beer)
     {
         $this->beer = $beer;
     }

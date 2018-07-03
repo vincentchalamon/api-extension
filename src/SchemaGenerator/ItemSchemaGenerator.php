@@ -27,7 +27,7 @@ final class ItemSchemaGenerator implements SchemaGeneratorInterface, SchemaGener
      */
     private $router;
 
-    public function setRouter(RouterInterface $router): void
+    public function setRouter(RouterInterface $router)
     {
         $this->router = $router;
     }
