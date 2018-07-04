@@ -332,7 +332,7 @@ JSON
 
     /**
      * @Then /^I see a list of (?P<name>[\w\-]+)$/
-     * @Then /^I see a list of (?P<total>\d+)  (?P<name>[\w\-]+)$/
+     * @Then /^I see a list of (?P<total>\d+) (?P<name>[\w\-]+)$/
      */
     public function validateCollectionJsonSchema(string $name, int $total = null, $schema = null)
     {
