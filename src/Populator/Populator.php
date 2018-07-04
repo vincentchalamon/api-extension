@@ -137,7 +137,7 @@ final class Populator
         // Complete required properties
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
-        foreach ($this->propertyInfo->getProperties($className, ['serializer_groups' => $groups ?? []]) as $property) {
+        foreach ($this->propertyInfo->getProperties($className, $groups ? ['serializer_groups' => $groups] : []) as $property) {
             if (!$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($originalValues))) {
                 continue;
             }
