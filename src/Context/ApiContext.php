@@ -88,7 +88,7 @@ final class ApiContext implements Context
     }
 
     /**
-     * @When /^I get a list of (?P<name>[\w\-]+) filtered by (?P<filters>[\w\-=&]+)$/
+     * @When /^I get a list of (?P<name>[\w\-]+) (?:filtered|ordered) by (?P<filters>[\w\[\]\-=&]+)$/
      */
     public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null)
     {
