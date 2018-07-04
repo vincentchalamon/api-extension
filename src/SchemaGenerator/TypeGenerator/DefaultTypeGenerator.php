@@ -25,6 +25,9 @@ final class DefaultTypeGenerator implements TypeGeneratorInterface
 
     public function generate(string $property, array $mapping, array $context = []): array
     {
+        if (!in_array($mapping['type'], ['integer', 'number', 'boolean', 'object', 'array', 'string', 'null', 'any'], true)) {
+            $mapping['type'] = 'any';
+        }
         $type = ['type' => $mapping['type']];
         if ($mapping['nullable'] ?? false) {
             if (!is_array($type['type'])) {
