@@ -67,6 +67,7 @@ final class EntityTransformer implements TransformerInterface
         foreach ($classMetadata->getFieldNames() as $fieldName) {
             $type = ($classMetadata->getFieldMapping($fieldName)['type'] ?? null);
             switch ($type) {
+                default:
                 case Type::TEXT:
                     $type = 'string';
                     break;
