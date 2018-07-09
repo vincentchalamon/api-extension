@@ -74,6 +74,9 @@ final class EntityTransformer implements TransformerInterface
                 case Type::DECIMAL:
                     $type = 'float';
                     break;
+                case Type::BOOLEAN:
+                    $type = 'boolean';
+                    break;
                 case Type::SMALLINT:
                 case Type::BIGINT:
                     $type = 'integer';
