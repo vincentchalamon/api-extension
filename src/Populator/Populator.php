@@ -123,7 +123,6 @@ final class Populator
 
         // Get serialization groups
         $resourceMetadata = $this->metadataFactory->create($className);
-        $collectionOperations = $this->filterOperations($resourceMetadata->getCollectionOperations() ?: ['get', 'post'], $operation);
         $itemOperations = $this->filterOperations($resourceMetadata->getItemOperations() ?: ['get', 'put', 'delete'], $operation);
         if (0 < count($itemOperations)) {
             $methodName = 'getItemOperationAttribute';
