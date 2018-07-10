@@ -48,6 +48,6 @@ final class SchemaGeneratorChain implements SchemaGeneratorInterface
             }
         }
 
-        throw new SchemaGeneratorNotFoundException('No schema generator found for class '.$reflectionClass->getName());
+        throw new SchemaGeneratorNotFoundException('No schema generator found for class '.$reflectionClass->name);
     }
 }

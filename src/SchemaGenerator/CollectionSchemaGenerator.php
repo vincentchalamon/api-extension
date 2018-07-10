@@ -57,7 +57,7 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
-        $resourceMetadata = $this->metadataFactory->create($reflectionClass->getName());
+        $resourceMetadata = $this->metadataFactory->create($reflectionClass->name);
         $normalizationContext = $resourceMetadata->getCollectionOperationAttribute('get', 'normalization_context', [], true);
 
         $schema = [

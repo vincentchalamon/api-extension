@@ -97,7 +97,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
             throw new MaxDepthException(sprintf('Maximum depth of %d has been reached. This could be caused by a circular reference due to serialization groups.%sPath: %s', self::MAX_DEPTH, PHP_EOL, implode('->', $this->path)));
         }
         ++$context['depth'];
-        $className = $reflectionClass->getName();
+        $className = $reflectionClass->name;
         $schema = [
             'type' => 'object',
             'properties' => [],
@@ -137,7 +137,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
             if (!empty($mapping['targetEntity'])) {
                 $this->path[$context['depth']] = $property;
             }
-            if (($mapping['targetEntity'] ?? null) === $reflectionClass->getName()) {
+            if (($mapping['targetEntity'] ?? null) === $reflectionClass->name) {
                 // todo Is there a better way to handle this case?
                 $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, ['serializer_groups' => []] + $context);
             } else {

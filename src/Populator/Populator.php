@@ -83,7 +83,7 @@ final class Populator
 
     public function getObject(\ReflectionClass $reflectionClass, array $values = [])
     {
-        $className = $reflectionClass->getName();
+        $className = $reflectionClass->name;
 
         // Complete required properties
         /** @var ClassMetadataInfo $classMetadata */
@@ -119,7 +119,7 @@ final class Populator
 
     public function getRequestData(\ReflectionClass $reflectionClass, string $operation, array $values = []): array
     {
-        $className = $reflectionClass->getName();
+        $className = $reflectionClass->name;
 
         // Get serialization groups
         $resourceMetadata = $this->metadataFactory->create($className);
@@ -220,7 +220,7 @@ final class Populator
     private function isRequired(\ReflectionProperty $reflectionProperty, $groups): bool
     {
         /** @var ClassMetadataInfo $classMetadata */
-        $className = $reflectionProperty->getDeclaringClass()->getName();
+        $className = $reflectionProperty->getDeclaringClass()->name;
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
 
         foreach ([NotBlank::class, NotNull::class, Count::class] as $class) {
@@ -230,7 +230,7 @@ final class Populator
             }
         }
 
-        return !($this->getMapping($classMetadata, $reflectionProperty->getName())['nullable'] ?? false);
+        return !($this->getMapping($classMetadata, $reflectionProperty->name)['nullable'] ?? false);
     }
 
     private function filterOperations(array $operations, string $operation): array

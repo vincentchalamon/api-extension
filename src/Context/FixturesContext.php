@@ -43,11 +43,11 @@ final class FixturesContext implements Context
     public function theFollowing($name, TableNode $table)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
-        $em = $this->registry->getManagerForClass($reflectionClass->getName());
+        $em = $this->registry->getManagerForClass($reflectionClass->name);
         $rows = $table->getRows();
         $headers = array_shift($rows);
         /** @var ClassMetadataInfo $classMetadata */
-        $classMetadata = $this->registry->getManagerForClass($reflectionClass->getName())->getClassMetadata($reflectionClass->getName());
+        $classMetadata = $this->registry->getManagerForClass($reflectionClass->name)->getClassMetadata($reflectionClass->name);
         if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
             $idGenerator = $classMetadata->idGenerator;
             $classMetadata->setIdGenerator(new AssignedGenerator());
@@ -71,7 +71,7 @@ final class FixturesContext implements Context
     public function thereIs(string $name, int $number)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
-        $em = $this->registry->getManagerForClass($reflectionClass->getName());
+        $em = $this->registry->getManagerForClass($reflectionClass->name);
         for ($i = 0; $i < $number; ++$i) {
             $em->persist($this->populator->getObject($reflectionClass));
         }

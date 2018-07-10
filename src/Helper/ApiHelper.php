@@ -65,7 +65,7 @@ final class ApiHelper
 
     public function getUri(\ReflectionClass $reflectionClass): string
     {
-        return $this->iriConverter->getIriFromResourceClass($reflectionClass->getName());
+        return $this->iriConverter->getIriFromResourceClass($reflectionClass->name);
     }
 
     public function getUrl(string $url, array $parameters = [])
@@ -76,15 +76,15 @@ final class ApiHelper
     public function getItemUri(\ReflectionClass $reflectionClass, array $ids = null): string
     {
         /** @var EntityManagerInterface $em */
-        $em = $this->registry->getManagerForClass($reflectionClass->getName());
+        $em = $this->registry->getManagerForClass($reflectionClass->name);
         if (null === $ids) {
-            if (null === ($object = $em->getRepository($reflectionClass->getName())->findOneBy([]))) {
-                throw new EntityNotFoundException('Unable to find an existing object of class '.$reflectionClass->getName());
+            if (null === ($object = $em->getRepository($reflectionClass->name)->findOneBy([]))) {
+                throw new EntityNotFoundException('Unable to find an existing object of class '.$reflectionClass->name);
             }
             $ids = $this->getObjectIdentifiers($object);
         }
 
-        return $this->iriConverter->getItemIriFromResourceClass($reflectionClass->getName(), $ids);
+        return $this->iriConverter->getItemIriFromResourceClass($reflectionClass->name, $ids);
     }
 
     public function getItemUriPattern(\ReflectionClass $reflectionClass): string

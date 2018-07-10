@@ -33,7 +33,7 @@ final class ErrorSchemaGenerator implements SchemaGeneratorInterface
 
     public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
     {
-        return is_a($reflectionClass->getName(), ConstraintViolationListInterface::class, true);
+        return is_a($reflectionClass->name, ConstraintViolationListInterface::class, true);
     }
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array

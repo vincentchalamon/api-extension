@@ -284,7 +284,7 @@ JSON
     /**
      * @Then /^the (?P<name>[\w\_]+) has been successfully deleted$/
      */
-    public function itemShouldHaveBeSuccessfullyDeleted(string $name)
+    public function itemShouldHaveBeSuccessfullyDeleted()
     {
         $this->minkContext->assertResponseStatus(204);
         // todo Ensure object has been deleted from database
@@ -385,9 +385,9 @@ JSON
     private function findObject(string $name, $value)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
-        $object = $this->transformer->toObject(['targetEntity' => $reflectionClass->getName(), 'type' => ClassMetadataInfo::ONE_TO_ONE], $value);
+        $object = $this->transformer->toObject(['targetEntity' => $reflectionClass->name, 'type' => ClassMetadataInfo::ONE_TO_ONE], $value);
         if (null === $object) {
-            throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $reflectionClass->getName(), $value));
+            throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $reflectionClass->name, $value));
         }
 
         return $object;
