@@ -83,17 +83,27 @@ default:
 FixturesContext provides the following steps:
 * `the following <name>`
 * `there is <nb> <name>`
-* `there are <nb> <name>`
 * `there is a <name>`
 * `there is an <name>`
+* `there are <nb> <name>`
+* `there are <name>`
 
 ApiContext provides the following steps:
 * `I get a list of <name>`
 * `I get a list of <name> filtered by <filter>`
+* `I get a list of <name> ordered by <filter>`
 * `I create a <name>`
 * `I create an <name>`
+* `I create a <name> using group <serialization-group>`
+* `I create a <name> using groups <serialization-groups>`
+* `I create an <name> using group <serialization-group>`
+* `I create an <name> using groups <serialization-groups>`
 * `I create a <name> with:`
 * `I create an <name> with:`
+* `I create a <name> using group <serialization-group> with:`
+* `I create a <name> using groups <serialization-groups> with:`
+* `I create an <name> using group <serialization-group> with:`
+* `I create an <name> using groups <serialization-groups> with:`
 * `I get a <name>`
 * `I get an <name>`
 * `I get the <name> <value>`
