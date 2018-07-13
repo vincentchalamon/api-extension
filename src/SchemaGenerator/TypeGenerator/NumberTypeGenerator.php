@@ -18,12 +18,12 @@ namespace ApiExtension\SchemaGenerator\TypeGenerator;
  */
 final class NumberTypeGenerator implements TypeGeneratorInterface
 {
-    public function supports(string $property, array $mapping, array $context = []): bool
+    public function supports(array $mapping, array $context = []): bool
     {
         return in_array($mapping['type'], ['int', 'float', 'decimal'], true);
     }
 
-    public function generate(string $property, array $mapping, array $context = []): array
+    public function generate(array $mapping, array $context = []): array
     {
         $type = ['type' => ['number']];
         if ($mapping['nullable'] ?? false) {

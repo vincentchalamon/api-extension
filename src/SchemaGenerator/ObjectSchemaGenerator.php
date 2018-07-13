@@ -139,9 +139,9 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
             }
             if (($mapping['targetEntity'] ?? null) === $reflectionClass->name) {
                 // todo Is there a better way to handle this case?
-                $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, ['serializer_groups' => []] + $context);
+                $schema['properties'][$property] = $this->typeGenerator->generate($mapping, ['serializer_groups' => []] + $context);
             } else {
-                $schema['properties'][$property] = $this->typeGenerator->generate($property, $mapping, $context);
+                $schema['properties'][$property] = $this->typeGenerator->generate($mapping, $context);
             }
             unset($this->path[$context['depth']]);
             if (false === ($mapping['nullable'] ?? true)) {

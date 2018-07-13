@@ -20,13 +20,15 @@ final class EmailTypeGenerator implements TypeGeneratorInterface, TypeGeneratorA
 {
     use TypeGeneratorAwareTrait;
 
-    public function supports(string $property, array $mapping, array $context = []): bool
+    public function supports(array $mapping, array $context = []): bool
     {
-        return 'email' === $property;
+        return 'email' === $mapping['fieldName'];
     }
 
-    public function generate(string $property, array $mapping, array $context = []): array
+    public function generate(array $mapping, array $context = []): array
     {
-        return ['pattern' => '^[\\w\\.-]+@[\\w\\.-]+\\.[A-z]+$'] + $this->typeGenerator->generate('', $mapping, $context);
+        unset($mapping['fieldName']);
+
+        return ['pattern' => '^[\\w\\.-]+@[\\w\\.-]+\\.[A-z]+$'] + $this->typeGenerator->generate($mapping, $context);
     }
 }

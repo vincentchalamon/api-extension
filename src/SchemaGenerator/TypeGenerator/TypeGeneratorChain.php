@@ -35,16 +35,16 @@ final class TypeGeneratorChain implements TypeGeneratorInterface
         $this->generators = $generators;
     }
 
-    public function supports(string $property, array $mapping, array $context = []): bool
+    public function supports(array $mapping, array $context = []): bool
     {
         return true;
     }
 
-    public function generate(string $property, array $mapping, array $context = []): array
+    public function generate(array $mapping, array $context = []): array
     {
         foreach ($this->generators as $generator) {
-            if ($generator->supports($property, $mapping, $context)) {
-                return $generator->generate($property, $mapping, $context);
+            if ($generator->supports($mapping, $context)) {
+                return $generator->generate($mapping, $context);
             }
         }
 

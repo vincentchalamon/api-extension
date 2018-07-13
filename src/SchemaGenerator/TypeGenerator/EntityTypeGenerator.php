@@ -54,12 +54,12 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
         $this->reader = $reader;
     }
 
-    public function supports(string $property, array $mapping, array $context = []): bool
+    public function supports(array $mapping, array $context = []): bool
     {
         return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
-    public function generate(string $property, array $mapping, array $context = []): array
+    public function generate(array $mapping, array $context = []): array
     {
         $reflectionClass = new \ReflectionClass($mapping['targetEntity']);
         if (0 < count($this->propertyInfo->getProperties($mapping['targetEntity'], $context))) {

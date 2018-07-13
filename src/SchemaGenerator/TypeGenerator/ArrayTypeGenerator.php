@@ -20,12 +20,12 @@ use Doctrine\DBAL\Types\Type;
  */
 final class ArrayTypeGenerator implements TypeGeneratorInterface
 {
-    public function supports(string $property, array $mapping, array $context = []): bool
+    public function supports(array $mapping, array $context = []): bool
     {
         return in_array($mapping['type'], [Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY], true);
     }
 
-    public function generate(string $property, array $mapping, array $context = []): array
+    public function generate(array $mapping, array $context = []): array
     {
         $type = ['type' => ['array', 'object']];
         if ($mapping['nullable'] ?? false) {
