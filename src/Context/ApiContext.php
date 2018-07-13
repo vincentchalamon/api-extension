@@ -132,8 +132,9 @@ final class ApiContext implements Context
 
     /**
      * @When /^I update (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
+     * @When /^I update (?:a|an) (?P<name>[\w\-]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPutRequestToItem(string $name, $data = null, array $ids = null)
+    public function sendPutRequestToItem(string $name, $data = null, array $ids = null, $groups = '')
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
@@ -144,7 +145,7 @@ final class ApiContext implements Context
                 $values = array_combine(array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values);
+        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values, array_filter(explode(', ', $groups)));
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->restContext->iSendARequestToWithBody('PUT', $this->helper->getItemUri($reflectionClass, $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
@@ -152,16 +153,18 @@ final class ApiContext implements Context
 
     /**
      * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+)(?: with:)?$/
+     * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null)
+    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null, $groups = '')
     {
-        $this->sendPutRequestToItem($name, $data, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
+        $this->sendPutRequestToItem($name, $data, $this->helper->getObjectIdentifiers($this->findObject($name, $value)), $groups);
     }
 
     /**
      * @When /^I create (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
+     * @When /^I create (?:a|an) (?P<name>[\w\-]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPostRequestToCollection(string $name, $data = null)
+    public function sendPostRequestToCollection(string $name, $data = null, $groups = '')
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
@@ -172,7 +175,7 @@ final class ApiContext implements Context
                 $values = array_combine(array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values);
+        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values, array_filter(explode(', ', $groups)));
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->restContext->iSendARequestToWithBody('POST', $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));

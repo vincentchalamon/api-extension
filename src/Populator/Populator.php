@@ -117,7 +117,7 @@ final class Populator
         return $object;
     }
 
-    public function getRequestData(\ReflectionClass $reflectionClass, string $operation, array $values = []): array
+    public function getRequestData(\ReflectionClass $reflectionClass, string $operation, array $values = [], array $extraGroups = []): array
     {
         $className = $reflectionClass->name;
 
@@ -129,15 +129,18 @@ final class Populator
         } else {
             $methodName = 'getCollectionOperationAttribute';
         }
-        $groups = call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? [];
+        $groups = array_merge($extraGroups, call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? []);
         $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', ['Default'], true);
+        if (is_string($validationGroups)) {
+            $validationGroups = [];
+        }
         $originalValues = $values;
 
         // Complete required properties
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, $groups ? ['serializer_groups' => $groups] : []) as $property) {
-            if (!$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($originalValues))) {
+            if (!$reflectionClass->hasProperty($property) || !$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($originalValues))) {
                 continue;
             }
             $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
