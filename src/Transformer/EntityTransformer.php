@@ -71,6 +71,7 @@ final class EntityTransformer implements TransformerInterface
                 case Type::TEXT:
                     $type = 'string';
                     break;
+                case Type::FLOAT:
                 case Type::DECIMAL:
                     $type = 'float';
                     break;
