@@ -27,7 +27,7 @@ final class EmailTypeGenerator implements TypeGeneratorInterface, TypeGeneratorA
 
     public function generate(array $mapping, array $context = []): array
     {
-        unset($mapping['fieldName']);
+        $mapping['fieldName'] = null;
 
         return ['pattern' => '^[\\w\\.-]+@[\\w\\.-]+\\.[A-z]+$'] + $this->typeGenerator->generate($mapping, $context);
     }
