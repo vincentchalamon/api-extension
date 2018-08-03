@@ -66,6 +66,35 @@ final class FixturesContext implements Context
     }
 
     /**
+     * @Given /^there are (?P<number>\d+) (?P<name>[\w\-]+) with:$/
+     */
+    public function thereAreWith($number, $name, TableNode $table)
+    {
+        $reflectionClass = $this->helper->getReflectionClass($name);
+        $em = $this->registry->getManagerForClass($reflectionClass->name);
+        $rows = $table->getRows();
+        $headers = array_shift($rows);
+        $row = array_shift($rows);
+        /** @var ClassMetadataInfo $classMetadata */
+        $classMetadata = $this->registry->getManagerForClass($reflectionClass->name)->getClassMetadata($reflectionClass->name);
+        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
+            $idGenerator = $classMetadata->idGenerator;
+            $classMetadata->setIdGenerator(new AssignedGenerator());
+            $generatorType = $classMetadata->generatorType;
+            $classMetadata->setIdGeneratorType(ClassMetadataInfo::GENERATOR_TYPE_NONE);
+        }
+        for ($i = 0; $i < $number; ++$i) {
+            $em->persist($this->populator->getObject($reflectionClass, array_combine($headers, $row)));
+        }
+        $em->flush();
+        $em->clear();
+        if (isset($idGenerator) && isset($generatorType)) {
+            $classMetadata->setIdGenerator($idGenerator);
+            $classMetadata->setIdGeneratorType($generatorType);
+        }
+    }
+
+    /**
      * @Given /^there (?:is|are) (?P<number>\d+) (?P<name>[\w\-]+)$/
      */
     public function thereIs(string $name, int $number)

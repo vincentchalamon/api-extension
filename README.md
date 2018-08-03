@@ -87,6 +87,7 @@ FixturesContext provides the following steps:
 * `there is an <name>`
 * `there are <nb> <name>`
 * `there are <name>`
+* `there are <nb> <name> with:`
 
 ApiContext provides the following steps:
 * `I get a list of <name>`
