@@ -95,7 +95,7 @@ Feature: I can execute Behat tests with current API Extension
                 "type": [
                     "string"
                 ],
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$"
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+\\d{2}:\\d{2}$"
             },
             "currencyCode": {
                 "type": [
@@ -252,7 +252,7 @@ Feature: I can execute Behat tests with current API Extension
             },
             "createdAt": {
                 "type": "string",
-                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+00:00$"
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+\\d{2}:\\d{2}$"
             },
             "currencyCode": {
                 "type": "string"
