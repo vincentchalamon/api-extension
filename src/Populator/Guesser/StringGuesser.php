@@ -20,7 +20,7 @@ class StringGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return in_array($mapping['type'], ['string', 'text'], true);
+        return \in_array($mapping['type'], ['string', 'text'], true);
     }
 
     public function getValue(array $mapping): string

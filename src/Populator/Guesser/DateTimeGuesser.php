@@ -20,7 +20,7 @@ class DateTimeGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return in_array($mapping['type'], ['datetime', 'date', 'time'], true);
+        return \in_array($mapping['type'], ['datetime', 'date', 'time'], true);
     }
 
     public function getValue(array $mapping): \DateTime

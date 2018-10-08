@@ -28,7 +28,7 @@ final class ArgumentResolver implements ArgumentResolverInterface
 
     public function __construct(/* ... */)
     {
-        $this->dependencies = func_get_args();
+        $this->dependencies = \func_get_args();
     }
 
     public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory)

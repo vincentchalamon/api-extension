@@ -47,7 +47,7 @@ final class ApiConfigurator
                     $value = $this->container->get('@' === substr($value, 0, 1) ? substr($value, 1) : $value);
                 }
             }
-            call_user_func([$service, $methodName], $value);
+            \call_user_func([$service, $methodName], $value);
         }
     }
 }

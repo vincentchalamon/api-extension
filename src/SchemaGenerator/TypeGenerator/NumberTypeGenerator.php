@@ -20,7 +20,7 @@ final class NumberTypeGenerator implements TypeGeneratorInterface
 {
     public function supports(array $mapping, array $context = []): bool
     {
-        return in_array($mapping['type'], ['int', 'float', 'decimal'], true);
+        return \in_array($mapping['type'], ['int', 'float', 'decimal'], true);
     }
 
     public function generate(array $mapping, array $context = []): array

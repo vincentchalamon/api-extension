@@ -20,7 +20,7 @@ final class StringTypeGenerator implements TypeGeneratorInterface
 {
     public function supports(array $mapping, array $context = []): bool
     {
-        return in_array($mapping['type'], ['string', 'text'], true);
+        return \in_array($mapping['type'], ['string', 'text'], true);
     }
 
     public function generate(array $mapping, array $context = []): array

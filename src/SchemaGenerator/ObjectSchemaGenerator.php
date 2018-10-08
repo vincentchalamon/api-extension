@@ -147,7 +147,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
             if (false === ($mapping['nullable'] ?? true)) {
                 $schema['required'][] = $property;
             } else {
-                if (!is_array($schema['properties'][$property]['type'])) {
+                if (!\is_array($schema['properties'][$property]['type'])) {
                     $schema['properties'][$property]['type'] = [$schema['properties'][$property]['type']];
                 }
                 $schema['properties'][$property]['type'][] = 'null';

@@ -22,7 +22,7 @@ final class DateTimeTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], [Type::DATETIME, Type::DATE, Type::TIME], true);
+        return \in_array($mapping['type'], [Type::DATETIME, Type::DATE, Type::TIME], true);
     }
 
     public function toObject(array $mapping, $value): \DateTime

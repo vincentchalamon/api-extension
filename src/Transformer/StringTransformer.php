@@ -22,7 +22,7 @@ final class StringTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], [Type::STRING, Type::TEXT], true);
+        return \in_array($mapping['type'], [Type::STRING, Type::TEXT], true);
     }
 
     public function toObject(array $mapping, $value): string

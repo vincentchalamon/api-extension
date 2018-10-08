@@ -22,7 +22,7 @@ final class IntegerTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], ['int', Type::INTEGER, Type::SMALLINT, Type::BIGINT], true);
+        return \in_array($mapping['type'], ['int', Type::INTEGER, Type::SMALLINT, Type::BIGINT], true);
     }
 
     public function toObject(array $mapping, $value): int

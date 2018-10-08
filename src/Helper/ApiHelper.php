@@ -109,7 +109,7 @@ final class ApiHelper
             $classes = array_filter($allClasses, function (\ReflectionClass $reflectionClass) use ($result) {
                 return strtolower($result) === strtolower($reflectionClass->getShortName());
             });
-            if (count($classes)) {
+            if (\count($classes)) {
                 return array_shift($classes);
             }
         }

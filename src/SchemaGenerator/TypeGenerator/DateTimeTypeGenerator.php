@@ -20,7 +20,7 @@ final class DateTimeTypeGenerator implements TypeGeneratorInterface
 {
     public function supports(array $mapping, array $context = []): bool
     {
-        return in_array($mapping['type'], ['datetime', 'date', 'time'], true);
+        return \in_array($mapping['type'], ['datetime', 'date', 'time'], true);
     }
 
     public function generate(array $mapping, array $context = []): array

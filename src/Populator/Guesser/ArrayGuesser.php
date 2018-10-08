@@ -22,7 +22,7 @@ class ArrayGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return in_array($mapping['type'], [Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY], true);
+        return \in_array($mapping['type'], [Type::TARRAY, Type::SIMPLE_ARRAY, Type::JSON_ARRAY], true);
     }
 
     public function getValue(array $mapping): array

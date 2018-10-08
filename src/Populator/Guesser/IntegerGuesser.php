@@ -20,7 +20,7 @@ class IntegerGuesser extends AbstractGuesser
 {
     public function supports(array $mapping): bool
     {
-        return in_array($mapping['type'], ['int', 'integer', 'smallint', 'bigint'], true);
+        return \in_array($mapping['type'], ['int', 'integer', 'smallint', 'bigint'], true);
     }
 
     public function getValue(array $mapping): int

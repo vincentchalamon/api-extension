@@ -33,7 +33,7 @@ class CollectionGuesser implements GuesserInterface
 
     public function supports(array $mapping): bool
     {
-        return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
+        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
     }
 
     public function getValue(array $mapping): array

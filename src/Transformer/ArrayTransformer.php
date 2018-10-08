@@ -22,7 +22,7 @@ final class ArrayTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return in_array($mapping['type'], [Type::TARRAY, Type::JSON_ARRAY, Type::SIMPLE_ARRAY], true) && is_string($value);
+        return \in_array($mapping['type'], [Type::TARRAY, Type::JSON_ARRAY, Type::SIMPLE_ARRAY], true) && \is_string($value);
     }
 
     public function toObject(array $mapping, $value): array

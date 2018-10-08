@@ -102,9 +102,9 @@ final class Populator
         foreach ($values as $property => $value) {
             $value = $this->transformer->toObject($this->getMapping($classMetadata, $property), $value);
             if ($reflectionClass->hasMethod($property)) {
-                call_user_func([$object, $property], $value);
+                \call_user_func([$object, $property], $value);
             } elseif ($reflectionClass->hasMethod('set'.Inflector::camelize($property))) {
-                call_user_func([$object, 'set'.Inflector::camelize($property)], $value);
+                \call_user_func([$object, 'set'.Inflector::camelize($property)], $value);
             } elseif ($reflectionClass->hasProperty($property)) {
                 $reflectionProperty = $reflectionClass->getProperty($property);
                 $reflectionProperty->setAccessible(true);
@@ -124,14 +124,14 @@ final class Populator
         // Get serialization groups
         $resourceMetadata = $this->metadataFactory->create($className);
         $itemOperations = $this->filterOperations($resourceMetadata->getItemOperations() ?: ['get', 'put', 'delete'], $operation);
-        if (0 < count($itemOperations)) {
+        if (0 < \count($itemOperations)) {
             $methodName = 'getItemOperationAttribute';
         } else {
             $methodName = 'getCollectionOperationAttribute';
         }
-        $groups = array_merge($extraGroups, call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? []);
-        $validationGroups = call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', ['Default'], true);
-        if (is_string($validationGroups)) {
+        $groups = array_merge($extraGroups, \call_user_func([$resourceMetadata, $methodName], $operation, 'denormalization_context', [], true)['groups'] ?? []);
+        $validationGroups = \call_user_func([$resourceMetadata, $methodName], $operation, 'validation_groups', ['Default'], true);
+        if (\is_string($validationGroups)) {
             $validationGroups = [];
         }
         $originalValues = $values;
@@ -140,7 +140,7 @@ final class Populator
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, $groups ? ['serializer_groups' => $groups] : []) as $property) {
-            if (!$reflectionClass->hasProperty($property) || !$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < count($originalValues))) {
+            if (!$reflectionClass->hasProperty($property) || !$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < \count($originalValues))) {
                 continue;
             }
             $values[$property] = $this->guesser->getValue($this->getMapping($classMetadata, $property));
@@ -227,7 +227,7 @@ final class Populator
 
         foreach ([NotBlank::class, NotNull::class, Count::class] as $class) {
             $annotation = $this->annotationReader->getPropertyAnnotation($reflectionProperty, $class);
-            if ($annotation && 0 < count(array_intersect($annotation->groups, $groups))) {
+            if ($annotation && 0 < \count(array_intersect($annotation->groups, $groups))) {
                 return true;
             }
         }
@@ -238,7 +238,7 @@ final class Populator
     private function filterOperations(array $operations, string $operation): array
     {
         return array_filter($operations, function ($value, $key) use ($operation) {
-            return $operation === (is_int($key) ? $value : $key);
+            return $operation === (\is_int($key) ? $value : $key);
         }, ARRAY_FILTER_USE_BOTH);
     }
 }

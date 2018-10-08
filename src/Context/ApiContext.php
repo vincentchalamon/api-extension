@@ -322,7 +322,7 @@ JSON
         if (null === $schema) {
             $schema = $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]);
         }
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([is_array($schema) ? json_encode($schema) : $schema], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\is_array($schema) ? json_encode($schema) : $schema], 0));
     }
 
     /**
@@ -347,7 +347,7 @@ JSON
         if (null === $schema) {
             $schema = $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]);
         }
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([is_array($schema) ? json_encode($schema) : $schema], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\is_array($schema) ? json_encode($schema) : $schema], 0));
         if (null !== $total) {
             $this->jsonContext->theJsonNodeShouldHaveElements('hydra:member', $total);
         }

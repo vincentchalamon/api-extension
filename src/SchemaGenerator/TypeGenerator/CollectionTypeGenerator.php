@@ -33,7 +33,7 @@ final class CollectionTypeGenerator implements TypeGeneratorInterface
 
     public function supports(array $mapping, array $context = []): bool
     {
-        return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
+        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
     }
 
     public function generate(array $mapping, array $context = []): array

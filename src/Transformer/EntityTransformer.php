@@ -48,7 +48,7 @@ final class EntityTransformer implements TransformerInterface
 
     public function supports(array $mapping, $value): bool
     {
-        return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
+        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
     public function toObject(array $mapping, $value)
@@ -83,7 +83,7 @@ final class EntityTransformer implements TransformerInterface
                     $type = 'integer';
                     break;
             }
-            if (gettype($value) === $type) {
+            if (\gettype($value) === $type) {
                 $queryBuilder->orWhere("o.$fieldName = :query")->setParameter('query', $value);
             }
         }
@@ -93,10 +93,10 @@ final class EntityTransformer implements TransformerInterface
 
     public function toScalar(array $mapping, $value)
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return $value;
         }
-        if (!is_object($value)) {
+        if (!\is_object($value)) {
             $value = $this->toObject($mapping, $value);
             if (null === $value) {
                 throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $mapping['targetEntity'], $value));

@@ -38,7 +38,7 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
 
     public function supports(array $mapping, $value): bool
     {
-        return null !== $mapping['targetEntity'] && in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
+        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
     }
 
     public function toObject(array $mapping, $value): Collection
@@ -47,7 +47,7 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
             return $value;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return new ArrayCollection($value);
         }
 
@@ -69,7 +69,7 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
 
     public function toScalar(array $mapping, $values): array
     {
-        if (!$values instanceof Collection && !is_array($values)) {
+        if (!$values instanceof Collection && !\is_array($values)) {
             $values = $this->toObject($mapping, $values);
         }
         if ($values instanceof Collection) {
