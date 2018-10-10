@@ -16,31 +16,7 @@ want to test that updating a user updates its password, you still need to add a 
 ## Install
 
 ```bash
-composer require --dev vincentchalamon/api-extension:dev-master
-```
-
-As all services in Symfony are private, you need to override them to inject them:
-```yaml
-# config/services_test.yaml
-
-# Hack for Behat: allow to inject some private services
-# Waiting for Behat/Symfony2Extension to support autowiring (https://goo.gl/z8BPpG)
-services:
-    test.property_info:
-        parent: property_info
-        public: true
-    test.api_platform.metadata.resource.metadata_factory.annotation:
-        parent: api_platform.metadata.resource.metadata_factory.annotation
-        public: true
-    test.api_platform.iri_converter:
-        parent: api_platform.iri_converter
-        public: true
-    test.annotation_reader:
-        parent: annotation_reader
-        public: true
-    test.router:
-        parent: router
-        public: true
+composer require --dev vincentchalamon/api-extension
 ```
 
 Declare required extensions in your Behat configuration:
@@ -67,6 +43,41 @@ default:
                 default:
                     symfony2: ~
         Behatch\Extension: ~
+        # ...
+        ApiExtension: ~
+```
+
+## Usage with Symfony FrameworkBundle < 4.1
+
+Running with Symfony FrameworkBundle < 4.1, you need to override some private services:
+
+```yaml
+# config/services_test.yaml
+
+# Hack for Behat: allow to inject some private services
+services:
+    test.property_info:
+        parent: property_info
+        public: true
+    test.api_platform.metadata.resource.metadata_factory.annotation:
+        parent: api_platform.metadata.resource.metadata_factory.annotation
+        public: true
+    test.api_platform.iri_converter:
+        parent: api_platform.iri_converter
+        public: true
+    test.annotation_reader:
+        parent: annotation_reader
+        public: true
+    test.router:
+        parent: router
+        public: true
+```
+
+```yaml
+# behat.yml.dist
+default:
+    # ...
+    extensions:
         # ...
         ApiExtension:
             services:

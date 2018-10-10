@@ -35,6 +35,8 @@ final class ApiConfigurator
 
     public function configure($service)
     {
+        $container = $this->container->has('test.service_container') ? $this->container->get('test.service_container') : $this->container;
+
         foreach ($this->parameters as $name => $value) {
             $methodName = 'set'.ucfirst($name);
             if (!method_exists($service, $methodName)) {
@@ -44,7 +46,7 @@ final class ApiConfigurator
                 if (preg_match('/^%(.*)%$/', $value, $matches)) {
                     $value = $this->container->getParameter($matches[1]);
                 } else {
-                    $value = $this->container->get('@' === substr($value, 0, 1) ? substr($value, 1) : $value);
+                    $value = $container->get('@' === substr($value, 0, 1) ? substr($value, 1) : $value);
                 }
             }
             \call_user_func([$service, $methodName], $value);

@@ -186,7 +186,6 @@ final class ApiContext implements Context
      */
     public function iGetTheApiDocInFormat(string $format)
     {
-        // todo Do not hard-code url
         $this->restContext->iSendARequestTo('GET', $this->helper->getUrl('api_doc', ['_format' => $format]));
     }
 
@@ -290,7 +289,6 @@ JSON
     public function itemShouldHaveBeSuccessfullyDeleted()
     {
         $this->minkContext->assertResponseStatus(204);
-        // todo Ensure object has been deleted from database
     }
 
     /**
