@@ -71,6 +71,15 @@ final class EntityTransformer implements TransformerInterface
                 case Type::TEXT:
                     $type = 'string';
                     break;
+                case Type::GUID:
+                case Type::DATE:
+                case Type::DATE_IMMUTABLE:
+                case Type::DATETIME:
+                case Type::DATETIME_IMMUTABLE:
+                case Type::DATETIMETZ:
+                case Type::DATETIMETZ_IMMUTABLE:
+                    $type = 'not-handled-yet';
+                    break;
                 case Type::FLOAT:
                 case Type::DECIMAL:
                     $type = 'float';
