@@ -72,7 +72,8 @@ final class EntityTransformer implements TransformerInterface
                     $type = 'string';
                     break;
                 case Type::GUID:
-                case Type::DATE:
+		case Type::DATE:
+		case 'geometry':
                 case Type::DATE_IMMUTABLE:
                 case Type::DATETIME:
                 case Type::DATETIME_IMMUTABLE:
@@ -88,7 +89,8 @@ final class EntityTransformer implements TransformerInterface
                     $type = 'boolean';
                     break;
                 case Type::SMALLINT:
-                case Type::BIGINT:
+		case Type::BIGINT:
+		case 'integer':
                     $type = 'integer';
                     break;
             }
