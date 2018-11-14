@@ -68,18 +68,25 @@ final class EntityTransformer implements TransformerInterface
             $type = ($classMetadata->getFieldMapping($fieldName)['type'] ?? null);
             switch ($type) {
                 default:
+                    $type = 'not-supported';
+                    break;
+                case Type::STRING:
                 case Type::TEXT:
                     $type = 'string';
                     break;
                 case Type::GUID:
-		case Type::DATE:
-		case 'geometry':
-                case Type::DATE_IMMUTABLE:
+                    // Support for PostgreSQL native type
+                    if (!\preg_match('/^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$/', $value)) {
+                        $type = 'invalid';
+                    }
+                    break;
+                case Type::DATE:
                 case Type::DATETIME:
-                case Type::DATETIME_IMMUTABLE:
                 case Type::DATETIMETZ:
-                case Type::DATETIMETZ_IMMUTABLE:
-                    $type = 'not-handled-yet';
+                    // Support for PostgreSQL native type
+                    if (!\preg_match('/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/', $value)) {
+                        $type = 'invalid';
+                    }
                     break;
                 case Type::FLOAT:
                 case Type::DECIMAL:
@@ -89,8 +96,8 @@ final class EntityTransformer implements TransformerInterface
                     $type = 'boolean';
                     break;
                 case Type::SMALLINT:
-		case Type::BIGINT:
-		case 'integer':
+                case Type::BIGINT:
+                case 'integer':
                     $type = 'integer';
                     break;
             }
