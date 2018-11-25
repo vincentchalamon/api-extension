@@ -47,6 +47,20 @@ default:
         ApiExtension: ~
 ```
 
+### Using custom guessers for populator
+
+```yaml
+# behat.yml.dist
+default:
+    # ...
+    extensions:
+        # ...
+        ApiExtension:
+            guessers:
+              - App\Populator\Guesser\AcustomGuesser
+              - App\Populator\Guesser\AnotherCustomGuesser
+```
+
 ## Usage with Symfony FrameworkBundle < 4.1
 
 Running with Symfony FrameworkBundle < 4.1, you need to override some private services:

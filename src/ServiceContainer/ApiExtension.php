@@ -124,7 +124,7 @@ final class ApiExtension implements ExtensionInterface
         $container->getDefinition(SchemaGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator', $container));
         $container->getDefinition(TransformerChain::class)->setArgument('$transformers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.transformer', $container));
         $container->getDefinition(TypeGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator.type', $container));
-        $container->getDefinition(GuesserChain::class)->setArgument('$guessers',$guessers);
+        $container->getDefinition(GuesserChain::class)->setArgument('$guessers', $guessers);
         $container->getDefinition(ApiConfigurator::class)->setArgument('$parameters', $config['services']);
 
         foreach ($config['providers'] as $class) {

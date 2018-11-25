@@ -154,6 +154,14 @@ class Beer
      */
     private $misc;
 
+    /**
+     * @var null|string
+     * @ORM\Column(type="json_document", options={"jsonb": true})
+     * @Groups({"beer_write"})
+     * @Assert\NotBlank(groups={"beer_create"})
+     */
+    private $specificities;
+
     public function __construct()
     {
         $this->images = new ArrayCollection();
@@ -162,6 +170,22 @@ class Beer
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getSpecificities(): string
+    {
+        return $this->specificities;
+    }
+
+    /**
+     * @param null|string $specificities
+     */
+    public function setSpecificities(string $specificities): void
+    {
+        $this->specificities = $specificities;
     }
 
     public function getCompany(): Company
