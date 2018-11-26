@@ -7,3 +7,4 @@ vendor
 clover.xml
 tests/app/cache
 tests/app/logs
+tests/app/var

@@ -44,6 +44,11 @@ final class Kernel extends AbstractKernel
         return $bundles;
     }
 
+    public function getProjectDir()
+    {
+        return __DIR__;
+    }
+
     protected function configureRoutes(RouteCollectionBuilder $routes)
     {
         $routes->import('.', null, 'api_platform');

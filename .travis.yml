@@ -24,7 +24,6 @@ install:
 
 script:
     - vendor/bin/php-cs-fixer fix --dry-run --diff src
-#    - vendor/bin/phpunit
     - vendor/bin/behat
     - vendor/bin/phpstan analyse src
 

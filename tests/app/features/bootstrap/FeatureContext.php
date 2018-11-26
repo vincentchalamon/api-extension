@@ -22,10 +22,12 @@ use Doctrine\ORM\Tools\SchemaTool;
 class FeatureContext implements ContextInterface
 {
     private $doctrine;
+    private $cacheDir;
 
-    public function __construct(ManagerRegistry $doctrine)
+    public function __construct(ManagerRegistry $doctrine, string $cacheDir)
     {
         $this->doctrine = $doctrine;
+        $this->cacheDir = $cacheDir;
     }
 
     /**
@@ -43,7 +45,7 @@ class FeatureContext implements ContextInterface
     {
         $manager = $this->doctrine->getManager();
 
-        if (!is_file(__DIR__.'/../../cache/test/db.sqlite')) {
+        if (!is_file(sprintf('%s/db.sqlite', $this->cacheDir))) {
             $classes = $manager->getMetadataFactory()->getAllMetadata();
             $schema = new SchemaTool($manager);
             $schema->createSchema($classes);
