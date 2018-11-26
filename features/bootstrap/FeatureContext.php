@@ -80,7 +80,7 @@ class FeatureContext implements ContextInterface
             throw new \RuntimeException('Unable to find the PHP executable.');
         }
         $this->phpBin = $php;
-        $this->process = new Process(null);
+        $this->process = null;
     }
 
     /**
@@ -94,16 +94,14 @@ class FeatureContext implements ContextInterface
     {
         $argumentsString = strtr($argumentsString, ['\'' => '"']);
 
-        $this->process->setWorkingDirectory(__DIR__.'/../../tests/app');
-        $this->process->setCommandLine(
-            sprintf(
-                '%s %s %s %s',
-                $this->phpBin,
-                escapeshellarg(BEHAT_BIN_PATH),
-                $argumentsString,
-                strtr('--lang=en --no-colors --format-settings=\'{"timer": false}\'', ['\'' => '"', '"' => '\"'])
-            )
-        );
+        $this->process = new Process([
+            $this->phpBin,
+            BEHAT_BIN_PATH,
+            $argumentsString,
+            '--lang=en',
+            '--no-colors',
+            '--format-settings=\'{"timer": false}\''
+        ], __DIR__.'/../../tests/app');
         $this->process->run();
     }
 

@@ -11,6 +11,7 @@ default:
                 - ApiExtension\Context\FixturesContext
                 - FeatureContext:
                     doctrine: '@doctrine'
+                    cacheDir: '%%kernel.cache_dir%%'
     extensions:
         Behat\Symfony2Extension:
             kernel:
