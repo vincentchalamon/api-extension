@@ -39,10 +39,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Beer
 {
     /**
-     * @var int
      * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\Column(type="guid")
+     * @ORM\GeneratedValue(strategy="UUID")
      * @Groups({"beer_list_read", "beer_read"})
      */
     private $id;
@@ -154,38 +153,14 @@ class Beer
      */
     private $misc;
 
-    /**
-     * @var null|string
-     * @ORM\Column(type="json_document", options={"jsonb": true})
-     * @Groups({"beer_write"})
-     * @Assert\NotBlank(groups={"beer_create"})
-     */
-    private $specificities;
-
     public function __construct()
     {
         $this->images = new ArrayCollection();
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getSpecificities(): string
-    {
-        return $this->specificities;
-    }
-
-    /**
-     * @param null|string $specificities
-     */
-    public function setSpecificities(string $specificities): void
-    {
-        $this->specificities = $specificities;
     }
 
     public function getCompany(): Company

@@ -15,9 +15,6 @@ namespace ApiExtension\App;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\ApiPlatformBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
-use Doctrine\DBAL\Types\Type;
-use Dunglas\DoctrineJsonOdm\Bundle\DunglasDoctrineJsonOdmBundle;
-use Dunglas\DoctrineJsonOdm\Type\JsonDocumentType;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -41,7 +38,6 @@ final class Kernel extends AbstractKernel
             new ApiPlatformBundle(),
             new FrameworkBundle(),
             new DoctrineBundle(),
-            new DunglasDoctrineJsonOdmBundle(),
             new TwigBundle(),
         ];
 
@@ -60,9 +56,6 @@ final class Kernel extends AbstractKernel
 
     protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
     {
-
-        Type::addType('JSON_DOCUMENT', JsonDocumentType::class);
-
         $c->loadFromExtension('doctrine', [
             'dbal' => [
                 'driver' => 'pdo_sqlite',
