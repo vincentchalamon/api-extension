@@ -50,9 +50,13 @@ class FeatureContext implements ContextInterface
             $schema = new SchemaTool($manager);
             $schema->createSchema($classes);
         } else {
+
             $purger = new ORMPurger($manager);
-            $purger->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
+            $purger->setPurgeMode(ORMPurger::PURGE_MODE_DELETE);
             $purger->purge();
+            $classes = $manager->getMetadataFactory()->getAllMetadata();
+            $schema = new SchemaTool($manager);
+            $schema->createSchema($classes);
         }
     }
 }

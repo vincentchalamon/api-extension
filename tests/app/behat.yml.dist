@@ -23,6 +23,8 @@ default:
                     symfony2: ~
         Behatch\Extension: ~
         ApiExtension:
+            guessers:
+                - ApiExtension\App\Populator\Guesser\GuidGuesser
             services:
                 metadataFactory: '@test.api_platform.metadata.resource.metadata_factory.annotation'
                 iriConverter: '@test.api_platform.iri_converter'
