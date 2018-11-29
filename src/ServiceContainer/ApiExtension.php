@@ -98,6 +98,10 @@ final class ApiExtension implements ExtensionInterface
                     ->info('A list of Faker providers')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('guessers')
+                    ->info('A list of Populators guessers')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
     }
 
@@ -107,11 +111,20 @@ final class ApiExtension implements ExtensionInterface
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+        foreach ($config['guessers'] as $guesserClass) {
+            $definition = new Definition($guesserClass, [new Reference(Generator::class)]);
+            $definition->addTag('coop_tilleuls.api_extension.guesser');
+            $container->setDefinition($guesserClass, $definition);
+        }
+
+        $defaultGuessers = $this->findAndSortTaggedServices('coop_tilleuls.api_extension.guesser', $container);
+
+        $guessers = \array_merge($defaultGuessers, $config['guessers']);
 
         $container->getDefinition(SchemaGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator', $container));
         $container->getDefinition(TransformerChain::class)->setArgument('$transformers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.transformer', $container));
         $container->getDefinition(TypeGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator.type', $container));
-        $container->getDefinition(GuesserChain::class)->setArgument('$guessers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.guesser', $container));
+        $container->getDefinition(GuesserChain::class)->setArgument('$guessers', $guessers);
         $container->getDefinition(ApiConfigurator::class)->setArgument('$parameters', $config['services']);
 
         foreach ($config['providers'] as $class) {
