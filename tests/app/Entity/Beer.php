@@ -42,7 +42,6 @@ class Beer
      * @ORM\Id
      * @ORM\Column(type="guid")
      * @ORM\GeneratedValue(strategy="UUID")
-     * @Groups({"beer_list_read", "beer_read"})
      */
     private $id;
 
