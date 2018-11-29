@@ -24,7 +24,7 @@ Feature: I can execute Behat tests with current API Extension
             },
             "id": {
                 "type": [
-                    "string"
+                    "integer"
                 ]
             },
             "company": {
@@ -194,7 +194,7 @@ Feature: I can execute Behat tests with current API Extension
                         },
                         "id": {
                             "type": [
-                                "string"
+                                "integer"
                             ]
                         },
                         "name": {

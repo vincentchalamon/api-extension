@@ -39,9 +39,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Beer
 {
     /**
+     * @var int
      * @ORM\Id
-     * @ORM\Column(type="guid")
-     * @ORM\GeneratedValue(strategy="UUID")
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
      * @Groups({"beer_list_read", "beer_read"})
      */
     private $id;
@@ -158,7 +159,7 @@ class Beer
         $this->images = new ArrayCollection();
     }
 
-    public function getId(): string
+    public function getId(): int
     {
         return $this->id;
     }
