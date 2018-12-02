@@ -39,9 +39,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Beer
 {
     /**
+     * @var int
      * @ORM\Id
-     * @ORM\Column(type="guid")
-     * @ORM\GeneratedValue(strategy="UUID")
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"beer_list_read", "beer_read"})
      */
     private $id;
 
@@ -53,6 +55,14 @@ class Beer
      * @Assert\NotNull
      */
     private $company;
+
+    /**
+     * @var string
+     * @ORM\Column(type="ean")
+     * @Groups({"beer_read", "beer_write"})
+     * @Assert\NotNull
+     */
+    private $ean13;
 
     /**
      * @var string
@@ -157,7 +167,7 @@ class Beer
         $this->images = new ArrayCollection();
     }
 
-    public function getId(): ?string
+    public function getId(): int
     {
         return $this->id;
     }
@@ -332,4 +342,21 @@ class Beer
     {
         $this->misc = $misc;
     }
+
+    /**
+     * @return string
+     */
+    public function getEan13(): string
+    {
+        return $this->ean13;
+    }
+
+    /**
+     * @param string $ean13
+     */
+    public function setEan13(string $ean13): void
+    {
+        $this->ean13 = $ean13;
+    }
+
 }
