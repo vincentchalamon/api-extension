@@ -50,12 +50,12 @@ Feature: I can execute Behat tests with current API Extension
                     "name"
                 ]
             },
-            "name": {
+            "ean13": {
                 "type": [
                     "string"
                 ]
             },
-            "ean13": {
+            "name": {
                 "type": [
                     "string"
                 ]
