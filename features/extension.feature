@@ -51,9 +51,7 @@ Feature: I can execute Behat tests with current API Extension
                 ]
             },
             "ean13": {
-                "type": [
-                    "any"
-                ]
+                "type": "any"
             },
             "name": {
                 "type": [

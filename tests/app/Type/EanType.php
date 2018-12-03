@@ -6,7 +6,7 @@ use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 
 /**
- * My custom datatype.
+ * My custom ean type.
  */
 class EanType extends Type
 {
@@ -14,7 +14,9 @@ class EanType extends Type
 
     public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
     {
-        return self::EAN;
+        $fieldDeclaration['length'] = 13;
+
+        return $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform)

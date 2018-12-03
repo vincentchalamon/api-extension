@@ -1,4 +1,0 @@
-doctrine:
-  dbal:
-    types:
-      ean:  ApiExtension\App\Type\EanType

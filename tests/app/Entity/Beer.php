@@ -60,7 +60,7 @@ class Beer
      * @var string
      * @ORM\Column(type="ean")
      * @Groups({"beer_read", "beer_write"})
-     * @Assert\NotNull
+     * @Assert\NotBlank
      */
     private $ean13;
 
@@ -354,7 +354,7 @@ class Beer
     /**
      * @param string $ean13
      */
-    public function setEan13(string $ean13): void
+    public function setEan13(string $ean13)
     {
         $this->ean13 = $ean13;
     }

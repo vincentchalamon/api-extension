@@ -61,6 +61,12 @@ final class Kernel extends AbstractKernel
                 'driver' => 'pdo_sqlite',
                 'path' => '%kernel.cache_dir%/db.sqlite',
                 'charset' => 'UTF8',
+                'mapping_types' =>  [
+                    'ean' => 'string',
+                ],
+                'types' => [
+                    'ean' => 'ApiExtension\App\Type\EanType',
+                ],
             ],
             'orm' => [
                 'auto_generate_proxy_classes' => true,

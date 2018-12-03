@@ -148,6 +148,7 @@ class FeatureContext implements ContextInterface
             throw new \LogicException('Invalid JSON.');
         }
         $diff = array_map('unserialize', array_diff(array_map('serialize', $output), array_map('serialize', $json)));
+
         if (0 < count($diff)) {
             throw new \LogicException("JSON response does not match:\n".print_r($diff, true));
         }
