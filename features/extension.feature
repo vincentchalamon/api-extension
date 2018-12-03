@@ -151,6 +151,7 @@ Feature: I can execute Behat tests with current API Extension
             "@type",
             "id",
             "company",
+            "ean13",
             "name",
             "active",
             "price",
