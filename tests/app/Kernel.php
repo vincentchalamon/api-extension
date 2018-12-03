@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace ApiExtension\App;
 
-use ApiExtension\ServiceContainer\ApiExtension;
 use ApiPlatform\Core\Bridge\Symfony\Bundle\ApiPlatformBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
