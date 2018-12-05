@@ -29,6 +29,7 @@ Feature: Using API-Platform, I can get, create, update & delete beers.
 
   Scenario: I can update a beer
     Given there is a beer
+    And the beer should be inactive
     When I update a beer
     Then I see a beer
 

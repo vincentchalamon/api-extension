@@ -85,7 +85,8 @@ final class Populator
     {
         $className = $reflectionClass->name;
 
-        // Complete required properties
+        // Complete required properties & init object
+        $object = $reflectionClass->newInstance();
         /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach (array_merge($classMetadata->getFieldNames(), $classMetadata->getAssociationNames()) as $property) {
@@ -94,11 +95,17 @@ final class Populator
             if (array_key_exists($property, $values) || $mapping['nullable'] || ($classMetadata->isIdentifier($property) && $classMetadata->hasField($property))) {
                 continue;
             }
+            if ($reflectionClass->hasProperty($property)) {
+                $reflectionProperty = $reflectionClass->getProperty($property);
+                $reflectionProperty->setAccessible(true);
+                if ($reflectionProperty->getValue($object)) {
+                    continue;
+                }
+            }
             $values[$property] = $this->guesser->getValue($mapping);
         }
 
-        // Parse values & init object
-        $object = $reflectionClass->newInstance();
+        // Parse values
         foreach ($values as $property => $value) {
             $value = $this->transformer->toObject($this->getMapping($classMetadata, $property), $value);
             if ($reflectionClass->hasMethod($property)) {
