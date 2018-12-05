@@ -11,6 +11,7 @@
 
 declare(strict_types=1);
 
+use ApiExtension\App\Entity\Beer;
 use Behat\Behat\Context\Context as ContextInterface;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -53,6 +54,16 @@ class FeatureContext implements ContextInterface
             $purger = new ORMPurger($manager);
             $purger->setPurgeMode(ORMPurger::PURGE_MODE_TRUNCATE);
             $purger->purge();
+        }
+    }
+
+    /**
+     * @Given the beer should be inactive
+     */
+    public function theBeerShouldBeInactive()
+    {
+        if (null === $this->doctrine->getRepository(Beer::class)->findOneBy(['active' => false])) {
+            throw new \LogicException('The beer is active.');
         }
     }
 }

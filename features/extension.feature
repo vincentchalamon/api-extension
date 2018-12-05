@@ -8,7 +8,7 @@ Feature: I can execute Behat tests with current API Extension
     """
 
   Scenario: I can debug beer item schema
-    When I run "behat features/beer.feature:87"
+    When I run "behat features/beer.feature:88"
     Then the JSON output should be equal to:
     """
     {
@@ -161,7 +161,7 @@ Feature: I can execute Behat tests with current API Extension
     """
 
   Scenario: I can debug beer list schema
-    When I run "behat features/beer.feature:91"
+    When I run "behat features/beer.feature:92"
     Then the JSON output should be equal to:
     """
     {
@@ -222,7 +222,7 @@ Feature: I can execute Behat tests with current API Extension
     """
 
   Scenario: I can debug beer last request
-    When I run "behat features/beer.feature:95"
+    When I run "behat features/beer.feature:96"
     Then the JSON output should be equal to this schema:
     """
     {
