@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
 
-use ApiExtension\Helper\ApiHelper;
+use ApiExtension\SchemaGenerator\SchemaGeneratorAwareInterface;
+use ApiExtension\SchemaGenerator\SchemaGeneratorAwareTrait;
+use ApiExtension\SchemaGenerator\SchemaGeneratorInterface;
 use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -23,37 +25,6 @@ use Symfony\Component\Routing\RouterInterface;
 final class CollectionSchemaGenerator implements SchemaGeneratorInterface, SchemaGeneratorAwareInterface
 {
     use SchemaGeneratorAwareTrait;
-
-    /**
-     * @var ResourceMetadataFactoryInterface
-     */
-    private $metadataFactory;
-
-    /**
-     * @var RouterInterface
-     */
-    private $router;
-    private $helper;
-
-    public function __construct(ApiHelper $helper)
-    {
-        $this->helper = $helper;
-    }
-
-    public function setRouter(RouterInterface $router)
-    {
-        $this->router = $router;
-    }
-
-    public function setMetadataFactory(ResourceMetadataFactoryInterface $metadataFactory)
-    {
-        $this->metadataFactory = $metadataFactory;
-    }
-
-    public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
-    {
-        return true === ($context['collection'] ?? false);
-    }
 
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
@@ -90,5 +61,10 @@ final class CollectionSchemaGenerator implements SchemaGeneratorInterface, Schem
         }
 
         return $schema;
+    }
+
+    public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
+    {
+        return true === ($context['collection'] ?? false);
     }
 }

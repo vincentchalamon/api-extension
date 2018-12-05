@@ -5,214 +5,125 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="ApiExtension\ServiceContainer\ApiConfigurator" class="ApiExtension\ServiceContainer\ApiConfigurator" public="false">
-            <argument type="service" id="symfony2_extension.kernel" />
-            <argument type="collection" />
+        <service id="ApiExtension\ClassRepository\ClassRepositoryChain" class="ApiExtension\ClassRepository\ClassRepositoryChain" public="false">
+            <argument type="collection"/>
         </service>
 
-        <service id="ApiExtension\Context\Argument\ArgumentResolver" class="ApiExtension\Context\Argument\ArgumentResolver" public="false">
-            <argument type="service" id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" />
-            <argument type="service" id="ApiExtension\Helper\ApiHelper" />
-            <argument type="service" id="ApiExtension\Populator\Populator" />
-            <argument type="service" id="ApiExtension\Transformer\TransformerChain" />
-            <argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />
-            <tag name="context.argument_resolver" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
+        <service id="ApiExtension\Routing\RouterChain" class="ApiExtension\Routing\RouterChain" public="false">
+            <argument type="collection"/>
         </service>
 
-        <service id="ApiExtension\Helper\ApiHelper" class="ApiExtension\Helper\ApiHelper" public="true">
-            <argument type="service" id="ApiExtension\Transformer\TransformerChain" />
-            <argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
+        <service id="ApiExtension\ObjectManager\ObjectManagerChain" class="ApiExtension\ObjectManager\ObjectManagerChain" public="false">
+            <argument type="collection"/>
         </service>
 
-        <service id="ApiExtension\Populator\Populator" class="ApiExtension\Populator\Populator" public="true">
-            <argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />
-            <argument type="service" id="ApiExtension\Transformer\TransformerChain" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
+        <!--<service id="ApiExtension\ServiceContainer\ApiConfigurator" class="ApiExtension\ServiceContainer\ApiConfigurator" public="false">-->
+            <!--<argument type="service" id="symfony2_extension.kernel" />-->
+            <!--<argument type="collection" />-->
+        <!--</service>-->
 
-        <service id="Faker\Generator" class="Faker\Generator" public="true">
-            <factory class="Faker\Factory" method="create" />
-            <argument>%coop_tilleuls.api_extension.default_locale%</argument>
-        </service>
+        <!--<service id="ApiExtension\ServiceContainer\ArgumentResolver" class="ApiExtension\ServiceContainer\ArgumentResolver" public="false">-->
+            <!--<argument type="service" id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" />-->
+            <!--<argument type="service" id="ApiExtension\Helper\ApiHelper" />-->
+            <!--<argument type="service" id="ApiExtension\Populator\Populator" />-->
+            <!--<argument type="service" id="ApiExtension\Transformer\TransformerChain" />-->
+            <!--<argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />-->
+            <!--<tag name="context.argument_resolver" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <!-- Schema generators -->
-        <service id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" class="ApiExtension\SchemaGenerator\SchemaGeneratorChain" public="true">
-            <argument type="collection" />
-        </service>
+        <!--<service id="ApiExtension\Helper\ApiHelper" class="ApiExtension\Helper\ApiHelper" public="true">-->
+            <!--<argument type="service" id="ApiExtension\Transformer\TransformerChain" />-->
+            <!--<argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" class="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" public="false">
-            <argument type="service" id="ApiExtension\Helper\ApiHelper" />
-            <tag name="coop_tilleuls.api_extension.schema_generator" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
+        <!--<service id="ApiExtension\Populator\Populator" class="ApiExtension\Populator\Populator" public="true">-->
+            <!--<argument type="service" id="ApiExtension\Populator\Guesser\GuesserChain" />-->
+            <!--<argument type="service" id="ApiExtension\Transformer\TransformerChain" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\SchemaGenerator\ItemSchemaGenerator" class="ApiExtension\SchemaGenerator\ItemSchemaGenerator" public="false">
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-            <tag name="coop_tilleuls.api_extension.schema_generator" />
-        </service>
+        <!--&lt;!&ndash; Schema generators &ndash;&gt;-->
+        <!--<service id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" class="ApiExtension\SchemaGenerator\SchemaGeneratorChain" public="true">-->
+            <!--<argument type="collection" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\SchemaGenerator\ErrorSchemaGenerator" class="ApiExtension\SchemaGenerator\ErrorSchemaGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" class="ApiExtension\SchemaGenerator\CollectionSchemaGenerator" public="false">-->
+            <!--<argument type="service" id="ApiExtension\Helper\ApiHelper" />-->
+            <!--<tag name="api_extension.schema_generator" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" class="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" public="false">
-            <argument type="service" id="ApiExtension\Helper\ApiHelper" />
-            <argument type="service" id="ApiExtension\Populator\Populator" />
-            <argument type="service" id="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" />
-            <tag name="coop_tilleuls.api_extension.schema_generator" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\ItemSchemaGenerator" class="ApiExtension\SchemaGenerator\ItemSchemaGenerator" public="false">-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+            <!--<tag name="api_extension.schema_generator" />-->
+        <!--</service>-->
 
-        <!-- Guessers -->
-        <service id="ApiExtension\Populator\Guesser\AbstractGuesser" class="ApiExtension\Populator\Guesser\AbstractGuesser" public="false" abstract="true">
-            <argument type="service" id="Faker\Generator" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\ErrorSchemaGenerator" class="ApiExtension\SchemaGenerator\ErrorSchemaGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\EntityGuesser" class="ApiExtension\Populator\Guesser\EntityGuesser" public="false">
-            <argument type="service" id="Symfony\Component\DependencyInjection\ServiceLocator" />
-            <tag name="coop_tilleuls.api_extension.guesser" priority="1" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" class="ApiExtension\SchemaGenerator\ObjectSchemaGenerator" public="false">-->
+            <!--<argument type="service" id="ApiExtension\Helper\ApiHelper" />-->
+            <!--<argument type="service" id="ApiExtension\Populator\Populator" />-->
+            <!--<argument type="service" id="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" />-->
+            <!--<tag name="api_extension.schema_generator" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\CollectionGuesser" class="ApiExtension\Populator\Guesser\CollectionGuesser" public="false">
-            <tag name="coop_tilleuls.api_extension.guesser" priority="1" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
+        <!--&lt;!&ndash; Type generators &ndash;&gt;-->
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\StringTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\StringTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\BooleanGuesser" class="ApiExtension\Populator\Guesser\BooleanGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\EmailTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\EmailTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" priority="2" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\ArrayGuesser" class="ApiExtension\Populator\Guesser\ArrayGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\NumberTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\NumberTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\DateTimeGuesser" class="ApiExtension\Populator\Guesser\DateTimeGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\IntegerTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\IntegerTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\DecimalGuesser" class="ApiExtension\Populator\Guesser\DecimalGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\DateTimeTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\DateTimeTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\FloatGuesser" class="ApiExtension\Populator\Guesser\FloatGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\ArrayTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\ArrayTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\FakerGuesser" class="ApiExtension\Populator\Guesser\FakerGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" priority="1" />
-        </service>
+        <!--<service id="Symfony\Component\DependencyInjection\ServiceLocator" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">-->
+            <!--<argument type="collection">-->
+                <!--<argument key="populator" type="service" id="ApiExtension\Populator\Populator" />-->
+                <!--<argument key="helper" type="service" id="ApiExtension\Helper\ApiHelper" />-->
+                <!--<argument key="schemaGenerator" type="service" id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" />-->
+            <!--</argument>-->
+            <!--<tag name="container.service_locator" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\IntegerGuesser" class="ApiExtension\Populator\Guesser\IntegerGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\EntityTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\EntityTypeGenerator" public="false">-->
+            <!--<argument type="service" id="Symfony\Component\DependencyInjection\ServiceLocator" />-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+            <!--<configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\StringGuesser" class="ApiExtension\Populator\Guesser\StringGuesser" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
-            <tag name="coop_tilleuls.api_extension.guesser" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\CollectionTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\CollectionTypeGenerator" public="false">-->
+            <!--<argument type="service" id="Symfony\Component\DependencyInjection\ServiceLocator" />-->
+            <!--<tag name="api_extension.schema_generator.type" priority="1" />-->
+        <!--</service>-->
 
-        <service id="ApiExtension\Populator\Guesser\GuesserChain" class="ApiExtension\Populator\Guesser\GuesserChain" public="true">
-            <argument type="service" id="Faker\Generator" />
-            <argument type="collection" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\DefaultTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\DefaultTypeGenerator" public="false">-->
+            <!--<tag name="api_extension.schema_generator.type" />-->
+        <!--</service>-->
 
-        <!-- Type generators -->
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\StringTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\StringTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\EmailTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\EmailTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="2" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\NumberTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\NumberTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\IntegerTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\IntegerTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\DateTimeTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\DateTimeTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\ArrayTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\ArrayTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-        </service>
-
-        <service id="Symfony\Component\DependencyInjection\ServiceLocator" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
-            <argument type="collection">
-                <argument key="populator" type="service" id="ApiExtension\Populator\Populator" />
-                <argument key="helper" type="service" id="ApiExtension\Helper\ApiHelper" />
-                <argument key="schemaGenerator" type="service" id="ApiExtension\SchemaGenerator\SchemaGeneratorChain" />
-            </argument>
-            <tag name="container.service_locator" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\EntityTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\EntityTypeGenerator" public="false">
-            <argument type="service" id="Symfony\Component\DependencyInjection\ServiceLocator" />
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\CollectionTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\CollectionTypeGenerator" public="false">
-            <argument type="service" id="Symfony\Component\DependencyInjection\ServiceLocator" />
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" priority="1" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\DefaultTypeGenerator" class="ApiExtension\SchemaGenerator\TypeGenerator\DefaultTypeGenerator" public="false">
-            <tag name="coop_tilleuls.api_extension.schema_generator.type" />
-        </service>
-
-        <service id="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" class="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" public="true">
-            <argument type="collection" />
-        </service>
-
-        <!-- Transformers -->
-        <service id="ApiExtension\Transformer\DateTimeTransformer" class="ApiExtension\Transformer\DateTimeTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\StringTransformer" class="ApiExtension\Transformer\StringTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\IntegerTransformer" class="ApiExtension\Transformer\IntegerTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\FloatTransformer" class="ApiExtension\Transformer\FloatTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\DecimalTransformer" class="ApiExtension\Transformer\DecimalTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\ArrayTransformer" class="ApiExtension\Transformer\ArrayTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\EntityTransformer" class="ApiExtension\Transformer\EntityTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
-
-        <service id="ApiExtension\Transformer\CollectionTransformer" class="ApiExtension\Transformer\CollectionTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-            <configurator service="ApiExtension\ServiceContainer\ApiConfigurator" method="configure" />
-        </service>
-
-        <service id="ApiExtension\Transformer\BooleanTransformer" class="ApiExtension\Transformer\BooleanTransformer" public="false">
-            <tag name="coop_tilleuls.api_extension.transformer" />
-        </service>
-
-        <service id="ApiExtension\Transformer\TransformerChain" class="ApiExtension\Transformer\TransformerChain" public="true">
-            <argument type="collection" />
-        </service>
+        <!--<service id="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" class="ApiExtension\SchemaGenerator\TypeGenerator\TypeGeneratorChain" public="true">-->
+            <!--<argument type="collection" />-->
+        <!--</service>-->
     </services>
 </container>

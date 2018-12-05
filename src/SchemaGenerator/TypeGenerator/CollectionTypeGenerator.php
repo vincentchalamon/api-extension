@@ -31,16 +31,16 @@ final class CollectionTypeGenerator implements TypeGeneratorInterface
         $this->container = $container;
     }
 
-    public function supports(array $mapping, array $context = []): bool
+    public function supports(array $context): bool
     {
-        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
+        return null !== $context['targetEntity'] && \in_array($context['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
     }
 
-    public function generate(array $mapping, array $context = []): array
+    public function generate(array $context): array
     {
         return [
             'type' => 'array',
-            'items' => $this->container->get('schemaGenerator')->generate(new \ReflectionClass($mapping['targetEntity']), $context),
+            'items' => $this->container->get('schemaGenerator')->generate(new \ReflectionClass($context['targetEntity']), $context),
         ];
     }
 }

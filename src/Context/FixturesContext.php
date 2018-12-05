@@ -13,85 +13,48 @@ declare(strict_types=1);
 
 namespace ApiExtension\Context;
 
-use ApiExtension\Helper\ApiHelper;
-use ApiExtension\Populator\Populator;
+use ApiExtension\ClassRepository\ClassRepositoryInterface;
+use ApiExtension\ObjectManager\ObjectManagerInterface;
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
-use Doctrine\Common\Persistence\ManagerRegistry;
-use Doctrine\ORM\Id\AssignedGenerator;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class FixturesContext implements Context
 {
-    private $populator;
-    private $registry;
-    private $helper;
+    private $classRepository;
+    private $objectManager;
 
-    public function __construct(Populator $populator, ManagerRegistry $registry, ApiHelper $helper)
+    public function __construct(ClassRepositoryInterface $classRepository, ObjectManagerInterface $objectManager)
     {
-        $this->populator = $populator;
-        $this->registry = $registry;
-        $this->helper = $helper;
+        $this->classRepository = $classRepository;
+        $this->objectManager = $objectManager;
     }
 
     /**
      * @Given /^the following (?P<name>[\w\-]+):$/
      */
-    public function theFollowing($name, TableNode $table)
+    public function theFollowing(string $name, TableNode $table)
     {
-        $reflectionClass = $this->helper->getReflectionClass($name);
-        $em = $this->registry->getManagerForClass($reflectionClass->name);
         $rows = $table->getRows();
-        $headers = array_shift($rows);
-        /** @var ClassMetadataInfo $classMetadata */
-        $classMetadata = $this->registry->getManagerForClass($reflectionClass->name)->getClassMetadata($reflectionClass->name);
-        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
-            $idGenerator = $classMetadata->idGenerator;
-            $classMetadata->setIdGenerator(new AssignedGenerator());
-            $generatorType = $classMetadata->generatorType;
-            $classMetadata->setIdGeneratorType(ClassMetadataInfo::GENERATOR_TYPE_NONE);
-        }
+        $headers = \array_shift($rows);
+        $reflectionClass = $this->classRepository->getReflectionClass($name);
         foreach ($rows as $row) {
-            $em->persist($this->populator->getObject($reflectionClass, array_combine($headers, $row)));
-        }
-        $em->flush();
-        $em->clear();
-        if (isset($idGenerator) && isset($generatorType)) {
-            $classMetadata->setIdGenerator($idGenerator);
-            $classMetadata->setIdGeneratorType($generatorType);
+            $this->objectManager->fake($reflectionClass, \array_combine($headers, $row));
         }
     }
 
     /**
      * @Given /^there are (?P<number>\d+) (?P<name>[\w\-]+) with:$/
      */
-    public function thereAreWith($number, $name, TableNode $table)
+    public function thereAreWith(int $number, string $name, TableNode $table)
     {
-        $reflectionClass = $this->helper->getReflectionClass($name);
-        $em = $this->registry->getManagerForClass($reflectionClass->name);
         $rows = $table->getRows();
-        $headers = array_shift($rows);
-        $row = array_shift($rows);
-        /** @var ClassMetadataInfo $classMetadata */
-        $classMetadata = $this->registry->getManagerForClass($reflectionClass->name)->getClassMetadata($reflectionClass->name);
-        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
-            $idGenerator = $classMetadata->idGenerator;
-            $classMetadata->setIdGenerator(new AssignedGenerator());
-            $generatorType = $classMetadata->generatorType;
-            $classMetadata->setIdGeneratorType(ClassMetadataInfo::GENERATOR_TYPE_NONE);
+        for ($i = 0; $i < $number-1; ++$i) {
+            $rows[] = $rows[\count($rows)-1];
         }
-        for ($i = 0; $i < $number; ++$i) {
-            $em->persist($this->populator->getObject($reflectionClass, array_combine($headers, $row)));
-        }
-        $em->flush();
-        $em->clear();
-        if (isset($idGenerator) && isset($generatorType)) {
-            $classMetadata->setIdGenerator($idGenerator);
-            $classMetadata->setIdGeneratorType($generatorType);
-        }
+        $this->theFollowing($name, new TableNode($rows));
     }
 
     /**
@@ -99,13 +62,10 @@ final class FixturesContext implements Context
      */
     public function thereIs(string $name, int $number)
     {
-        $reflectionClass = $this->helper->getReflectionClass($name);
-        $em = $this->registry->getManagerForClass($reflectionClass->name);
+        $reflectionClass = $this->classRepository->getReflectionClass($name);
         for ($i = 0; $i < $number; ++$i) {
-            $em->persist($this->populator->getObject($reflectionClass));
+            $this->objectManager->fake($reflectionClass);
         }
-        $em->flush();
-        $em->clear();
     }
 
     /**

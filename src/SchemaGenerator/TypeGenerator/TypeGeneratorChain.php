@@ -35,19 +35,19 @@ final class TypeGeneratorChain implements TypeGeneratorInterface
         $this->generators = $generators;
     }
 
-    public function supports(array $mapping, array $context = []): bool
+    public function supports(array $context): bool
     {
         return true;
     }
 
-    public function generate(array $mapping, array $context = []): array
+    public function generate(array $context): array
     {
         foreach ($this->generators as $generator) {
-            if ($generator->supports($mapping, $context)) {
-                return $generator->generate($mapping, $context);
+            if ($generator->supports($context, $context)) {
+                return $generator->generate($context, $context);
             }
         }
 
-        throw new TypeGeneratorNotFoundException('No type generator found for mapping: '.print_r($mapping, true));
+        throw new TypeGeneratorNotFoundException('No type generator found for mapping: '.print_r($context, true));
     }
 }

@@ -106,6 +106,7 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         if ($this->reader->getClassAnnotation($reflectionClass, ApiResource::class)) {
             $schema['properties']['@id'] = [
                 'type' => 'string',
+                // str_replace('{id}', '[\\w-;=]+', urldecode($this->getItemUri($reflectionClass, ['id' => '{id}'])))
                 'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
             ];
             $schema['properties']['@type'] = [
@@ -127,23 +128,24 @@ final class ObjectSchemaGenerator implements SchemaGeneratorInterface, SchemaGen
         if (empty($classProperties) && 1 < $context['depth']) {
             return [
                 'type' => 'string',
+                // str_replace('{id}', '[\\w-;=]+', urldecode($this->getItemUri($reflectionClass, ['id' => '{id}'])))
                 'pattern' => sprintf('^%s$', $this->helper->getItemUriPattern($reflectionClass)),
             ];
         }
 
         foreach ($classProperties as $property) {
-            $mapping = $this->populator->getMapping($classMetadata, $property);
+            $context = $this->populator->getMapping($classMetadata, $property);
             // Prevent infinite loop & circular references
-            if (!empty($mapping['targetEntity'])) {
+            if (!empty($context['targetEntity'])) {
                 $this->path[$context['depth']] = $property;
             }
-            if (($mapping['targetEntity'] ?? null) === $reflectionClass->name) {
-                $schema['properties'][$property] = $this->typeGenerator->generate($mapping, ['serializer_groups' => []] + $context);
+            if (($context['targetEntity'] ?? null) === $reflectionClass->name) {
+                $schema['properties'][$property] = $this->typeGenerator->generate($context, ['serializer_groups' => []] + $context);
             } else {
-                $schema['properties'][$property] = $this->typeGenerator->generate($mapping, $context);
+                $schema['properties'][$property] = $this->typeGenerator->generate($context, $context);
             }
             unset($this->path[$context['depth']]);
-            if (false === ($mapping['nullable'] ?? true)) {
+            if (false === ($context['nullable'] ?? true)) {
                 $schema['required'][] = $property;
             } else {
                 if (!\is_array($schema['properties'][$property]['type'])) {

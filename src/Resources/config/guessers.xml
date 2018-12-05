@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Faker\Generator" class="Faker\Generator" public="true">
+            <factory class="Faker\Factory" method="create" />
+            <argument>%api_extension.default_locale%</argument>
+        </service>
+
+        <service id="ApiExtension\Guesser\FakerGuesser" class="ApiExtension\Guesser\FakerGuesser" public="false">
+            <argument type="service" id="Faker\Generator" />
+            <tag name="api_extension.guesser" priority="1" />
+        </service>
+
+        <service id="ApiExtension\Guesser\BooleanGuesser" class="ApiExtension\Guesser\BooleanGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\ArrayGuesser" class="ApiExtension\Guesser\ArrayGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\DateTimeGuesser" class="ApiExtension\Guesser\DateTimeGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\DecimalGuesser" class="ApiExtension\Guesser\DecimalGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\FloatGuesser" class="ApiExtension\Guesser\FloatGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\IntegerGuesser" class="ApiExtension\Guesser\IntegerGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\StringGuesser" class="ApiExtension\Guesser\StringGuesser" public="false" parent="ApiExtension\Guesser\FakerGuesser">
+            <tag name="api_extension.guesser" />
+        </service>
+
+        <service id="ApiExtension\Guesser\GuesserChain" class="ApiExtension\Guesser\GuesserChain" public="true">
+            <argument type="collection" />
+        </service>
+    </services>
+</container>

@@ -18,9 +18,9 @@ namespace ApiExtension\Transformer;
  */
 interface TransformerInterface
 {
-    public function supports(array $mapping, $value): bool;
+    public function supports(array $context, $value): bool;
 
-    public function toObject(array $mapping, $value);
+    public function toObject(array $context, $value);
 
-    public function toScalar(array $mapping, $value);
+    public function toScalar(array $context, $value);
 }

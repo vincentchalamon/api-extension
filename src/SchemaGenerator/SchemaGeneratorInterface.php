@@ -18,7 +18,7 @@ namespace ApiExtension\SchemaGenerator;
  */
 interface SchemaGeneratorInterface
 {
-    public function supports(\ReflectionClass $reflectionClass, array $context = []): bool;
-
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array;
+
+    public function supports(\ReflectionClass $reflectionClass, array $context = []): bool;
 }

@@ -18,7 +18,7 @@ namespace ApiExtension\SchemaGenerator\TypeGenerator;
  */
 interface TypeGeneratorInterface
 {
-    public function supports(array $mapping, array $context = []): bool;
+    public function supports(array $context): bool;
 
-    public function generate(array $mapping, array $context = []): array;
+    public function generate(array $context): array;
 }

@@ -18,18 +18,18 @@ namespace ApiExtension\SchemaGenerator\TypeGenerator;
  */
 final class DateTimeTypeGenerator implements TypeGeneratorInterface
 {
-    public function supports(array $mapping, array $context = []): bool
+    public function supports(array $context): bool
     {
-        return \in_array($mapping['type'], ['datetime', 'date', 'time'], true);
+        return \in_array($context['type'], ['datetime', 'date', 'time'], true);
     }
 
-    public function generate(array $mapping, array $context = []): array
+    public function generate(array $context): array
     {
         $type = [
             'type' => ['string'],
             'pattern' => '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\+\\d{2}:\\d{2}$',
         ];
-        if ($mapping['nullable'] ?? false) {
+        if ($context['nullable'] ?? false) {
             $type['type'][] = 'null';
         }
 

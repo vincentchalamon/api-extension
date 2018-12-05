@@ -54,25 +54,26 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
         $this->reader = $reader;
     }
 
-    public function supports(array $mapping, array $context = []): bool
+    public function supports(array $context): bool
     {
-        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
+        return null !== $context['targetEntity'] && \in_array($context['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
-    public function generate(array $mapping, array $context = []): array
+    public function generate(array $context): array
     {
-        $reflectionClass = new \ReflectionClass($mapping['targetEntity']);
-        if (0 < \count($this->propertyInfo->getProperties($mapping['targetEntity'], $context))) {
+        $reflectionClass = new \ReflectionClass($context['targetEntity']);
+        if (0 < \count($this->propertyInfo->getProperties($context['targetEntity'], $context))) {
             $type = $this->container->get('schemaGenerator')->generate($reflectionClass, $context);
         } elseif ($this->reader->getClassAnnotation($reflectionClass, ApiResource::class)) {
             $type = [
                 'type' => ['string'],
-                'pattern' => $this->container->get('helper')->getItemUriPattern(new \ReflectionClass($mapping['targetEntity'])),
+                // str_replace('{id}', '[\\w-;=]+', urldecode($this->getItemUri($reflectionClass, ['id' => '{id}'])))
+                'pattern' => $this->container->get('helper')->getItemUriPattern(new \ReflectionClass($context['targetEntity'])),
             ];
         } else {
-            throw new \LogicException('Entity '.$mapping['targetEntity'].' does not have any property to serialize with following groups: '.implode(', ', $context['serializer_groups']));
+            throw new \LogicException('Entity '.$context['targetEntity'].' does not have any property to serialize with following groups: '.implode(', ', $context['serializer_groups']));
         }
-        if ($mapping['nullable'] ?? true) {
+        if ($context['nullable'] ?? true) {
             if (!\is_array($type['type'])) {
                 $type['type'] = [$type['type']];
             }

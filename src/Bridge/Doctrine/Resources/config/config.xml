@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="ApiExtension\Bridge\Doctrine\ClassRepository" class="ApiExtension\Bridge\Doctrine\ClassRepository" public="false">
+            <argument type="service" id="doctrine"/>
+            <tag name="api_extension.class_repository"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\Guesser\CollectionGuesser" class="ApiExtension\Bridge\Doctrine\ORM\Guesser\CollectionGuesser" public="false">
+            <argument type="service" id="doctrine"/>
+            <tag name="api_extension.guesser"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\Guesser\EntityGuesser" class="ApiExtension\Bridge\Doctrine\ORM\Guesser\EntityGuesser" public="false">
+            <argument type="service" id="doctrine"/>
+            <argument type="service" id="ApiExtension\ObjectManager\ObjectManagerChain"/>
+            <tag name="api_extension.guesser"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\ObjectManager\ObjectManager" class="ApiExtension\Bridge\Doctrine\ORM\ObjectManager\ObjectManager" public="false">
+            <argument type="service" id="doctrine"/>
+            <argument type="service" id="ApiExtension\Guesser\GuesserChain"/>
+            <argument type="service" id="ApiExtension\Transformer\TransformerChain"/>
+            <argument type="service" id="property_info"/>
+            <argument type="service" id="ApiExtension\PropertyExtractor\PropertyExtractorChain"/>
+            <tag name="api_extension.object_manager"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\QueryBuilder\QueryBuilderChain" class="ApiExtension\Bridge\Doctrine\ORM\QueryBuilder\QueryBuilderChain" public="false">
+            <argument type="collection"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\QueryBuilder\MySQLQueryBuilder" class="ApiExtension\Bridge\Doctrine\ORM\QueryBuilder\MySQLQueryBuilder" public="false">
+            <tag name="api_extension.doctrine.query_builder"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\QueryBuilder\PostgreSQLQueryBuilder" class="ApiExtension\Bridge\Doctrine\ORM\QueryBuilder\PostgreSQLQueryBuilder" public="false">
+            <tag name="api_extension.doctrine.query_builder"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\Transformer\CollectionTransformer" class="ApiExtension\Bridge\Doctrine\ORM\Transformer\CollectionTransformer" public="false">
+            <argument type="service" id="doctrine"/>
+            <tag name="api_extension.transformer"/>
+        </service>
+
+        <service id="ApiExtension\Bridge\Doctrine\ORM\Transformer\EntityTransformer" class="ApiExtension\Bridge\Doctrine\ORM\Transformer\EntityTransformer" public="false">
+            <argument type="service" id="doctrine"/>
+            <tag name="api_extension.transformer"/>
+        </service>
+    </services>
+</container>

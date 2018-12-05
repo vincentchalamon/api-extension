@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="ApiExtension\Transformer\DateTimeTransformer" class="ApiExtension\Transformer\DateTimeTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\StringTransformer" class="ApiExtension\Transformer\StringTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\IntegerTransformer" class="ApiExtension\Transformer\IntegerTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\FloatTransformer" class="ApiExtension\Transformer\FloatTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\DecimalTransformer" class="ApiExtension\Transformer\DecimalTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\ArrayTransformer" class="ApiExtension\Transformer\ArrayTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\BooleanTransformer" class="ApiExtension\Transformer\BooleanTransformer" public="false">
+            <tag name="api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\TransformerChain" class="ApiExtension\Transformer\TransformerChain" public="true">
+            <argument type="collection" />
+        </service>
+    </services>
+</container>

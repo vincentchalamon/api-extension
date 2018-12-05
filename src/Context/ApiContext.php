@@ -13,10 +13,9 @@ declare(strict_types=1);
 
 namespace ApiExtension\Context;
 
-use ApiExtension\Exception\EntityNotFoundException;
-use ApiExtension\Exception\InvalidStatusCodeException;
-use ApiExtension\Helper\ApiHelper;
-use ApiExtension\Populator\Populator;
+use ApiExtension\ClassRepository\ClassRepositoryInterface;
+use ApiExtension\ObjectManager\ObjectManagerInterface;
+use ApiExtension\Routing\RouterInterface;
 use ApiExtension\SchemaGenerator\SchemaGeneratorInterface;
 use ApiExtension\Transformer\TransformerInterface;
 use Behat\Behat\Context\Context;
@@ -27,8 +26,6 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\MinkContext;
 use Behatch\Context\JsonContext;
 use Behatch\Context\RestContext;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
@@ -36,6 +33,13 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 final class ApiContext implements Context
 {
     const FORMAT = 'application/ld+json';
+
+    private $transformer;
+    private $router;
+    private $classRepository;
+    private $objectManager;
+    private $schemaGenerator;
+    private $lastRequestJson;
 
     /**
      * @var RestContext
@@ -51,18 +55,14 @@ final class ApiContext implements Context
      * @var JsonContext
      */
     private $jsonContext;
-    private $schemaGenerator;
-    private $helper;
-    private $populator;
-    private $lastRequestJson;
-    private $transformer;
 
-    public function __construct(SchemaGeneratorInterface $schemaGenerator, ApiHelper $helper, Populator $populator, TransformerInterface $transformer)
+    public function __construct(TransformerInterface $transformer, RouterInterface $router, ClassRepositoryInterface $classRepository, ObjectManagerInterface $objectManager, SchemaGeneratorInterface $schemaGenerator)
     {
-        $this->schemaGenerator = $schemaGenerator;
-        $this->helper = $helper;
-        $this->populator = $populator;
         $this->transformer = $transformer;
+        $this->router = $router;
+        $this->classRepository = $classRepository;
+        $this->objectManager = $objectManager;
+        $this->schemaGenerator = $schemaGenerator;
     }
 
     /**
@@ -84,7 +84,7 @@ final class ApiContext implements Context
     public function sendGetRequestToCollection(string $name)
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name)));
+        $this->restContext->iSendARequestTo('GET', $this->router->getCollectionUri($this->classRepository->getReflectionClass($name)));
     }
 
     /**
@@ -93,7 +93,7 @@ final class ApiContext implements Context
     public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null)
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name))."?$filters");
+        $this->restContext->iSendARequestTo('GET', $this->router->getCollectionUri($this->classRepository->getReflectionClass($name)).($filters ? "?$filters" : ''));
     }
 
     /**
@@ -101,8 +101,11 @@ final class ApiContext implements Context
      */
     public function sendGetRequestToItem(string $name, array $ids = null)
     {
+        if (null === $ids) {
+            $ids = $this->objectManager->getIdentifiers($this->classRepository->getReflectionClass($name));
+        }
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo('GET', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
+        $this->restContext->iSendARequestTo('GET', $this->router->getItemUri($this->classRepository->getReflectionClass($name), $ids));
     }
 
     /**
@@ -110,7 +113,7 @@ final class ApiContext implements Context
      */
     public function sendGetRequestToDesignatedItem(string $name, string $value)
     {
-        $this->sendGetRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
+        $this->sendGetRequestToItem($name, $this->objectManager->getIdentifiers($this->classRepository->getReflectionClass($name), $value));
     }
 
     /**
@@ -118,8 +121,11 @@ final class ApiContext implements Context
      */
     public function sendDeleteRequestToItem(string $name, array $ids = null)
     {
+        if (null === $ids) {
+            $ids = $this->objectManager->getIdentifiers($this->classRepository->getReflectionClass($name));
+        }
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
-        $this->restContext->iSendARequestTo('DELETE', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
+        $this->restContext->iSendARequestTo('DELETE', $this->router->getItemUri($this->classRepository->getReflectionClass($name), $ids));
     }
 
     /**
@@ -127,58 +133,58 @@ final class ApiContext implements Context
      */
     public function sendDeleteRequestToDesignatedItem(string $name, string $value)
     {
-        $this->sendDeleteRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
+        $this->sendDeleteRequestToItem($name, $this->objectManager->getIdentifiers($this->classRepository->getReflectionClass($name), $value));
     }
 
     /**
      * @When /^I update (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
-     * @When /^I update (?:a|an) (?P<name>[\w\-]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPutRequestToItem(string $name, $data = null, array $ids = null, $groups = '')
+    public function sendPutRequestToItem(string $name, $data = null, array $ids = null)
     {
-        $reflectionClass = $this->helper->getReflectionClass($name);
+        $reflectionClass = $this->classRepository->getReflectionClass($name);
         $values = [];
         if (null !== $data) {
             $values = $data;
             if ($data instanceof TableNode) {
                 $rows = $data->getRows();
-                $values = array_combine(array_shift($rows), $rows[0]);
+                $values = \array_combine(\array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values, array_filter(explode(', ', $groups)));
+        if (null === $ids) {
+            $ids = $this->objectManager->getIdentifiers($this->classRepository->getReflectionClass($name));
+        }
+//        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values, array_filter(explode(', ', $groups)));
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody('PUT', $this->helper->getItemUri($reflectionClass, $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+        $this->restContext->iSendARequestToWithBody('PUT', $this->router->getItemUri($reflectionClass, $ids), new PyStringNode([\json_encode($this->lastRequestJson)], 0));
     }
 
     /**
      * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+)(?: with:)?$/
-     * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null, $groups = '')
+    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null)
     {
-        $this->sendPutRequestToItem($name, $data, $this->helper->getObjectIdentifiers($this->findObject($name, $value)), $groups);
+        $this->sendPutRequestToItem($name, $data, $this->objectManager->getIdentifiers($this->classRepository->getReflectionClass($name), $value));
     }
 
     /**
      * @When /^I create (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
-     * @When /^I create (?:a|an) (?P<name>[\w\-]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPostRequestToCollection(string $name, $data = null, $groups = '')
+    public function sendPostRequestToCollection(string $name, $data = null)
     {
-        $reflectionClass = $this->helper->getReflectionClass($name);
+        $reflectionClass = $this->classRepository->getReflectionClass($name);
         $values = [];
         if (null !== $data) {
             $values = $data;
             if ($data instanceof TableNode) {
                 $rows = $data->getRows();
-                $values = array_combine(array_shift($rows), $rows[0]);
+                $values = \array_combine(\array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values, array_filter(explode(', ', $groups)));
+//        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values, array_filter(explode(', ', $groups)));
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
-        $this->restContext->iSendARequestToWithBody('POST', $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
+        $this->restContext->iSendARequestToWithBody('POST', $this->router->getCollectionUri($reflectionClass), new PyStringNode([\json_encode($this->lastRequestJson)], 0));
     }
 
     /**
@@ -186,7 +192,7 @@ final class ApiContext implements Context
      */
     public function iGetTheApiDocInFormat(string $format)
     {
-        $this->restContext->iSendARequestTo('GET', $this->helper->getUrl('api_doc', ['_format' => $format]));
+        $this->restContext->iSendARequestTo('GET', "/docs.$format");
     }
 
     /**
@@ -220,16 +226,16 @@ JSON
                 break;
             case 'jsonld':
                 $this->jsonContext->theResponseShouldBeInJson();
-                $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([sprintf(<<<'JSON'
+                $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([<<<'JSON'
 {
     "type": "object",
     "properties": {
         "@context": {
             "type": "object"
         },
-        "@id": {"pattern": "^%s$"},
+        "@id": {"pattern": "^/docs.jsonld$"},
         "@type": {"pattern": "^hydra:ApiDocumentation$"},
-        "hydra:entrypoint": {"pattern": "^%s$"},
+        "hydra:entrypoint": {"pattern": "^/index$"},
         "hydra:supportedClass": {
             "type": "array",
             "items": {
@@ -247,8 +253,6 @@ JSON
     "required": ["@context", "@id", "@type", "hydra:entrypoint", "hydra:supportedClass"]
 }
 JSON
-                    , $this->helper->getUrl('api_doc', ['_format' => 'jsonld']), $this->helper->getUrl('api_entrypoint')
-                ),
                 ], 0));
                 break;
             case 'html':
@@ -264,7 +268,7 @@ JSON
     {
         $this->minkContext->assertResponseStatus(400);
         $this->jsonContext->theResponseShouldBeInJson();
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([json_encode($this->schemaGenerator->generate(new \ReflectionClass(ConstraintViolationListInterface::class)))], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\json_encode($this->schemaGenerator->generate(new \ReflectionClass(ConstraintViolationListInterface::class)))], 0));
     }
 
     /**
@@ -318,9 +322,9 @@ JSON
         }
         $this->jsonContext->theResponseShouldBeInJson();
         if (null === $schema) {
-            $schema = $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]);
+            $schema = $this->schemaGenerator->generate($this->classRepository->getReflectionClass($name), ['collection' => false, 'root' => true]);
         }
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\is_array($schema) ? json_encode($schema) : $schema], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\is_array($schema) ? \json_encode($schema) : $schema], 0));
     }
 
     /**
@@ -343,9 +347,9 @@ JSON
         }
         $this->jsonContext->theResponseShouldBeInJson();
         if (null === $schema) {
-            $schema = $this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]);
+            $schema = $this->schemaGenerator->generate($this->classRepository->getReflectionClass($name), ['collection' => true, 'root' => true]);
         }
-        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\is_array($schema) ? json_encode($schema) : $schema], 0));
+        $this->jsonContext->theJsonShouldBeValidAccordingToThisSchema(new PyStringNode([\is_array($schema) ? \json_encode($schema) : $schema], 0));
         if (null !== $total) {
             $this->jsonContext->theJsonNodeShouldHaveElements('hydra:member', $total);
         }
@@ -364,7 +368,7 @@ JSON
      */
     public function printCollectionJsonSchema(string $name)
     {
-        echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]), JSON_PRETTY_PRINT);
+        echo \json_encode($this->schemaGenerator->generate($this->classRepository->getReflectionClass($name), ['collection' => true, 'root' => true]), JSON_PRETTY_PRINT);
     }
 
     /**
@@ -372,7 +376,7 @@ JSON
      */
     public function printItemJsonSchema(string $name)
     {
-        echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]), JSON_PRETTY_PRINT);
+        echo \json_encode($this->schemaGenerator->generate($this->classRepository->getReflectionClass($name), ['collection' => false, 'root' => true]), JSON_PRETTY_PRINT);
     }
 
     /**
@@ -380,17 +384,6 @@ JSON
      */
     public function printJsonData()
     {
-        echo json_encode($this->lastRequestJson, JSON_PRETTY_PRINT);
-    }
-
-    private function findObject(string $name, $value)
-    {
-        $reflectionClass = $this->helper->getReflectionClass($name);
-        $object = $this->transformer->toObject(['targetEntity' => $reflectionClass->name, 'type' => ClassMetadataInfo::ONE_TO_ONE], $value);
-        if (null === $object) {
-            throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $reflectionClass->name, $value));
-        }
-
-        return $object;
+        echo \json_encode($this->lastRequestJson, JSON_PRETTY_PRINT);
     }
 }

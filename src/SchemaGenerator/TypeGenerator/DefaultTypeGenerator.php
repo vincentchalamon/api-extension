@@ -18,18 +18,18 @@ namespace ApiExtension\SchemaGenerator\TypeGenerator;
  */
 final class DefaultTypeGenerator implements TypeGeneratorInterface
 {
-    public function supports(array $mapping, array $context = []): bool
+    public function supports(array $context): bool
     {
         return true;
     }
 
-    public function generate(array $mapping, array $context = []): array
+    public function generate(array $context): array
     {
-        if (!\in_array($mapping['type'], ['integer', 'number', 'boolean', 'object', 'array', 'string', 'null', 'any'], true)) {
-            $mapping['type'] = 'any';
+        if (!\in_array($context['type'], ['integer', 'number', 'boolean', 'object', 'array', 'string', 'null', 'any'], true)) {
+            $context['type'] = 'any';
         }
-        $type = ['type' => $mapping['type']];
-        if ($mapping['nullable'] ?? false) {
+        $type = ['type' => $context['type']];
+        if ($context['nullable'] ?? false) {
             if (!\is_array($type['type'])) {
                 $type['type'] = [$type['type']];
             }

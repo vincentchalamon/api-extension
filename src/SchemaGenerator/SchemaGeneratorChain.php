@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace ApiExtension\SchemaGenerator;
 
-use ApiExtension\Exception\SchemaGeneratorNotFoundException;
-
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
@@ -35,11 +33,6 @@ final class SchemaGeneratorChain implements SchemaGeneratorInterface
         $this->generators = $generators;
     }
 
-    public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
-    {
-        return true;
-    }
-
     public function generate(\ReflectionClass $reflectionClass, array $context = []): array
     {
         foreach ($this->generators as $schemaGenerator) {
@@ -48,6 +41,11 @@ final class SchemaGeneratorChain implements SchemaGeneratorInterface
             }
         }
 
-        throw new SchemaGeneratorNotFoundException('No schema generator found for class '.$reflectionClass->name);
+        throw new SchemaGeneratorNotFoundException();
+    }
+
+    public function supports(\ReflectionClass $reflectionClass, array $context = []): bool
+    {
+        return true;
     }
 }

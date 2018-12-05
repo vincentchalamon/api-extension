@@ -13,25 +13,23 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class FloatTransformer implements TransformerInterface
 {
-    public function supports(array $mapping, $value): bool
+    public function supports(array $context, $value): bool
     {
-        return Type::FLOAT === $mapping['type'];
+        return 'float' === $context['type'];
     }
 
-    public function toObject(array $mapping, $value): float
+    public function toObject(array $context, $value): float
     {
         return (float) $value;
     }
 
-    public function toScalar(array $mapping, $value): float
+    public function toScalar(array $context, $value): float
     {
-        return $this->toObject($mapping, $value);
+        return $this->toObject($context, $value);
     }
 }

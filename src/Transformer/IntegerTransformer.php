@@ -13,25 +13,23 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class IntegerTransformer implements TransformerInterface
 {
-    public function supports(array $mapping, $value): bool
+    public function supports(array $context, $value): bool
     {
-        return \in_array($mapping['type'], ['int', Type::INTEGER, Type::SMALLINT, Type::BIGINT], true);
+        return \in_array($context['type'], ['int', 'integer', 'smallint', 'bigint'], true);
     }
 
-    public function toObject(array $mapping, $value): int
+    public function toObject(array $context, $value): int
     {
         return (int) $value;
     }
 
-    public function toScalar(array $mapping, $value): int
+    public function toScalar(array $context, $value): int
     {
-        return $this->toObject($mapping, $value);
+        return $this->toObject($context, $value);
     }
 }

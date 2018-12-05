@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="ApiExtension\PropertyExtractor\PropertyExtractor" class="ApiExtension\PropertyExtractor\PropertyExtractor" public="false">
+            <argument type="service" id="api_platform.metadata.resource.metadata_factory.annotation"/>
+            <argument type="service" id="property_info"/>
+            <argument type="service" id="annotations.reader"/>
+            <tag name="api_platform.doctrine.property_extractor" />
+        </service>
+
+        <service id="ApiExtension\Routing\ApiPlatformRouter" class="ApiExtension\Routing\ApiPlatformRouter" public="false">
+            <argument type="service" id="api_platform.iri_converter"/>
+            <tag name="api_extension.router" />
+        </service>
+    </services>
+</container>

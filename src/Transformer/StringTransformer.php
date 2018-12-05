@@ -13,25 +13,23 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
 final class StringTransformer implements TransformerInterface
 {
-    public function supports(array $mapping, $value): bool
+    public function supports(array $context, $value): bool
     {
-        return \in_array($mapping['type'], [Type::STRING, Type::TEXT], true);
+        return \in_array($context['type'], ['string', 'text'], true);
     }
 
-    public function toObject(array $mapping, $value): string
+    public function toObject(array $context, $value): string
     {
         return (string) $value;
     }
 
-    public function toScalar(array $mapping, $value): string
+    public function toScalar(array $context, $value): string
     {
-        return $this->toObject($mapping, $value);
+        return $this->toObject($context, $value);
     }
 }
