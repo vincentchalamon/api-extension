@@ -102,6 +102,10 @@ final class ApiExtension implements ExtensionInterface
                     ->info('A list of Populators guessers')
                     ->prototype('scalar')->end()
                 ->end()
+                ->arrayNode('transformers')
+                    ->info('A list of transformers')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
     }
 
@@ -111,20 +115,16 @@ final class ApiExtension implements ExtensionInterface
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
-        foreach ($config['guessers'] as $guesserClass) {
-            $definition = new Definition($guesserClass, [new Reference(Generator::class)]);
-            $definition->addTag('coop_tilleuls.api_extension.guesser');
-            $container->setDefinition($guesserClass, $definition);
+        foreach (['guessers' => 'coop_tilleuls.api_extension.guesser', 'transformers' => 'coop_tilleuls.api_extension.transformer'] as $configKey => $tag) {
+            foreach ($config[$configKey] as $class) {
+                $container->setDefinition($class, new Definition($class, [new Reference(Generator::class)]))->addTag($tag);
+            }
         }
 
-        $defaultGuessers = $this->findAndSortTaggedServices('coop_tilleuls.api_extension.guesser', $container);
-
-        $guessers = \array_merge($defaultGuessers, $config['guessers']);
-
         $container->getDefinition(SchemaGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator', $container));
-        $container->getDefinition(TransformerChain::class)->setArgument('$transformers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.transformer', $container));
         $container->getDefinition(TypeGeneratorChain::class)->setArgument('$generators', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.schema_generator.type', $container));
-        $container->getDefinition(GuesserChain::class)->setArgument('$guessers', $guessers);
+        $container->getDefinition(GuesserChain::class)->setArgument('$guessers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.guesser', $container));
+        $container->getDefinition(TransformerChain::class)->setArgument('$transformers', $this->findAndSortTaggedServices('coop_tilleuls.api_extension.transformer', $container));
         $container->getDefinition(ApiConfigurator::class)->setArgument('$parameters', $config['services']);
 
         foreach ($config['providers'] as $class) {
