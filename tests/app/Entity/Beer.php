@@ -80,7 +80,7 @@ class Beer
     private $volume;
 
     /**
-     * @var boolean
+     * @var bool
      * @ORM\Column(type="boolean", name="is_active")
      * @Groups({"beer_read", "beer_write"})
      */
