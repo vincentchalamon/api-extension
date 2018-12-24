@@ -40,7 +40,9 @@ class EntityGuesser implements GuesserInterface
 
     public function supports(array $mapping): bool
     {
-        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
+        return null !== $mapping['targetEntity']
+            && $this->registry->getManagerForClass($mapping['targetEntity'])->getClassMetadata($mapping['targetEntity']) instanceof ClassMetadataInfo
+            && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
     public function getValue(array $mapping)

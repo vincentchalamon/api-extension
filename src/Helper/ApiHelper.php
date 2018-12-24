@@ -17,10 +17,8 @@ use ApiExtension\Exception\EntityNotFoundException;
 use ApiPlatform\Core\Api\IriConverterInterface;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Util\ClassUtils;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -37,11 +35,6 @@ final class ApiHelper
      * @var ManagerRegistry
      */
     private $registry;
-
-    /**
-     * @var PropertyInfoExtractorInterface
-     */
-    private $propertyInfo;
 
     /**
      * @var RouterInterface
@@ -75,7 +68,6 @@ final class ApiHelper
 
     public function getItemUri(\ReflectionClass $reflectionClass, array $ids = null): string
     {
-        /** @var EntityManagerInterface $em */
         $em = $this->registry->getManagerForClass($reflectionClass->name);
         if (null === $ids) {
             if (null === ($object = $em->getRepository($reflectionClass->name)->findOneBy([]))) {
@@ -94,14 +86,14 @@ final class ApiHelper
 
     public function getObjectIdentifiers($object): array
     {
-        $classMetadata = $this->getClassMetadata(ClassUtils::getClass($object));
+        $classMetadata = $this->getClassMetadata(class_exists(ClassUtils::class) ? ClassUtils::getClass($object) : \get_class($object));
 
         return array_combine($classMetadata->getIdentifierFieldNames(), $classMetadata->getIdentifierValues($object));
     }
 
     public function getReflectionClass(string $name): \ReflectionClass
     {
-        $allClasses = array_map(function (ClassMetadataInfo $metadata) {
+        $allClasses = array_map(function (ClassMetadata $metadata) {
             return $metadata->getReflectionClass();
         }, $this->registry->getManager()->getMetadataFactory()->getAllMetadata());
         $clearName = strtolower(preg_replace('/[ \-\_]/', '', $name));
@@ -117,7 +109,7 @@ final class ApiHelper
         throw new EntityNotFoundException(sprintf('Unable to find an entity corresponding to name "%s"', $name));
     }
 
-    public function getClassMetadata(string $className): ClassMetadataInfo
+    public function getClassMetadata(string $className): ClassMetadata
     {
         return $this->registry->getManagerForClass($className)->getClassMetadata($className);
     }

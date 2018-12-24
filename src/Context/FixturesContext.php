@@ -46,9 +46,8 @@ final class FixturesContext implements Context
         $em = $this->registry->getManagerForClass($reflectionClass->name);
         $rows = $table->getRows();
         $headers = array_shift($rows);
-        /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($reflectionClass->name)->getClassMetadata($reflectionClass->name);
-        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
+        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames()) && property_exists($classMetadata, 'idGenerator')) {
             $idGenerator = $classMetadata->idGenerator;
             $classMetadata->setIdGenerator(new AssignedGenerator());
             $generatorType = $classMetadata->generatorType;
@@ -75,9 +74,8 @@ final class FixturesContext implements Context
         $rows = $table->getRows();
         $headers = array_shift($rows);
         $row = array_shift($rows);
-        /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($reflectionClass->name)->getClassMetadata($reflectionClass->name);
-        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames())) {
+        if (array_intersect($headers, $classMetadata->getIdentifierFieldNames()) && property_exists($classMetadata, 'idGenerator')) {
             $idGenerator = $classMetadata->idGenerator;
             $classMetadata->setIdGenerator(new AssignedGenerator());
             $generatorType = $classMetadata->generatorType;

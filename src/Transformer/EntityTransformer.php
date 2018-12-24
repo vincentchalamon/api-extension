@@ -48,7 +48,9 @@ final class EntityTransformer implements TransformerInterface
 
     public function supports(array $mapping, $value): bool
     {
-        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
+        return null !== $mapping['targetEntity']
+            && $this->registry->getManagerForClass($mapping['targetEntity'])->getClassMetadata($mapping['targetEntity']) instanceof ClassMetadataInfo
+            && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
     public function toObject(array $mapping, $value)

@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * @author Jordan Aubert <jordan@les-tilleuls.coop>
  */
@@ -22,7 +20,7 @@ final class DecimalTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return Type::DECIMAL === $mapping['type'];
+        return 'decimal' === $mapping['type'];
     }
 
     public function toObject(array $mapping, $value): float

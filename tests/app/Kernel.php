@@ -15,6 +15,7 @@ namespace ApiExtension\App;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\ApiPlatformBundle;
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
+use Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -38,6 +39,7 @@ final class Kernel extends AbstractKernel
             new ApiPlatformBundle(),
             new FrameworkBundle(),
             new DoctrineBundle(),
+            new DoctrineMongoDBBundle(),
             new TwigBundle(),
         ];
 
@@ -78,6 +80,31 @@ final class Kernel extends AbstractKernel
             ],
         ]);
 
+        $c->loadFromExtension('doctrine_mongodb', [
+            'auto_generate_proxy_classes' => true,
+            'auto_generate_hydrator_classes' => true,
+            'connections' => [
+                'default' => [
+                    'server' => 'mongodb://localhost',
+                ],
+            ],
+            'document_managers' => [
+                'default' => [
+                    'auto_mapping' => true,
+                    'database' => 'default',
+                    'mappings' => [
+                        'App' => [
+                            'is_bundle' => false,
+                            'type' => 'annotation',
+                            'dir' => __DIR__.'/Document',
+                            'prefix' => 'ApiExtension\App\Document',
+                            'alias' => 'App',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
         $c->loadFromExtension('framework', [
             'secret' => 'ApiExtension',
             'test' => null,
@@ -90,7 +117,5 @@ final class Kernel extends AbstractKernel
                 'paths' => [__DIR__.'/Entity'],
             ],
         ]);
-
-        $loader->load(__DIR__.'/services.yaml');
     }
 }

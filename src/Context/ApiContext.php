@@ -27,7 +27,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\MinkContext;
 use Behatch\Context\JsonContext;
 use Behatch\Context\RestContext;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
@@ -56,13 +56,15 @@ final class ApiContext implements Context
     private $populator;
     private $lastRequestJson;
     private $transformer;
+    private $registry;
 
-    public function __construct(SchemaGeneratorInterface $schemaGenerator, ApiHelper $helper, Populator $populator, TransformerInterface $transformer)
+    public function __construct(SchemaGeneratorInterface $schemaGenerator, ApiHelper $helper, Populator $populator, TransformerInterface $transformer, ManagerRegistry $registry)
     {
         $this->schemaGenerator = $schemaGenerator;
         $this->helper = $helper;
         $this->populator = $populator;
         $this->transformer = $transformer;
+        $this->registry = $registry;
     }
 
     /**
@@ -386,7 +388,7 @@ JSON
     private function findObject(string $name, $value)
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
-        $object = $this->transformer->toObject(['targetEntity' => $reflectionClass->name, 'type' => ClassMetadataInfo::ONE_TO_ONE], $value);
+        $object = $this->registry->getManagerForClass($reflectionClass->name)->getRepository($reflectionClass->name)->findOneBy([]);
         if (null === $object) {
             throw new EntityNotFoundException(sprintf('Unable to find an existing object of class %s with any value equal to %s.', $reflectionClass->name, $value));
         }

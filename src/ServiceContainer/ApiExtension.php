@@ -60,6 +60,7 @@ final class ApiExtension implements ExtensionInterface
                     ->defaultValue('fr_FR')
                 ->end()
                 ->arrayNode('services')
+                    ->info('Deprecated, will be removed soon')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('metadataFactory')

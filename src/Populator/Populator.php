@@ -20,6 +20,7 @@ use ApiPlatform\Core\Metadata\Resource\Factory\ResourceMetadataFactoryInterface;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
 use Symfony\Component\PropertyInfo\Type;
@@ -87,9 +88,12 @@ final class Populator
 
         // Complete required properties & init object
         $object = $reflectionClass->newInstance();
-        /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
-        foreach (array_merge($classMetadata->getFieldNames(), $classMetadata->getAssociationNames()) as $property) {
+        $properties = $classMetadata->getFieldNames();
+        if (method_exists($classMetadata, 'getAssociationNames')) {
+            $properties = array_merge($properties, $classMetadata->getAssociationNames());
+        }
+        foreach ($properties as $property) {
             $mapping = $this->getMapping($classMetadata, $property);
             // Property is already filled, or is not required, or a primary key (except for association primary key)
             if (array_key_exists($property, $values) || $mapping['nullable'] || ($classMetadata->isIdentifier($property) && $classMetadata->hasField($property))) {
@@ -144,7 +148,6 @@ final class Populator
         $originalValues = $values;
 
         // Complete required properties
-        /** @var ClassMetadataInfo $classMetadata */
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
         foreach ($this->propertyInfo->getProperties($className, $groups ? ['serializer_groups' => $groups] : []) as $property) {
             if (!$reflectionClass->hasProperty($property) || !$this->isRequired($reflectionClass->getProperty($property), $validationGroups) || array_key_exists($property, $values) || ('put' === $operation && 0 < \count($originalValues))) {
@@ -162,7 +165,7 @@ final class Populator
         return $values;
     }
 
-    public function getMapping(ClassMetadataInfo $classMetadata, string $property): array
+    public function getMapping(ClassMetadata $classMetadata, string $property): array
     {
         $className = $classMetadata->getName();
         if (isset($this->mapping[$className])) {
@@ -173,13 +176,21 @@ final class Populator
         }
 
         $this->mapping[$className] = [];
-        foreach ($classMetadata->getAssociationMappings() as $name => $mapping) {
-            $this->mapping[$className][$name] = $mapping + [
-                    'nullable' => $mapping['joinColumns'][0]['nullable'] ?? true,
-                ];
+        if ($classMetadata instanceof ClassMetadataInfo) {
+            foreach ($classMetadata->getAssociationMappings() as $name => $mapping) {
+                $this->mapping[$className][$name] = $mapping + [
+                        'nullable' => $mapping['joinColumns'][0]['nullable'] ?? true,
+                    ];
+            }
         }
         foreach ($classMetadata->getFieldNames() as $fieldName) {
-            $this->mapping[$className][$fieldName] = $classMetadata->getFieldMapping($fieldName);
+            $this->mapping[$className][$fieldName] = [
+                'type' => $classMetadata->getTypeOfField($fieldName),
+                'fieldName' => $fieldName,
+            ];
+            if ($classMetadata instanceof ClassMetadataInfo) {
+                $classMetadata->getFieldMapping($fieldName);
+            }
         }
         foreach ($this->propertyInfo->getProperties($className) as $fieldName) {
             if (array_key_exists($fieldName, $this->mapping[$className])) {
@@ -188,7 +199,7 @@ final class Populator
 
             /** @var Type $type */
             $types = $this->propertyInfo->getTypes($className, $fieldName);
-            if (!$types) {
+            if (empty($types)) {
                 throw new \RuntimeException(sprintf('Cannot get type of field %s.%s', $className, $fieldName));
             }
             $this->mapping[$className][$fieldName] = [
@@ -228,7 +239,6 @@ final class Populator
 
     private function isRequired(\ReflectionProperty $reflectionProperty, $groups): bool
     {
-        /** @var ClassMetadataInfo $classMetadata */
         $className = $reflectionProperty->getDeclaringClass()->name;
         $classMetadata = $this->registry->getManagerForClass($className)->getClassMetadata($className);
 

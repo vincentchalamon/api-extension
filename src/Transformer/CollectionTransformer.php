@@ -38,7 +38,9 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
 
     public function supports(array $mapping, $value): bool
     {
-        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
+        return null !== $mapping['targetEntity']
+            && $this->registry->getManagerForClass($mapping['targetEntity'])->getClassMetadata($mapping['targetEntity']) instanceof ClassMetadataInfo
+            && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY], true);
     }
 
     public function toObject(array $mapping, $value): Collection

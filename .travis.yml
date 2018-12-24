@@ -7,6 +7,9 @@ cache:
     directories:
         - $HOME/.composer/cache
 
+services:
+    - mongodb
+
 env:
     - DEPENDENCIES=''
     - DEPENDENCIES='low'
@@ -16,6 +19,9 @@ php:
     - 7.0
     - 7.1
     - 7.2
+    - 7.3
+
+before_install: echo 'extension = "mongodb.so"' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
 install:
     - if [[ $DEPENDENCIES = 'beta' ]]; then composer config minimum-stability beta; fi

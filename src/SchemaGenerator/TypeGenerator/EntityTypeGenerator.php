@@ -15,6 +15,7 @@ namespace ApiExtension\SchemaGenerator\TypeGenerator;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Annotations\Reader;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractorInterface;
@@ -38,6 +39,10 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
      * @var ContainerInterface
      */
     private $container;
+    /**
+     * @var ManagerRegistry
+     */
+    private $registry;
 
     public function __construct(ContainerInterface $container = null)
     {
@@ -54,9 +59,16 @@ final class EntityTypeGenerator implements TypeGeneratorInterface
         $this->reader = $reader;
     }
 
+    public function setRegistry(ManagerRegistry $registry)
+    {
+        $this->registry = $registry;
+    }
+
     public function supports(array $mapping, array $context = []): bool
     {
-        return null !== $mapping['targetEntity'] && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
+        return null !== $mapping['targetEntity']
+            && $this->registry->getManagerForClass($mapping['targetEntity'])->getClassMetadata($mapping['targetEntity']) instanceof ClassMetadataInfo
+            && \in_array($mapping['type'], [ClassMetadataInfo::ONE_TO_ONE, ClassMetadataInfo::MANY_TO_ONE], true);
     }
 
     public function generate(array $mapping, array $context = []): array

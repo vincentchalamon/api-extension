@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
@@ -22,7 +20,7 @@ final class StringTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return \in_array($mapping['type'], [Type::STRING, Type::TEXT], true);
+        return \in_array($mapping['type'], ['string', 'text'], true);
     }
 
     public function toObject(array $mapping, $value): string

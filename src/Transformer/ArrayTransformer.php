@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace ApiExtension\Transformer;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
@@ -22,7 +20,7 @@ final class ArrayTransformer implements TransformerInterface
 {
     public function supports(array $mapping, $value): bool
     {
-        return \in_array($mapping['type'], [Type::TARRAY, Type::JSON_ARRAY, Type::SIMPLE_ARRAY], true) && \is_string($value);
+        return \in_array($mapping['type'], ['array', 'simple_array'], true) && \is_string($value);
     }
 
     public function toObject(array $mapping, $value): array

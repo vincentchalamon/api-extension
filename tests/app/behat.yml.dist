@@ -22,11 +22,4 @@ default:
                 default:
                     symfony2: ~
         Behatch\Extension: ~
-        ApiExtension:
-            services:
-                metadataFactory: '@test.api_platform.metadata.resource.metadata_factory.annotation'
-                iriConverter: '@test.api_platform.iri_converter'
-                registry: '@doctrine'
-                propertyInfo: '@test.property_info'
-                annotationReader: '@test.annotation_reader'
-                router: '@test.router'
+        ApiExtension: ~
