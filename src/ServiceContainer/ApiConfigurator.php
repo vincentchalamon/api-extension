@@ -43,7 +43,7 @@ final class ApiConfigurator
                 continue;
             }
             if (is_scalar($value)) {
-                if (preg_match('/^%(.*)%$/', $value, $matches)) {
+                if (preg_match('/^%(.*)%$/', (string) $value, $matches)) {
                     $value = $this->container->getParameter($matches[1]);
                 } else {
                     $value = $container->get('@' === substr($value, 0, 1) ? substr($value, 1) : $value);

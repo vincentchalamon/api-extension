@@ -89,7 +89,7 @@ final class ApiHelper
 
     public function getItemUriPattern(\ReflectionClass $reflectionClass): string
     {
-        return str_replace('{id}', '[\\w-;=]+', urldecode($this->getItemUri($reflectionClass, ['id' => '{id}'])));
+        return str_replace(urlencode('{id}'), '[\\w-;=]+', urldecode($this->getItemUri($reflectionClass, ['id' => '{id}'])));
     }
 
     public function getObjectIdentifiers($object): array

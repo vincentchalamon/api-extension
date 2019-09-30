@@ -89,8 +89,8 @@ final class CollectionTransformer implements TransformerInterface, TransformerAw
         if (empty($value)) {
             return '';
         }
-        if (!preg_match('/[^0-9.]+/', $value)) {
-            return preg_match('/[.]+/', $value) ? (float) $value : (int) $value;
+        if (!preg_match('/[^0-9.]+/', (string) $value)) {
+            return preg_match('/[.]+/', (string) $value) ? (float) $value : (int) $value;
         }
         if ('true' === $value) {
             return true;

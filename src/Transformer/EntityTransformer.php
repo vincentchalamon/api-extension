@@ -76,7 +76,7 @@ final class EntityTransformer implements TransformerInterface
                     break;
                 case Type::GUID:
                     // Support for PostgreSQL native type
-                    if (!\preg_match('/^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$/', $value)) {
+                    if (!\preg_match('/^(\{{0,1}([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}\}{0,1})$/', (string) $value)) {
                         $type = 'invalid';
                     }
                     break;
@@ -84,7 +84,7 @@ final class EntityTransformer implements TransformerInterface
                 case Type::DATETIME:
                 case Type::DATETIMETZ:
                     // Support for PostgreSQL native type
-                    if (!\preg_match('/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/', $value)) {
+                    if (!\preg_match('/^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/', (string) $value)) {
                         $type = 'invalid';
                     }
                     break;
@@ -131,8 +131,8 @@ final class EntityTransformer implements TransformerInterface
         if (empty($value)) {
             return '';
         }
-        if (!preg_match('/[^0-9.]+/', $value)) {
-            return preg_match('/[.]+/', $value) ? (float) $value : (int) $value;
+        if (!preg_match('/[^0-9.]+/', (string) $value)) {
+            return preg_match('/[.]+/', (string) $value) ? (float) $value : (int) $value;
         }
         if ('true' === $value) {
             return true;
