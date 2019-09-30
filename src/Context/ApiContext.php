@@ -145,7 +145,7 @@ final class ApiContext implements Context
                 $values = array_combine(array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values, array_filter(explode(', ', $groups)));
+        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'put', $values, $groups ? array_filter(explode(', ', $groups)) : []);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->restContext->iSendARequestToWithBody('PUT', $this->helper->getItemUri($reflectionClass, $ids), new PyStringNode([json_encode($this->lastRequestJson)], 0));
@@ -175,7 +175,7 @@ final class ApiContext implements Context
                 $values = array_combine(array_shift($rows), $rows[0]);
             }
         }
-        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values, array_filter(explode(', ', $groups)));
+        $this->lastRequestJson = $this->populator->getRequestData($reflectionClass, 'post', $values, $groups ? array_filter(explode(', ', $groups)) : []);
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iAddHeaderEqualTo('Content-Type', self::FORMAT);
         $this->restContext->iSendARequestToWithBody('POST', $this->helper->getUri($reflectionClass), new PyStringNode([json_encode($this->lastRequestJson)], 0));
