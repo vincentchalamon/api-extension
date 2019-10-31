@@ -16,7 +16,8 @@ use Behat\Behat\Context\Context as ContextInterface;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\Tools\SchemaTool;
-
+use Doctrine\DBAL\Types\Type;
+use ApiExtension\App\Type\EanType;
 /**
  * @author Vincent Chalamon <vincentchalamon@gmail.com>
  */
@@ -29,6 +30,9 @@ class FeatureContext implements ContextInterface
     {
         $this->doctrine = $doctrine;
         $this->cacheDir = $cacheDir;
+        if (!Type::hasType(EanType::EAN)) {
+            Type::addType('ean', EanType::class);
+        }
     }
 
     /**

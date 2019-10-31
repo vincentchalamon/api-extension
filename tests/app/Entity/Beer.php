@@ -58,6 +58,14 @@ class Beer
 
     /**
      * @var string
+     * @ORM\Column(type="ean")
+     * @Groups({"beer_read", "beer_write"})
+     * @Assert\NotBlank
+     */
+    private $ean13;
+
+    /**
+     * @var string
      * @ORM\Column
      * @Groups({"beer_read", "beer_write", "beer_list_read"})
      * @Assert\NotBlank
@@ -334,4 +342,21 @@ class Beer
     {
         $this->misc = $misc;
     }
+
+    /**
+     * @return string
+     */
+    public function getEan13(): string
+    {
+        return $this->ean13;
+    }
+
+    /**
+     * @param string $ean13
+     */
+    public function setEan13(string $ean13)
+    {
+        $this->ean13 = $ean13;
+    }
+
 }

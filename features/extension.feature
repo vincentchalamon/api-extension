@@ -50,6 +50,9 @@ Feature: I can execute Behat tests with current API Extension
                     "name"
                 ]
             },
+            "ean13": {
+                "type": "any"
+            },
             "name": {
                 "type": [
                     "string"
@@ -146,6 +149,7 @@ Feature: I can execute Behat tests with current API Extension
             "@type",
             "id",
             "company",
+            "ean13",
             "name",
             "active",
             "price",
