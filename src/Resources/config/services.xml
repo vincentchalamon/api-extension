@@ -114,6 +114,11 @@
             <tag name="coop_tilleuls.api_extension.guesser" />
         </service>
 
+        <service id="ApiExtension\Populator\Guesser\JsonGuesser" class="ApiExtension\Populator\Guesser\JsonChain" public="false" parent="ApiExtension\Populator\Guesser\AbstractGuesser">
+            <argument type="service" id="Faker\Generator" />
+            <argument type="collection" />
+        </service>
+
         <service id="ApiExtension\Populator\Guesser\GuesserChain" class="ApiExtension\Populator\Guesser\GuesserChain" public="true">
             <argument type="service" id="Faker\Generator" />
             <argument type="collection" />
@@ -208,6 +213,10 @@
         </service>
 
         <service id="ApiExtension\Transformer\BooleanTransformer" class="ApiExtension\Transformer\BooleanTransformer" public="false">
+            <tag name="coop_tilleuls.api_extension.transformer" />
+        </service>
+
+        <service id="ApiExtension\Transformer\JsonTransformer" class="ApiExtension\Transformer\JsonTransformer" public="false">
             <tag name="coop_tilleuls.api_extension.transformer" />
         </service>
 
