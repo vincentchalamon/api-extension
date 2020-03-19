@@ -101,7 +101,7 @@ class FeatureContext implements ContextInterface
             '--lang=en',
             '--no-colors',
             '--format-settings=\'{"timer": false}\''
-        ], __DIR__.'/../../tests/app');
+        ], __DIR__ . '/../app');
         $this->process->run();
     }
 

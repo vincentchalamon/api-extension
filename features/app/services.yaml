@@ -1,4 +1,7 @@
 services:
+    FeatureContext:
+        class: FeatureContext
+        arguments: ['@doctrine', '%kernel.cache_dir%']
     test.property_info:
         parent: property_info
         public: true

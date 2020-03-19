@@ -20,13 +20,8 @@ use ApiExtension\Populator\Populator;
 use ApiExtension\SchemaGenerator\SchemaGeneratorInterface;
 use ApiExtension\Transformer\TransformerInterface;
 use Behat\Behat\Context\Context;
-use Behat\Behat\Context\Environment\InitializedContextEnvironment;
-use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
-use Behat\MinkExtension\Context\MinkContext;
-use Behatch\Context\JsonContext;
-use Behatch\Context\RestContext;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 
@@ -35,22 +30,8 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
  */
 final class ApiContext implements Context
 {
-    const FORMAT = 'application/ld+json';
+    private const FORMAT = 'application/ld+json';
 
-    /**
-     * @var RestContext
-     */
-    private $restContext;
-
-    /**
-     * @var MinkContext
-     */
-    private $minkContext;
-
-    /**
-     * @var JsonContext
-     */
-    private $jsonContext;
     private $schemaGenerator;
     private $helper;
     private $populator;
@@ -68,20 +49,15 @@ final class ApiContext implements Context
     /**
      * @BeforeScenario
      */
-    public function gatherContextsAndEmptyLastRequest(BeforeScenarioScope $scope)
+    public function emptyLastRequest(): void
     {
-        /** @var InitializedContextEnvironment $environment */
-        $environment = $scope->getEnvironment();
-        $this->restContext = $environment->getContext(RestContext::class);
-        $this->minkContext = $environment->getContext(MinkContext::class);
-        $this->jsonContext = $environment->getContext(JsonContext::class);
         $this->lastRequestJson = null;
     }
 
     /**
      * @When /^I get a list of (?P<name>[\w\-]+)$/
      */
-    public function sendGetRequestToCollection(string $name)
+    public function sendGetRequestToCollection(string $name): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name)));
@@ -90,7 +66,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get a list of (?P<name>[\w\-]+) (?:filtered|ordered) by (?P<filters>.*)$/
      */
-    public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null)
+    public function sendGetRequestToCollectionWithFilters(string $name, string $filters = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('GET', $this->helper->getUri($this->helper->getReflectionClass($name))."?$filters");
@@ -99,7 +75,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function sendGetRequestToItem(string $name, array $ids = null)
+    public function sendGetRequestToItem(string $name, array $ids = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('GET', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
@@ -108,7 +84,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get the (?P<name>[\w\-]+) (?P<value>[^ ]+)$/
      */
-    public function sendGetRequestToDesignatedItem(string $name, string $value)
+    public function sendGetRequestToDesignatedItem(string $name, string $value): void
     {
         $this->sendGetRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
     }
@@ -116,7 +92,7 @@ final class ApiContext implements Context
     /**
      * @When /^I delete (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function sendDeleteRequestToItem(string $name, array $ids = null)
+    public function sendDeleteRequestToItem(string $name, array $ids = null): void
     {
         $this->restContext->iAddHeaderEqualTo('Accept', self::FORMAT);
         $this->restContext->iSendARequestTo('DELETE', $this->helper->getItemUri($this->helper->getReflectionClass($name), $ids));
@@ -125,7 +101,7 @@ final class ApiContext implements Context
     /**
      * @When /^I delete the (?P<name>[\w\-]+) (?P<value>[^ ]+)$/
      */
-    public function sendDeleteRequestToDesignatedItem(string $name, string $value)
+    public function sendDeleteRequestToDesignatedItem(string $name, string $value): void
     {
         $this->sendDeleteRequestToItem($name, $this->helper->getObjectIdentifiers($this->findObject($name, $value)));
     }
@@ -134,7 +110,7 @@ final class ApiContext implements Context
      * @When /^I update (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
      * @When /^I update (?:a|an) (?P<name>[\w\-]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPutRequestToItem(string $name, $data = null, array $ids = null, $groups = '')
+    public function sendPutRequestToItem(string $name, $data = null, array $ids = null, $groups = ''): void
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
@@ -155,7 +131,7 @@ final class ApiContext implements Context
      * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+)(?: with:)?$/
      * @When /^I update the (?P<name>[\w\-]+) (?P<value>[^ ]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null, $groups = '')
+    public function sendPutRequestToDesignatedItem(string $name, string $value, $data = null, $groups = ''): void
     {
         $this->sendPutRequestToItem($name, $data, $this->helper->getObjectIdentifiers($this->findObject($name, $value)), $groups);
     }
@@ -164,7 +140,7 @@ final class ApiContext implements Context
      * @When /^I create (?:a|an) (?P<name>[\w\-]+)(?: with:)?$/
      * @When /^I create (?:a|an) (?P<name>[\w\-]+) using (?:group|groups) (?P<groups>[\w_,]+)(?: with:)?$/
      */
-    public function sendPostRequestToCollection(string $name, $data = null, $groups = '')
+    public function sendPostRequestToCollection(string $name, $data = null, $groups = ''): void
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $values = [];
@@ -184,7 +160,7 @@ final class ApiContext implements Context
     /**
      * @When /^I get the API doc in (?P<format>[A-z]+)$/
      */
-    public function iGetTheApiDocInFormat(string $format)
+    public function iGetTheApiDocInFormat(string $format): void
     {
         $this->restContext->iSendARequestTo('GET', $this->helper->getUrl('api_doc', ['_format' => $format]));
     }
@@ -192,7 +168,7 @@ final class ApiContext implements Context
     /**
      * @Then /^I see the API doc in (?P<format>[A-z]+)$/
      */
-    public function validateApiDocSchema(string $format)
+    public function validateApiDocSchema(string $format): void
     {
         $this->minkContext->assertResponseStatus(200);
         switch ($format) {
@@ -260,7 +236,7 @@ JSON
     /**
      * @Then the request is invalid
      */
-    public function responseStatusCodeShouldBe400()
+    public function responseStatusCodeShouldBe400(): void
     {
         $this->minkContext->assertResponseStatus(400);
         $this->jsonContext->theResponseShouldBeInJson();
@@ -270,7 +246,7 @@ JSON
     /**
      * @Then /^the (?:.*) is not found$/
      */
-    public function responseStatusCodeShouldBe404()
+    public function responseStatusCodeShouldBe404(): void
     {
         $this->minkContext->assertResponseStatus(404);
     }
@@ -278,7 +254,7 @@ JSON
     /**
      * @Then the method is not allowed
      */
-    public function responseStatusCodeShouldBe405()
+    public function responseStatusCodeShouldBe405(): void
     {
         $this->minkContext->assertResponseStatus(405);
     }
@@ -286,7 +262,7 @@ JSON
     /**
      * @Then /^the (?P<name>[\w\_]+) has been successfully deleted$/
      */
-    public function itemShouldHaveBeSuccessfullyDeleted()
+    public function itemShouldHaveBeSuccessfullyDeleted(): void
     {
         $this->minkContext->assertResponseStatus(204);
     }
@@ -294,7 +270,7 @@ JSON
     /**
      * @Then I am forbidden to access this resource
      */
-    public function iShouldBeForbiddenToAccessThisResource()
+    public function iShouldBeForbiddenToAccessThisResource(): void
     {
         $this->minkContext->assertResponseStatus(403);
     }
@@ -302,7 +278,7 @@ JSON
     /**
      * @Then I am unauthorized to access this resource
      */
-    public function iShouldBeUnauthorizedToAccessThisResource()
+    public function iShouldBeUnauthorizedToAccessThisResource(): void
     {
         $this->minkContext->assertResponseStatus(401);
     }
@@ -310,7 +286,7 @@ JSON
     /**
      * @Then /^I see (?:a|an) (?P<name>[\w\-]+)$/
      */
-    public function validateItemJsonSchema(string $name, $schema = null)
+    public function validateItemJsonSchema(string $name, $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
@@ -335,7 +311,7 @@ JSON
      * @Then /^I see a list of (?P<name>[\w\-]+)$/
      * @Then /^I see a list of (?P<total>\d+) (?P<name>[\w\-]+)$/
      */
-    public function validateCollectionJsonSchema(string $name, int $total = null, $schema = null)
+    public function validateCollectionJsonSchema(string $name, int $total = null, $schema = null): void
     {
         $statusCode = $this->minkContext->getSession()->getStatusCode();
         if (200 > $statusCode || 300 <= $statusCode) {
@@ -354,7 +330,7 @@ JSON
     /**
      * @Then /^I don't see any (?P<name>[\w\-]+)$/
      */
-    public function validateCollectionIsEmpty(string $name)
+    public function validateCollectionIsEmpty(string $name): void
     {
         $this->validateCollectionJsonSchema($name, 0);
     }
@@ -362,7 +338,7 @@ JSON
     /**
      * @Then /^print (?P<name>[\w\-]+) list JSON schema$/
      */
-    public function printCollectionJsonSchema(string $name)
+    public function printCollectionJsonSchema(string $name): void
     {
         echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => true, 'root' => true]), JSON_PRETTY_PRINT);
     }
@@ -370,7 +346,7 @@ JSON
     /**
      * @Then /^print (?P<name>[\w\-]+) item JSON schema$/
      */
-    public function printItemJsonSchema(string $name)
+    public function printItemJsonSchema(string $name): void
     {
         echo json_encode($this->schemaGenerator->generate($this->helper->getReflectionClass($name), ['collection' => false, 'root' => true]), JSON_PRETTY_PRINT);
     }
@@ -378,12 +354,12 @@ JSON
     /**
      * @Then /^print last JSON request$/
      */
-    public function printJsonData()
+    public function printJsonData(): void
     {
         echo json_encode($this->lastRequestJson, JSON_PRETTY_PRINT);
     }
 
-    private function findObject(string $name, $value)
+    private function findObject(string $name, $value): object
     {
         $reflectionClass = $this->helper->getReflectionClass($name);
         $object = $this->transformer->toObject(['targetEntity' => $reflectionClass->name, 'type' => ClassMetadataInfo::ONE_TO_ONE], $value);

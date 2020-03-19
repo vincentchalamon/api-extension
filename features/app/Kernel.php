@@ -32,29 +32,37 @@ final class Kernel extends AbstractKernel
 {
     use MicroKernelTrait;
 
-    public function registerBundles()
+    public function getCacheDir(): string
     {
-        $bundles = [
+        return __DIR__.'/cache/'.$this->getEnvironment();
+    }
+
+    public function getLogDir(): string
+    {
+        return __DIR__.'/logs/'.$this->getEnvironment();
+    }
+
+    public function getProjectDir(): string
+    {
+        return __DIR__;
+    }
+
+    public function registerBundles(): array
+    {
+        return [
             new ApiPlatformBundle(),
             new FrameworkBundle(),
             new DoctrineBundle(),
             new TwigBundle(),
         ];
-
-        return $bundles;
     }
 
-    public function getProjectDir()
-    {
-        return __DIR__;
-    }
-
-    protected function configureRoutes(RouteCollectionBuilder $routes)
+    protected function configureRoutes(RouteCollectionBuilder $routes): void
     {
         $routes->import('.', null, 'api_platform');
     }
 
-    protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader)
+    protected function configureContainer(ContainerBuilder $c, LoaderInterface $loader): void
     {
         $c->loadFromExtension('doctrine', [
             'dbal' => [
@@ -70,7 +78,7 @@ final class Kernel extends AbstractKernel
                     'App' => [
                         'is_bundle' => false,
                         'type' => 'annotation',
-                        'dir' => __DIR__.'/Entity',
+                        'dir' => __DIR__ . '/Entity',
                         'prefix' => 'ApiExtension\App\Entity',
                         'alias' => 'App',
                     ],
@@ -87,10 +95,10 @@ final class Kernel extends AbstractKernel
             'title' => 'ApiExtension test',
             'version' => '1.2.3',
             'mapping' => [
-                'paths' => [__DIR__.'/Entity'],
+                'paths' => [__DIR__ . '/Entity'],
             ],
         ]);
 
-        $loader->load(__DIR__.'/services.yaml');
+        $loader->load(__DIR__ . '/services.yaml');
     }
 }

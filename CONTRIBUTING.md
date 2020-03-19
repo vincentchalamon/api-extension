@@ -47,33 +47,6 @@ fixed by cs tools, just revert it before commit.
 
 ## Tests
 
-There are two kinds of tests: unit (`phpunit`) and integration tests (`behat`).
-
-Both `phpunit` and `behat` are development dependencies and should be available in the `vendor` directory.
-
-#### PHPUnit and coverage generation
-
-To launch unit tests:
-
-```bash
-vendor/bin/phpunit
-```
-
-If you want coverage, you will need the `phpdbg` package and run:
-
-```bash
-phpdbg -qrr vendor/bin/phpunit --coverage-html coverage
-```
-
-Sometimes there might be an error with too many open files when generating coverage. To fix this, you can increase the
-`ulimit`, for example:
-
-```bash
-ulimit -n 4000
-```
-
-Coverage will be available in `coverage/index.html`.
-
 #### Behat
 
 To launch Behat tests:

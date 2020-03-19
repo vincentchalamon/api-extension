@@ -1,10 +1,8 @@
 behat.yml
-bin/
 composer.lock
-composer.phar
 vendor
 .php_cs.cache
-clover.xml
-tests/app/cache
-tests/app/logs
-tests/app/var
+.php_cs
+phpstan.neon
+features/app/cache
+features/app/logs

@@ -4,24 +4,16 @@ default:
     suites:
         default:
             contexts:
-                - Behat\MinkExtension\Context\MinkContext
-                - Behatch\Context\RestContext
-                - Behatch\Context\JsonContext
                 - ApiExtension\Context\ApiContext
                 - ApiExtension\Context\FixturesContext
-                - FeatureContext:
-                    doctrine: '@doctrine'
-                    cacheDir: '%%kernel.cache_dir%%'
+                - FeatureContext
     extensions:
-        Behat\Symfony2Extension:
+        FriendsOfBehat\SymfonyExtension:
             kernel:
+                environment: test
+                debug: true
+                path: features/app/Kernel.php
                 class: ApiExtension\App\Kernel
-        Behat\MinkExtension:
-            base_url: 'http://www.example.com/'
-            sessions:
-                default:
-                    symfony2: ~
-        Behatch\Extension: ~
         ApiExtension:
             services:
                 metadataFactory: '@test.api_platform.metadata.resource.metadata_factory.annotation'

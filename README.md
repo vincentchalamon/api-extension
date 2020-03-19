@@ -1,9 +1,5 @@
 # ApiExtension
 
-[![Build Status](https://travis-ci.org/vincentchalamon/api-extension.svg?branch=master)](https://travis-ci.org/vincentchalamon/api-extension)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/vincentchalamon/api-extension/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/vincentchalamon/api-extension/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/vincentchalamon/api-extension/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/vincentchalamon/api-extension/?branch=master)
-
 This Behat extension requires following extensions, check their documentations for installation & usage:
 * [Symfony2Extension](https://github.com/Behat/Symfony2Extension)
 * [Behatch](https://github.com/Behatch/contexts)
